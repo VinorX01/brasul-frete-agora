@@ -15,11 +15,13 @@ import { toast } from "@/components/ui/use-toast";
 
 interface FreightCardProps {
   freight: Freight;
+  onViewDetails: (freight: Freight) => void;
 }
 
-const FreightCard: React.FC<FreightCardProps> = ({ freight }) => {
+const FreightCard: React.FC<FreightCardProps> = ({ freight, onViewDetails }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [agentCode, setAgentCode] = useState("");
+  const [generatedLink, setGeneratedLink] = useState("");
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -44,23 +46,17 @@ const FreightCard: React.FC<FreightCardProps> = ({ freight }) => {
     }
 
     // Generate the agent URL
-    const url = `${window.location.origin}/frete/${freight.id}?ag=${agentCode}`;
-    
-    // Generate WhatsApp message URL
-    const whatsappMsg = `Olá! Tenho interesse no frete ${freight.id} - Agenciador: ${agentCode}`;
-    const whatsappUrl = `https://wa.me/5599999999999?text=${encodeURIComponent(whatsappMsg)}`;
+    const url = `https://brasul.com/frete/ag?${agentCode}&${freight.id}`;
     
     // Copy URL to clipboard
     navigator.clipboard.writeText(url);
+    
+    setGeneratedLink(url);
     
     toast({
       title: "Link gerado com sucesso!",
       description: "O link foi copiado para sua área de transferência."
     });
-
-    // Open WhatsApp
-    window.open(whatsappUrl, "_blank");
-    setIsDialogOpen(false);
   };
 
   return (
@@ -87,17 +83,27 @@ const FreightCard: React.FC<FreightCardProps> = ({ freight }) => {
         
         <div className="flex justify-between items-center mt-4">
           <Button 
-            variant="outline" 
+            variant="default" 
             className="text-sm"
             onClick={() => window.open(`https://wa.me/5599999999999?text=Olá! Tenho interesse no frete ${freight.id}`, "_blank")}
           >
-            Contato Direto
+            Quero Este
           </Button>
           <Button 
-            className="bg-primary hover:bg-primary-dark" 
+            variant="outline"
             onClick={() => setIsDialogOpen(true)}
           >
             Agenciar Frete
+          </Button>
+        </div>
+        
+        <div className="text-right mt-3">
+          <Button 
+            variant="ghost" 
+            className="text-xs text-primary"
+            onClick={() => onViewDetails(freight)}
+          >
+            Ver detalhes completos
           </Button>
         </div>
       </div>
@@ -128,6 +134,13 @@ const FreightCard: React.FC<FreightCardProps> = ({ freight }) => {
             <p className="text-xs text-gray-500 mt-2">
               Este código será usado para identificar você como agenciador deste frete.
             </p>
+            
+            {generatedLink && (
+              <div className="mt-4 p-3 bg-gray-100 rounded-md">
+                <p className="text-sm font-medium">Seu link único:</p>
+                <p className="text-xs break-all mt-1">{generatedLink}</p>
+              </div>
+            )}
           </div>
           
           <DialogFooter>

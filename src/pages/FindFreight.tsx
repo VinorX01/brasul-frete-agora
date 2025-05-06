@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import FreightFilter, { FilterValues } from "@/components/FreightFilter";
 import FreightCard from "@/components/FreightCard";
+import FreightDetails from "@/components/FreightDetails";
 import { Freight, getFilteredFreights } from "@/lib/mockFreights";
 import { Truck } from "lucide-react";
 
@@ -9,6 +10,8 @@ const FindFreight = () => {
   const [filteredFreights, setFilteredFreights] = useState<Freight[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [hasFiltered, setHasFiltered] = useState(false);
+  const [selectedFreight, setSelectedFreight] = useState<Freight | null>(null);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
 
   useEffect(() => {
     // Simulate loading data
@@ -43,10 +46,15 @@ const FindFreight = () => {
     }, 500);
   };
 
+  const handleViewDetails = (freight: Freight) => {
+    setSelectedFreight(freight);
+    setIsDetailOpen(true);
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8 text-center">
-        <h1 className="text-3xl font-bold mb-2">Buscar Fretes Disponíveis</h1>
+        <h1 className="text-3xl font-bold mb-2">Encontrar Fretes Disponíveis</h1>
         <p className="text-gray-600 max-w-2xl mx-auto">
           Utilize os filtros abaixo para encontrar os melhores fretes para seu veículo. 
           Todos os fretes são disponibilizados diretamente pelos embarcadores.
@@ -71,7 +79,11 @@ const FindFreight = () => {
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredFreights.map((freight) => (
-              <FreightCard key={freight.id} freight={freight} />
+              <FreightCard 
+                key={freight.id} 
+                freight={freight} 
+                onViewDetails={handleViewDetails}
+              />
             ))}
           </div>
         </div>
@@ -84,6 +96,12 @@ const FindFreight = () => {
           </p>
         </div>
       )}
+      
+      <FreightDetails 
+        freight={selectedFreight} 
+        isOpen={isDetailOpen} 
+        onClose={() => setIsDetailOpen(false)} 
+      />
     </div>
   );
 };
