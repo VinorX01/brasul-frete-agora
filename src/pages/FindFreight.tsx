@@ -24,12 +24,17 @@ const FindFreight = () => {
     setIsLoading(true);
     setHasFiltered(true);
 
+    // Convert "all" values to empty string for the backend filter
+    const originFilter = filters.origin === "all" ? "" : filters.origin;
+    const destinationFilter = filters.destination === "all" ? "" : filters.destination;
+    const cargoTypeFilter = filters.cargoType === "all" ? "" : filters.cargoType;
+
     // Simulate API call delay
     setTimeout(() => {
       const results = getFilteredFreights(
-        filters.origin,
-        filters.destination,
-        filters.cargoType,
+        originFilter,
+        destinationFilter,
+        cargoTypeFilter,
         filters.minValue ? parseInt(filters.minValue) : undefined,
         filters.maxValue ? parseInt(filters.maxValue) : undefined
       );

@@ -87,7 +87,7 @@ const FreightFilter: React.FC<FreightFilterProps> = ({ onFilter }) => {
               <SelectValue placeholder="Qualquer origem" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Qualquer origem</SelectItem>
+              <SelectItem value="all">Qualquer origem</SelectItem>
               {origins.map((origin) => (
                 <SelectItem key={origin} value={origin}>
                   {origin}
@@ -107,7 +107,7 @@ const FreightFilter: React.FC<FreightFilterProps> = ({ onFilter }) => {
               <SelectValue placeholder="Qualquer destino" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Qualquer destino</SelectItem>
+              <SelectItem value="all">Qualquer destino</SelectItem>
               {destinations.map((destination) => (
                 <SelectItem key={destination} value={destination}>
                   {destination}
@@ -127,7 +127,7 @@ const FreightFilter: React.FC<FreightFilterProps> = ({ onFilter }) => {
               <SelectValue placeholder="Qualquer tipo" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Qualquer tipo</SelectItem>
+              <SelectItem value="all">Qualquer tipo</SelectItem>
               {cargoTypes.map((type) => (
                 <SelectItem key={type} value={type}>
                   {type}
