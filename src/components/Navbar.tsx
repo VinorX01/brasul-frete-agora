@@ -42,7 +42,7 @@ const Navbar = () => {
               <Button variant="ghost">Início</Button>
             </Link>
             <Link to="/buscar-frete">
-              <Button variant="ghost">Buscar Frete</Button>
+              <Button variant="default">Encontrar Frete</Button>
             </Link>
             <Link to="/publicar-frete">
               <Button variant="ghost">Publicar Frete</Button>
@@ -69,10 +69,10 @@ const Navbar = () => {
               </Link>
               <Link 
                 to="/buscar-frete" 
-                className="px-4 py-2 text-primary hover:bg-gray-100 rounded"
+                className="px-4 py-2 bg-primary text-white hover:bg-primary-dark rounded"
                 onClick={() => setIsMenuOpen(false)}
               >
-                Buscar Frete
+                Encontrar Frete
               </Link>
               <Link 
                 to="/publicar-frete" 
