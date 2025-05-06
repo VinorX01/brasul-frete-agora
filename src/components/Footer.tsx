@@ -39,12 +39,12 @@ const Footer = () => {
             <p className="text-sm opacity-80">
               Suporte via WhatsApp: <br />
               <a 
-                href="https://wa.me/5599999999999" 
+                href="https://wa.me/5538997353264" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="underline hover:text-white"
               >
-                (99) 99999-9999
+                (38) 99735-3264
               </a>
             </p>
           </div>
