@@ -1,60 +1,51 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/components/ui/use-toast";
 import { Check } from "lucide-react";
-
 const BecomeAgent = () => {
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
-    email: "",
+    email: ""
   });
-
   const [isSubmitting, setIsSubmitting] = useState(false);
-
   const handleChange = (field: string, value: string) => {
-    setFormData((prev) => ({
+    setFormData(prev => ({
       ...prev,
-      [field]: value,
+      [field]: value
     }));
   };
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name || !formData.phone) {
       toast({
         title: "Campos obrigatórios",
         description: "Por favor, preencha nome e telefone.",
-        variant: "destructive",
+        variant: "destructive"
       });
       return;
     }
-
     setIsSubmitting(true);
 
     // Simulate API call
     setTimeout(() => {
       toast({
         title: "Solicitação enviada com sucesso!",
-        description: "Entraremos em contato com você em breve para fornecer seu código de agenciador.",
+        description: "Entraremos em contato com você em breve para fornecer seu código de agenciador."
       });
 
       // Reset form
       setFormData({
         name: "",
         phone: "",
-        email: "",
+        email: ""
       });
-
       setIsSubmitting(false);
     }, 1000);
   };
-
-  return (
-    <div className="container mx-auto px-4 py-8">
+  return <div className="container mx-auto px-4 py-8">
       <div className="max-w-4xl mx-auto">
         <div className="mb-8 text-center">
           <h1 className="text-3xl font-bold mb-2">Torne-se um Agenciador</h1>
@@ -73,42 +64,20 @@ const BecomeAgent = () => {
               <div className="space-y-4">
                 <div>
                   <Label htmlFor="name">Nome Completo *</Label>
-                  <Input
-                    id="name"
-                    placeholder="Seu nome completo"
-                    value={formData.name}
-                    onChange={(e) => handleChange("name", e.target.value)}
-                    required
-                  />
+                  <Input id="name" placeholder="Seu nome completo" value={formData.name} onChange={e => handleChange("name", e.target.value)} required />
                 </div>
 
                 <div>
                   <Label htmlFor="phone">Telefone *</Label>
-                  <Input
-                    id="phone"
-                    placeholder="(99) 99999-9999"
-                    value={formData.phone}
-                    onChange={(e) => handleChange("phone", e.target.value)}
-                    required
-                  />
+                  <Input id="phone" placeholder="(99) 99999-9999" value={formData.phone} onChange={e => handleChange("phone", e.target.value)} required />
                 </div>
 
                 <div>
                   <Label htmlFor="email">E-mail (opcional)</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="seu@email.com"
-                    value={formData.email}
-                    onChange={(e) => handleChange("email", e.target.value)}
-                  />
+                  <Input id="email" type="email" placeholder="seu@email.com" value={formData.email} onChange={e => handleChange("email", e.target.value)} />
                 </div>
 
-                <Button 
-                  type="submit" 
-                  className="w-full mt-4" 
-                  disabled={isSubmitting}
-                >
+                <Button type="submit" className="w-full mt-4" disabled={isSubmitting}>
                   {isSubmitting ? "Enviando..." : "Solicitar Código"}
                 </Button>
                 
@@ -183,9 +152,7 @@ const BecomeAgent = () => {
             </div>
             
             <div className="mt-6 p-4 bg-white rounded-lg border border-primary-light">
-              <p className="text-sm text-center font-medium text-primary">
-                A comissão média dos agenciadores varia de 5% a 10% do valor do frete, dependendo do tipo e distância da carga.
-              </p>
+              <p className="text-sm text-center font-medium text-primary">A comissão média dos agenciadores varia de R$ 50 até a 10% do valor do frete, dependendo do tipo e distância da carga.</p>
             </div>
           </div>
         </div>
@@ -224,8 +191,6 @@ const BecomeAgent = () => {
           </div>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default BecomeAgent;
