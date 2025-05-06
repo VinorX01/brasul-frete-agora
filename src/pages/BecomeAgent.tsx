@@ -136,19 +136,7 @@ const BecomeAgent = () => {
                 </div>
               </div>
               
-              <div className="flex">
-                <div className="flex-shrink-0">
-                  <div className="bg-primary rounded-full w-8 h-8 flex items-center justify-center mr-3">
-                    <Check className="h-5 w-5 text-white" />
-                  </div>
-                </div>
-                <div>
-                  <h3 className="font-semibold">Acompanhe seus resultados</h3>
-                  <p className="text-gray-600 text-sm">
-                    Receba relatórios sobre os fretes agenciados e suas comissões.
-                  </p>
-                </div>
-              </div>
+              
             </div>
             
             <div className="mt-6 p-4 bg-white rounded-lg border border-primary-light">
@@ -184,9 +172,7 @@ const BecomeAgent = () => {
             
             <div>
               <h3 className="font-semibold text-primary mb-2">Quanto tempo leva para receber meu código?</h3>
-              <p className="text-gray-600 text-sm">
-                Normalmente, enviamos os códigos em até 48 horas úteis após a solicitação ser aprovada.
-              </p>
+              <p className="text-gray-600 text-sm">Sem demora, seu código fica pronto em até 5 minutos após a solicitação.</p>
             </div>
           </div>
         </div>
