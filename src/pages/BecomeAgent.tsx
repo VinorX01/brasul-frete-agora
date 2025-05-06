@@ -151,9 +151,7 @@ const BecomeAgent = () => {
           <div className="grid md:grid-cols-2 gap-6">
             <div>
               <h3 className="font-semibold text-primary mb-2">Como recebo minhas comissões?</h3>
-              <p className="text-gray-600 text-sm">
-                As comissões são pagas mensalmente via PIX ou transferência bancária, após a confirmação da entrega dos fretes agenciados.
-              </p>
+              <p className="text-gray-600 text-sm">As comissões de cada frete são pagas na mesma hora via PIX ou transferência bancária, após o caminhoneiro confirmar o agendamento da carga.</p>
             </div>
             
             <div>
