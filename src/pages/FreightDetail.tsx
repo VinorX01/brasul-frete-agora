@@ -22,9 +22,36 @@ const FreightDetail = () => {
     const ag = searchParams.get('ag');
     if (ag) {
       setAgentCode(ag);
+    } else {
+      // Check if the path has "ag" format (brasul.com/frete/ag?12345&freightId)
+      const pathParts = location.pathname.split('/');
+      const lastPart = pathParts[pathParts.length - 1];
+      
+      if (lastPart === 'ag') {
+        // This is an agent link, parse the query string
+        const queryParts = location.search.substring(1).split('&');
+        if (queryParts.length >= 2) {
+          const agCode = queryParts[0]; // Agent code
+          const freightId = queryParts[1]; // Freight ID
+          
+          setAgentCode(agCode);
+          
+          // If we have a freight ID from the URL, use it for finding the freight
+          if (freightId) {
+            setTimeout(() => {
+              const foundFreight = findFreightById(freightId);
+              if (foundFreight) {
+                setFreight(foundFreight);
+              }
+              setIsLoading(false);
+            }, 500);
+            return; // Skip the rest of the effect
+          }
+        }
+      }
     }
     
-    // Simulate API call to fetch freight details
+    // Standard freight ID lookup
     setTimeout(() => {
       if (id) {
         const foundFreight = findFreightById(id);
@@ -34,7 +61,7 @@ const FreightDetail = () => {
       }
       setIsLoading(false);
     }, 500);
-  }, [id, location.search]);
+  }, [id, location]);
 
   const formatCurrency = (value: number | null) => {
     // Return "Valor a combinar" for null values
@@ -57,7 +84,7 @@ const FreightDetail = () => {
     if (freight) {
       let message = `Olá! Tenho interesse no frete ${freight.id}`;
       if (agentCode) {
-        message += ` - Agenciador: ${agentCode}`;
+        message += ` Agenciador: ${agentCode}`;
       }
       
       window.open(`https://wa.me/5538997353264?text=${encodeURIComponent(message)}`, "_blank");
@@ -180,7 +207,7 @@ const FreightDetail = () => {
 
         <div className="mt-8 text-center">
           <p className="mb-4">Procurando mais fretes nesta rota?</p>
-          <Button onClick={() => navigate('/buscar-frete')}>
+          <Button onClick={() => navigate('/frete')}>
             Ver todos os fretes disponíveis
           </Button>
         </div>

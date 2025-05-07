@@ -1,3 +1,4 @@
+
 import { Freight } from "@/lib/mockFreights";
 import {
   Sheet,
@@ -30,6 +31,15 @@ const FreightDetails: React.FC<FreightDetailsProps> = ({
     const agParam = urlParams.get('ag');
     if (agParam) {
       setAgentCode(agParam);
+    } else {
+      // Check if path has ag format
+      const pathParts = window.location.pathname.split('/');
+      if (pathParts.includes('ag')) {
+        const searchParams = window.location.search.substring(1).split('&');
+        if (searchParams.length > 0) {
+          setAgentCode(searchParams[0]);
+        }
+      }
     }
   }, []);
 
@@ -57,7 +67,7 @@ const FreightDetails: React.FC<FreightDetailsProps> = ({
     
     // Add agent code if present
     if (agentCode) {
-      whatsappText += ` - Agenciador: ${agentCode}`;
+      whatsappText += ` Agenciador: ${agentCode}`;
     }
     
     // Open WhatsApp with the message
@@ -118,6 +128,14 @@ const FreightDetails: React.FC<FreightDetailsProps> = ({
             <span className="text-sm text-gray-500 ml-2">• Publicado em: {formatDate(freight.date)}</span>
           </SheetDescription>
         </SheetHeader>
+
+        {agentCode && (
+          <div className="bg-accent p-3 rounded-md mb-4 border border-primary-light">
+            <p className="text-sm text-center font-medium">
+              Visualizando via agenciador: <strong>{agentCode}</strong>
+            </p>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-6">
           <div className="bg-gray-50 p-4 rounded-md">

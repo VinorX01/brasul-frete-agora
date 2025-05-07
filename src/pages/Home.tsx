@@ -26,7 +26,7 @@ const Home = () => {
             Sem cadastro, sem taxa, só resultados.
           </p>
           <div className="flex flex-col md:flex-row justify-center gap-4">
-            <Link to="/buscar-frete">
+            <Link to="/frete">
               <Button size="lg" className="bg-white text-primary hover:bg-gray-100 w-full md:w-auto">
                 <Search className="mr-2 h-5 w-5" /> Buscar Frete
               </Button>
@@ -87,7 +87,7 @@ const Home = () => {
             Junte-se a milhares de motoristas e empresas que já usam a Brasul Transportes para encontrar e publicar fretes.
           </p>
           <div className="flex flex-col md:flex-row justify-center gap-4">
-            <Link to="/buscar-frete">
+            <Link to="/frete">
               <Button size="lg" className="w-full md:w-auto">
                 Encontrar Fretes
               </Button>

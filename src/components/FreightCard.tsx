@@ -19,6 +19,18 @@ const FreightCard: React.FC<FreightCardProps> = ({
   const [agentCode, setAgentCode] = useState("");
   const [generatedLink, setGeneratedLink] = useState("");
 
+  // Check for agent code in URL parameters
+  const [currentAgentCode, setCurrentAgentCode] = useState<string | null>(null);
+  
+  useState(() => {
+    // Check if URL has agent code parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const agParam = urlParams.get('ag');
+    if (agParam) {
+      setCurrentAgentCode(agParam);
+    }
+  });
+
   const formatCurrency = (value: number | null) => {
     // Se o valor for nulo, retorna "Valor a combinar"
     if (value === null) {
@@ -47,8 +59,8 @@ const FreightCard: React.FC<FreightCardProps> = ({
       return;
     }
 
-    // Generate the agent URL
-    const url = `https://brasul.com/frete/ag?${agentCode}&${freight.id}`;
+    // Generate the agent URL with new format brasul.com/frete/ag?[code]&[freight-id]
+    const url = `${window.location.origin}/frete/ag?${agentCode}&${freight.id}`;
 
     // Copy URL to clipboard
     navigator.clipboard.writeText(url);
@@ -57,6 +69,18 @@ const FreightCard: React.FC<FreightCardProps> = ({
       title: "Link gerado com sucesso!",
       description: "O link foi copiado para sua área de transferência."
     });
+  };
+
+  const handleContactClick = () => {
+    let whatsappText = `Olá! Tenho interesse no frete ${freight.id}`;
+    
+    // Add agent code if present
+    if (currentAgentCode) {
+      whatsappText += ` Agenciador: ${currentAgentCode}`;
+    }
+    
+    // Open WhatsApp with the message
+    window.open(`https://wa.me/5538997353264?text=${encodeURIComponent(whatsappText)}`, "_blank");
   };
 
   return (
@@ -85,7 +109,7 @@ const FreightCard: React.FC<FreightCardProps> = ({
         </div>
         
         <div className="flex justify-between items-center mt-4">
-          <Button variant="default" className="text-sm" onClick={() => window.open(`https://wa.me/5538997353264?text=Olá! Tenho interesse no frete ${freight.id}`, "_blank")}>
+          <Button variant="default" className="text-sm" onClick={handleContactClick}>
             Quero Este
           </Button>
           <Button variant="outline" onClick={() => setIsDialogOpen(true)}>
