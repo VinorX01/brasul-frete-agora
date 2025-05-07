@@ -34,7 +34,12 @@ const FreightDetails: React.FC<FreightDetailsProps> = ({
     }
   }, []);
 
-  const formatCurrency = (value: number) => {
+  const formatCurrency = (value: number | null) => {
+    // Return "Valor a combinar" for null values
+    if (value === null) {
+      return "Valor a combinar";
+    }
+    
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
       currency: 'BRL'
