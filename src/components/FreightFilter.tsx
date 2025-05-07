@@ -9,7 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { getUniqueOrigins, getUniqueDestinations, getUniqueCargoTypes } from "@/lib/mockFreights";
+import { getUniqueOrigins, getUniqueDestinations, getUniqueCargoTypes, getUniqueTruckTypes } from "@/lib/mockFreights";
 
 interface FreightFilterProps {
   onFilter: (filters: FilterValues) => void;
@@ -19,6 +19,7 @@ export interface FilterValues {
   origin: string;
   destination: string;
   cargoType: string;
+  truckType: string; // Novo campo para tipo de caminhão/carroceria
   minValue: string;
   maxValue: string;
 }
@@ -27,11 +28,13 @@ const FreightFilter: React.FC<FreightFilterProps> = ({ onFilter }) => {
   const [origins, setOrigins] = useState<string[]>([]);
   const [destinations, setDestinations] = useState<string[]>([]);
   const [cargoTypes, setCargoTypes] = useState<string[]>([]);
+  const [truckTypes, setTruckTypes] = useState<string[]>([]); // Estado para os tipos de caminhão
   
   const [filters, setFilters] = useState<FilterValues>({
     origin: "",
     destination: "",
     cargoType: "",
+    truckType: "", // Inicializando o novo campo
     minValue: "",
     maxValue: "",
   });
@@ -41,6 +44,7 @@ const FreightFilter: React.FC<FreightFilterProps> = ({ onFilter }) => {
     setOrigins(getUniqueOrigins());
     setDestinations(getUniqueDestinations());
     setCargoTypes(getUniqueCargoTypes());
+    setTruckTypes(getUniqueTruckTypes()); // Carrega os tipos de caminhão
   }, []);
 
   const handleFilterChange = (field: keyof FilterValues, value: string) => {
@@ -60,6 +64,7 @@ const FreightFilter: React.FC<FreightFilterProps> = ({ onFilter }) => {
       origin: "",
       destination: "",
       cargoType: "",
+      truckType: "", // Limpando o novo campo
       minValue: "",
       maxValue: "",
     });
@@ -67,6 +72,7 @@ const FreightFilter: React.FC<FreightFilterProps> = ({ onFilter }) => {
       origin: "",
       destination: "",
       cargoType: "",
+      truckType: "", // Limpando o novo campo nos filtros
       minValue: "",
       maxValue: "",
     });
@@ -129,6 +135,27 @@ const FreightFilter: React.FC<FreightFilterProps> = ({ onFilter }) => {
             <SelectContent>
               <SelectItem value="all">Qualquer tipo</SelectItem>
               {cargoTypes.map((type) => (
+                <SelectItem key={type} value={type}>
+                  {type}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Adicionando filtro para tipo de caminhão/carroceria */}
+        <div>
+          <label className="block text-sm font-medium mb-1">Tipo de Caminhão/Carroceria</label>
+          <Select
+            value={filters.truckType}
+            onValueChange={(value) => handleFilterChange("truckType", value)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Qualquer tipo de caminhão" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Qualquer tipo de caminhão</SelectItem>
+              {truckTypes.map((type) => (
                 <SelectItem key={type} value={type}>
                   {type}
                 </SelectItem>

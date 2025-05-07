@@ -4,7 +4,8 @@ export interface Freight {
   origin: string;
   destination: string;
   cargoType: string;
-  value: number;
+  truckType: string; // Adicionado tipo de caminhão/carroceria
+  value: number | null; // Alterado para aceitar null quando valor é "a combinar"
   contact: string;
   date: string;
   status: 'available' | 'in_progress' | 'completed';
@@ -59,6 +60,23 @@ const cargoTypes = [
   "Bebidas"
 ];
 
+// Truck/carroceria types
+const truckTypes = [
+  "Truck",
+  "Bi-Truck",
+  "Carreta",
+  "Grade Baixa",
+  "Grade Alta",
+  "Baú",
+  "Refrigerado",
+  "Caçamba",
+  "Tanque",
+  "Porta Container",
+  "Sider",
+  "Cegonha",
+  "Prancha"
+];
+
 // Phone numbers
 const phones = [
   "(11) 98765-4321",
@@ -97,12 +115,16 @@ export const generateMockFreights = (count = 30): Freight[] => {
       destination = cities[Math.floor(Math.random() * cities.length)];
     } while (destination === origin);
 
+    // 20% chance of having null value (a combinar)
+    const hasValue = Math.random() > 0.2;
+    
     freights.push({
       id: generateId(),
       origin,
       destination,
       cargoType: cargoTypes[Math.floor(Math.random() * cargoTypes.length)],
-      value: Math.floor(Math.random() * 10000) + 1000, // Random value between 1000 and 11000
+      truckType: truckTypes[Math.floor(Math.random() * truckTypes.length)], // Adicionado tipo de caminhão
+      value: hasValue ? Math.floor(Math.random() * 10000) + 1000 : null, // Pode ser null para "valor a combinar"
       contact: phones[Math.floor(Math.random() * phones.length)],
       date: generateRecentDate(),
       status: 'available',
@@ -122,6 +144,7 @@ export const getFilteredFreights = (
   origin?: string,
   destination?: string,
   cargoType?: string,
+  truckType?: string, // Adicionando novo parâmetro
   minValue?: number,
   maxValue?: number
 ): Freight[] => {
@@ -130,13 +153,17 @@ export const getFilteredFreights = (
     const matchesOrigin = !origin || freight.origin.toLowerCase().includes(origin.toLowerCase());
     const matchesDestination = !destination || freight.destination.toLowerCase().includes(destination.toLowerCase());
     const matchesCargoType = !cargoType || freight.cargoType === cargoType;
-    const matchesMinValue = !minValue || freight.value >= minValue;
-    const matchesMaxValue = !maxValue || freight.value <= maxValue;
+    const matchesTruckType = !truckType || freight.truckType === truckType; // Nova condição
+    
+    // Para value null (valor a combinar), só filtramos se o usuário especificou um valor mínimo ou máximo
+    const matchesMinValue = !minValue || freight.value === null || freight.value >= minValue;
+    const matchesMaxValue = !maxValue || freight.value === null || freight.value <= maxValue;
 
     return (
       matchesOrigin &&
       matchesDestination &&
       matchesCargoType &&
+      matchesTruckType && // Adicionando na verificação
       matchesMinValue &&
       matchesMaxValue
     );
@@ -155,4 +182,9 @@ export const getUniqueDestinations = (): string[] => {
 
 export const getUniqueCargoTypes = (): string[] => {
   return [...new Set(cargoTypes)].sort();
+};
+
+// Nova função para obter tipos de caminhão/carroceria
+export const getUniqueTruckTypes = (): string[] => {
+  return [...new Set(truckTypes)].sort();
 };

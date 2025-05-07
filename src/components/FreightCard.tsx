@@ -1,13 +1,16 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Freight } from "@/lib/mockFreights";
 import { toast } from "@/components/ui/use-toast";
+
 interface FreightCardProps {
   freight: Freight;
   onViewDetails: (freight: Freight) => void;
 }
+
 const FreightCard: React.FC<FreightCardProps> = ({
   freight,
   onViewDetails
@@ -15,16 +18,25 @@ const FreightCard: React.FC<FreightCardProps> = ({
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [agentCode, setAgentCode] = useState("");
   const [generatedLink, setGeneratedLink] = useState("");
-  const formatCurrency = (value: number) => {
+
+  const formatCurrency = (value: number | null) => {
+    // Se o valor for nulo, retorna "Valor a combinar"
+    if (value === null) {
+      return "Valor a combinar";
+    }
+    
+    // Caso contrário, formata como moeda
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
       currency: 'BRL'
     }).format(value);
   };
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('pt-BR');
   };
+
   const handleGenerateLink = () => {
     if (!agentCode) {
       toast({
@@ -46,7 +58,9 @@ const FreightCard: React.FC<FreightCardProps> = ({
       description: "O link foi copiado para sua área de transferência."
     });
   };
-  return <>
+
+  return (
+    <>
       <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
         <div className="flex justify-between mb-4">
           <div className="text-primary font-bold">
@@ -64,6 +78,9 @@ const FreightCard: React.FC<FreightCardProps> = ({
         <div className="mb-4">
           <p className="text-gray-700">
             <strong>Tipo de Carga:</strong> {freight.cargoType}
+          </p>
+          <p className="text-gray-700">
+            <strong>Tipo de Caminhão:</strong> {freight.truckType}
           </p>
         </div>
         
@@ -117,6 +134,8 @@ const FreightCard: React.FC<FreightCardProps> = ({
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </>;
+    </>
+  );
 };
+
 export default FreightCard;

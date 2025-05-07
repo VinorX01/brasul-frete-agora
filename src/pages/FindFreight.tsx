@@ -31,6 +31,7 @@ const FindFreight = () => {
     const originFilter = filters.origin === "all" ? "" : filters.origin;
     const destinationFilter = filters.destination === "all" ? "" : filters.destination;
     const cargoTypeFilter = filters.cargoType === "all" ? "" : filters.cargoType;
+    const truckTypeFilter = filters.truckType === "all" ? "" : filters.truckType;
 
     // Simulate API call delay
     setTimeout(() => {
@@ -38,6 +39,7 @@ const FindFreight = () => {
         originFilter,
         destinationFilter,
         cargoTypeFilter,
+        truckTypeFilter,
         filters.minValue ? parseInt(filters.minValue) : undefined,
         filters.maxValue ? parseInt(filters.maxValue) : undefined
       );
