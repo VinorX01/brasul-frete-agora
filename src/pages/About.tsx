@@ -5,7 +5,7 @@ import { toast } from "@/components/ui/use-toast";
 
 const About = () => {
   const handleWhatsAppClick = () => {
-    window.open("https://wa.me/5599999999999", "_blank");
+    window.open("https://wa.me/5538997353264", "_blank");
     toast({
       title: "Redirecionando para WhatsApp",
       description: "Você será atendido em breve por nossos especialistas."
@@ -54,7 +54,7 @@ const About = () => {
                       className="p-0 h-auto text-primary"
                       onClick={handleWhatsAppClick}
                     >
-                      (99) 99999-9999
+                      (38) 99735-3264
                     </Button>
                   </p>
                 </div>

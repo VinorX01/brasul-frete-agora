@@ -6,7 +6,7 @@ import { toast } from "@/components/ui/use-toast";
 
 const Home = () => {
   const handleQuickContact = () => {
-    window.open("https://wa.me/5599999999999", "_blank");
+    window.open("https://wa.me/5538997353264", "_blank");
     toast({
       title: "Redireccionando para WhatsApp",
       description: "Você será atendido em breve por nossos especialistas."

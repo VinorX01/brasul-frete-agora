@@ -85,7 +85,7 @@ const FreightCard: React.FC<FreightCardProps> = ({
         </div>
         
         <div className="flex justify-between items-center mt-4">
-          <Button variant="default" className="text-sm" onClick={() => window.open(`https://wa.me/5599999999999?text=Olá! Tenho interesse no frete ${freight.id}`, "_blank")}>
+          <Button variant="default" className="text-sm" onClick={() => window.open(`https://wa.me/5538997353264?text=Olá! Tenho interesse no frete ${freight.id}`, "_blank")}>
             Quero Este
           </Button>
           <Button variant="outline" onClick={() => setIsDialogOpen(true)}>

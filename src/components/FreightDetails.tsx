@@ -1,4 +1,3 @@
-
 import { Freight } from "@/lib/mockFreights";
 import {
   Sheet,
@@ -62,7 +61,7 @@ const FreightDetails: React.FC<FreightDetailsProps> = ({
     }
     
     // Open WhatsApp with the message
-    window.open(`https://wa.me/5599999999999?text=${encodeURIComponent(whatsappText)}`, "_blank");
+    window.open(`https://wa.me/5538997353264?text=${encodeURIComponent(whatsappText)}`, "_blank");
   };
 
   if (!freight) return null;

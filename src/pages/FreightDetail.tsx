@@ -60,7 +60,7 @@ const FreightDetail = () => {
         message += ` - Agenciador: ${agentCode}`;
       }
       
-      window.open(`https://wa.me/5599999999999?text=${encodeURIComponent(message)}`, "_blank");
+      window.open(`https://wa.me/5538997353264?text=${encodeURIComponent(message)}`, "_blank");
     }
   };
 
