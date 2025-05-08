@@ -74,14 +74,17 @@ export const findFreightById = async (id: string): Promise<Freight | null> => {
 
 // Create a new freight
 export const createFreight = async (freight: Omit<Freight, 'id' | 'created_at' | 'updated_at' | 'status' | 'date'>): Promise<Freight | null> => {
+  // Set current date for the freight
+  const currentDate = new Date().toISOString();
+  
   const { data, error } = await supabase
     .from('freights')
     .insert({
       ...freight,
       status: 'available',
+      date: currentDate,
     })
-    .select()
-    .single();
+    .select();
     
   if (error) {
     console.error('Error creating freight:', error);
@@ -98,7 +101,7 @@ export const createFreight = async (freight: Omit<Freight, 'id' | 'created_at' |
     description: "Seu frete já está disponível para os caminhoneiros e agenciadores.",
   });
   
-  return data as Freight;
+  return data[0] as Freight;
 };
 
 // Record a freight agent referral
