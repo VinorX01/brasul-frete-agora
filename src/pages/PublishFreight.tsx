@@ -11,7 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { getUniqueCargoTypes } from "@/lib/mockFreights";
+import { createFreight, staticCargoTypes, staticTruckTypes } from "@/lib/freightService";
 import { toast } from "@/components/ui/use-toast";
 import { Send } from "lucide-react";
 
@@ -19,7 +19,8 @@ const PublishFreight = () => {
   const [formData, setFormData] = useState({
     origin: "",
     destination: "",
-    cargoType: "",
+    cargo_type: "",
+    truck_type: "",
     value: "",
     contact: "",
     description: "",
@@ -27,7 +28,8 @@ const PublishFreight = () => {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   
-  const cargoTypes = getUniqueCargoTypes();
+  const cargoTypes = staticCargoTypes;
+  const truckTypes = staticTruckTypes;
 
   const handleChange = (field: string, value: string) => {
     setFormData((prev) => ({
@@ -55,7 +57,7 @@ const PublishFreight = () => {
       return false;
     }
 
-    if (!formData.cargoType) {
+    if (!formData.cargo_type) {
       toast({
         title: "Tipo de carga é obrigatório",
         description: "Por favor, selecione o tipo de carga a ser transportada.",
@@ -64,10 +66,10 @@ const PublishFreight = () => {
       return false;
     }
 
-    if (!formData.value.trim()) {
+    if (!formData.truck_type) {
       toast({
-        title: "Valor é obrigatório",
-        description: "Por favor, informe o valor do frete.",
+        title: "Tipo de caminhão é obrigatório",
+        description: "Por favor, selecione o tipo de caminhão necessário.",
         variant: "destructive",
       });
       return false;
@@ -85,7 +87,7 @@ const PublishFreight = () => {
     return true;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!validateForm()) {
@@ -94,25 +96,42 @@ const PublishFreight = () => {
     
     setIsSubmitting(true);
     
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      // Convert value to number or null for "a combinar"
+      const valueAsNumber = formData.value.trim() === "" ? null : parseFloat(formData.value);
+      
+      // Create the freight
+      const result = await createFreight({
+        origin: formData.origin,
+        destination: formData.destination,
+        cargo_type: formData.cargo_type,
+        truck_type: formData.truck_type,
+        value: valueAsNumber,
+        contact: formData.contact
+      });
+      
+      if (result) {
+        // Reset form on success
+        setFormData({
+          origin: "",
+          destination: "",
+          cargo_type: "",
+          truck_type: "",
+          value: "",
+          contact: "",
+          description: "",
+        });
+      }
+    } catch (error) {
+      console.error("Error creating freight:", error);
       toast({
-        title: "Frete publicado com sucesso!",
-        description: "Seu frete já está disponível para os caminhoneiros e agenciadores.",
+        title: "Erro ao publicar frete",
+        description: "Ocorreu um erro ao publicar o frete. Tente novamente.",
+        variant: "destructive",
       });
-      
-      // Reset form
-      setFormData({
-        origin: "",
-        destination: "",
-        cargoType: "",
-        value: "",
-        contact: "",
-        description: "",
-      });
-      
+    } finally {
       setIsSubmitting(false);
-    }, 1000);
+    }
   };
 
   return (
@@ -151,13 +170,13 @@ const PublishFreight = () => {
               </div>
 
               <div>
-                <Label htmlFor="cargoType">Tipo de Carga *</Label>
+                <Label htmlFor="cargo_type">Tipo de Carga *</Label>
                 <Select
-                  value={formData.cargoType}
-                  onValueChange={(value) => handleChange("cargoType", value)}
+                  value={formData.cargo_type}
+                  onValueChange={(value) => handleChange("cargo_type", value)}
                   required
                 >
-                  <SelectTrigger id="cargoType">
+                  <SelectTrigger id="cargo_type">
                     <SelectValue placeholder="Selecione o tipo de carga" />
                   </SelectTrigger>
                   <SelectContent>
@@ -169,20 +188,40 @@ const PublishFreight = () => {
                   </SelectContent>
                 </Select>
               </div>
+              
+              <div>
+                <Label htmlFor="truck_type">Tipo de Caminhão/Carroceria *</Label>
+                <Select
+                  value={formData.truck_type}
+                  onValueChange={(value) => handleChange("truck_type", value)}
+                  required
+                >
+                  <SelectTrigger id="truck_type">
+                    <SelectValue placeholder="Selecione o tipo de caminhão" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {truckTypes.map((type) => (
+                      <SelectItem key={type} value={type}>
+                        {type}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
               <div>
-                <Label htmlFor="value">Valor do Frete (R$) *</Label>
+                <Label htmlFor="value">Valor do Frete (R$)</Label>
                 <Input
                   id="value"
                   type="number"
-                  placeholder="Ex: 3500"
+                  placeholder="Ex: 3500 (deixe em branco para 'A combinar')"
                   value={formData.value}
                   onChange={(e) => handleChange("value", e.target.value)}
-                  required
                 />
+                <p className="text-xs text-gray-500 mt-1">Deixe em branco para "Valor a combinar"</p>
               </div>
 
-              <div className="md:col-span-2">
+              <div>
                 <Label htmlFor="contact">Telefone para Contato *</Label>
                 <Input
                   id="contact"

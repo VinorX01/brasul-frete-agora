@@ -1,5 +1,6 @@
 
-import { Freight } from "@/lib/mockFreights";
+import { type Freight } from "@/lib/supabase";
+import { recordFreightAgentReferral } from "@/lib/freightService";
 import {
   Sheet,
   SheetContent,
@@ -60,7 +61,7 @@ const FreightDetails: React.FC<FreightDetailsProps> = ({
     return date.toLocaleDateString('pt-BR');
   };
 
-  const handleContactClick = () => {
+  const handleContactClick = async () => {
     if (!freight) return;
     
     let whatsappText = `Olá! Tenho interesse no frete ${freight.id}`;
@@ -68,6 +69,9 @@ const FreightDetails: React.FC<FreightDetailsProps> = ({
     // Add agent code if present
     if (agentCode) {
       whatsappText += ` Agenciador: ${agentCode}`;
+      
+      // Record referral in database
+      await recordFreightAgentReferral(freight.id, agentCode);
     }
     
     // Open WhatsApp with the message
@@ -86,7 +90,7 @@ const FreightDetails: React.FC<FreightDetailsProps> = ({
     transportador: "Transportes Brasil LTDA",
     empresaRemetente: "Indústrias Reunidas S.A.",
     empresaDestinataria: "Comércio Geral LTDA",
-    conteudoCarga: "Materiais eletrônicos",
+    conteudoCarga: freight.cargo_type,
     especieCarga: "Produtos industrializados",
     pesoCarga: "1.200 kg",
     dimensoesCarga: "2,5m x 1,8m x 2,0m",
@@ -100,15 +104,15 @@ const FreightDetails: React.FC<FreightDetailsProps> = ({
     complemento: "Completo",
     carregamento: "Livre",
     descarregamento: "Chapa",
-    statusFrete: "Disponível",
-    tipoVeiculo: "Truck",
+    statusFrete: freight.status === 'available' ? "Disponível" : freight.status,
+    tipoVeiculo: freight.truck_type,
     placaVeiculo: "",
     pedagio: "Incluso - Tag",
     rotaEspecifica: "Não",
     nomeCaminhoneiro: "",
     fiscalizacao: "Normal",
-    enderecoEmbarque: "Av. Industrial, 1500, São Paulo - SP",
-    enderecoEntrega: "Rod. BR-101, km 120, Rio de Janeiro - RJ",
+    enderecoEmbarque: `${freight.origin}`,
+    enderecoEntrega: `${freight.destination}`,
     distanciaFrete: "430 km",
     seguro: "Sim",
     rastreador: "Recomendado",
@@ -185,7 +189,7 @@ const FreightDetails: React.FC<FreightDetailsProps> = ({
             <div className="bg-gray-50 p-4 rounded-md grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2 text-sm">
               <div className="flex justify-between">
                 <span className="text-gray-600">Tipo de Carga:</span>
-                <span className="font-medium">{freight.cargoType}</span>
+                <span className="font-medium">{freight.cargo_type}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Conteúdo:</span>
@@ -261,7 +265,7 @@ const FreightDetails: React.FC<FreightDetailsProps> = ({
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Tipo de Veículo:</span>
-                <span className="font-medium">{extendedDetails.tipoVeiculo}</span>
+                <span className="font-medium">{freight.truck_type}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Pedágio:</span>
@@ -291,11 +295,11 @@ const FreightDetails: React.FC<FreightDetailsProps> = ({
             <div className="bg-gray-50 p-4 rounded-md space-y-2 text-sm">
               <div>
                 <span className="text-gray-600">Endereço de Embarque:</span>
-                <p className="font-medium">{extendedDetails.enderecoEmbarque}</p>
+                <p className="font-medium">{freight.origin}</p>
               </div>
               <div>
                 <span className="text-gray-600">Endereço de Entrega:</span>
-                <p className="font-medium">{extendedDetails.enderecoEntrega}</p>
+                <p className="font-medium">{freight.destination}</p>
               </div>
             </div>
           </div>

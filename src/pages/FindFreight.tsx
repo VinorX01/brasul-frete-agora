@@ -3,8 +3,9 @@ import { useState, useEffect } from "react";
 import FreightFilter, { FilterValues } from "@/components/FreightFilter";
 import FreightCard from "@/components/FreightCard";
 import FreightDetails from "@/components/FreightDetails";
-import { Freight, getFilteredFreights } from "@/lib/mockFreights";
 import { Truck } from "lucide-react";
+import { getFilteredFreights } from "@/lib/freightService";
+import { type Freight } from "@/lib/supabase";
 
 const FindFreight = () => {
   const [filteredFreights, setFilteredFreights] = useState<Freight[]>([]);
@@ -14,16 +15,23 @@ const FindFreight = () => {
   const [isDetailOpen, setIsDetailOpen] = useState(false);
 
   useEffect(() => {
-    // Simulate loading data
-    const timer = setTimeout(() => {
-      setFilteredFreights(getFilteredFreights());
-      setIsLoading(false);
-    }, 500);
+    // Load all freights initially
+    const loadFreights = async () => {
+      setIsLoading(true);
+      try {
+        const freights = await getFilteredFreights();
+        setFilteredFreights(freights);
+      } catch (error) {
+        console.error("Error fetching freights:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-    return () => clearTimeout(timer);
+    loadFreights();
   }, []);
 
-  const handleFilter = (filters: FilterValues) => {
+  const handleFilter = async (filters: FilterValues) => {
     setIsLoading(true);
     setHasFiltered(true);
 
@@ -33,9 +41,8 @@ const FindFreight = () => {
     const cargoTypeFilter = filters.cargoType === "all" ? "" : filters.cargoType;
     const truckTypeFilter = filters.truckType === "all" ? "" : filters.truckType;
 
-    // Simulate API call delay
-    setTimeout(() => {
-      const results = getFilteredFreights(
+    try {
+      const results = await getFilteredFreights(
         originFilter,
         destinationFilter,
         cargoTypeFilter,
@@ -44,8 +51,11 @@ const FindFreight = () => {
         filters.maxValue ? parseInt(filters.maxValue) : undefined
       );
       setFilteredFreights(results);
+    } catch (error) {
+      console.error("Error filtering freights:", error);
+    } finally {
       setIsLoading(false);
-    }, 500);
+    }
   };
 
   const handleViewDetails = (freight: Freight) => {

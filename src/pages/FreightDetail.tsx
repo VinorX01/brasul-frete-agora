@@ -2,9 +2,10 @@
 import { useState, useEffect } from "react";
 import { useParams, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { findFreightById, Freight } from "@/lib/mockFreights";
 import { Truck, ArrowLeft, Phone } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { findFreightById, recordFreightAgentReferral } from "@/lib/freightService";
+import { type Freight } from "@/lib/supabase";
 
 const FreightDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -38,13 +39,7 @@ const FreightDetail = () => {
           
           // If we have a freight ID from the URL, use it for finding the freight
           if (freightId) {
-            setTimeout(() => {
-              const foundFreight = findFreightById(freightId);
-              if (foundFreight) {
-                setFreight(foundFreight);
-              }
-              setIsLoading(false);
-            }, 500);
+            loadFreight(freightId);
             return; // Skip the rest of the effect
           }
         }
@@ -52,16 +47,23 @@ const FreightDetail = () => {
     }
     
     // Standard freight ID lookup
-    setTimeout(() => {
-      if (id) {
-        const foundFreight = findFreightById(id);
-        if (foundFreight) {
-          setFreight(foundFreight);
-        }
-      }
+    if (id) {
+      loadFreight(id);
+    } else {
       setIsLoading(false);
-    }, 500);
+    }
   }, [id, location]);
+
+  const loadFreight = async (freightId: string) => {
+    try {
+      const freight = await findFreightById(freightId);
+      setFreight(freight);
+    } catch (error) {
+      console.error("Error fetching freight:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const formatCurrency = (value: number | null) => {
     // Return "Valor a combinar" for null values
@@ -80,11 +82,14 @@ const FreightDetail = () => {
     return date.toLocaleDateString('pt-BR');
   };
 
-  const handleContactClick = () => {
+  const handleContactClick = async () => {
     if (freight) {
       let message = `Olá! Tenho interesse no frete ${freight.id}`;
       if (agentCode) {
         message += ` Agenciador: ${agentCode}`;
+        
+        // Record referral in database
+        await recordFreightAgentReferral(freight.id, agentCode);
       }
       
       window.open(`https://wa.me/5538997353264?text=${encodeURIComponent(message)}`, "_blank");
@@ -150,7 +155,7 @@ const FreightDetail = () => {
                 {formatCurrency(freight.value)}
               </div>
               <span className="inline-block px-2 py-1 bg-green-100 text-green-800 text-xs rounded mt-1">
-                Disponível
+                {freight.status === 'available' ? 'Disponível' : freight.status}
               </span>
             </div>
           </div>
@@ -169,7 +174,11 @@ const FreightDetail = () => {
                 </li>
                 <li className="flex justify-between">
                   <span className="text-gray-600">Tipo de Carga:</span>
-                  <span className="font-medium">{freight.cargoType}</span>
+                  <span className="font-medium">{freight.cargo_type}</span>
+                </li>
+                <li className="flex justify-between">
+                  <span className="text-gray-600">Tipo de Caminhão:</span>
+                  <span className="font-medium">{freight.truck_type}</span>
                 </li>
                 <li className="flex justify-between">
                   <span className="text-gray-600">Valor:</span>

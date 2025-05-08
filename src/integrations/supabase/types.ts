@@ -9,6 +9,36 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      agents: {
+        Row: {
+          active: boolean
+          code: string
+          created_at: string
+          email: string | null
+          id: string
+          name: string | null
+          phone: string | null
+        }
+        Insert: {
+          active?: boolean
+          code: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          name?: string | null
+          phone?: string | null
+        }
+        Update: {
+          active?: boolean
+          code?: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          name?: string | null
+          phone?: string | null
+        }
+        Relationships: []
+      }
       cargas: {
         Row: {
           contato: string | null
@@ -45,12 +75,89 @@ export type Database = {
         }
         Relationships: []
       }
+      freight_agent_referrals: {
+        Row: {
+          agent_code: string
+          contact_date: string | null
+          created_at: string
+          freight_id: string
+          id: string
+        }
+        Insert: {
+          agent_code: string
+          contact_date?: string | null
+          created_at?: string
+          freight_id: string
+          id?: string
+        }
+        Update: {
+          agent_code?: string
+          contact_date?: string | null
+          created_at?: string
+          freight_id?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "freight_agent_referrals_freight_id_fkey"
+            columns: ["freight_id"]
+            isOneToOne: false
+            referencedRelation: "freights"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      freights: {
+        Row: {
+          cargo_type: string
+          contact: string
+          created_at: string
+          date: string
+          destination: string
+          id: string
+          origin: string
+          status: string
+          truck_type: string
+          updated_at: string
+          value: number | null
+        }
+        Insert: {
+          cargo_type: string
+          contact: string
+          created_at?: string
+          date?: string
+          destination: string
+          id?: string
+          origin: string
+          status?: string
+          truck_type: string
+          updated_at?: string
+          value?: number | null
+        }
+        Update: {
+          cargo_type?: string
+          contact?: string
+          created_at?: string
+          date?: string
+          destination?: string
+          id?: string
+          origin?: string
+          status?: string
+          truck_type?: string
+          updated_at?: string
+          value?: number | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      record_freight_agent_referral: {
+        Args: { _freight_id: string; _agent_code: string }
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never

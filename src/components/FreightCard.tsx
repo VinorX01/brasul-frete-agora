@@ -1,10 +1,11 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { Freight } from "@/lib/mockFreights";
 import { toast } from "@/components/ui/use-toast";
+import { type Freight } from "@/lib/supabase";
+import { recordFreightAgentReferral } from "@/lib/freightService";
 
 interface FreightCardProps {
   freight: Freight;
@@ -22,22 +23,22 @@ const FreightCard: React.FC<FreightCardProps> = ({
   // Check for agent code in URL parameters
   const [currentAgentCode, setCurrentAgentCode] = useState<string | null>(null);
   
-  useState(() => {
+  useEffect(() => {
     // Check if URL has agent code parameter
     const urlParams = new URLSearchParams(window.location.search);
     const agParam = urlParams.get('ag');
     if (agParam) {
       setCurrentAgentCode(agParam);
     }
-  });
+  }, []);
 
   const formatCurrency = (value: number | null) => {
-    // Se o valor for nulo, retorna "Valor a combinar"
+    // Return "Valor a combinar" for null values
     if (value === null) {
       return "Valor a combinar";
     }
     
-    // Caso contrário, formata como moeda
+    // Format as currency
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
       currency: 'BRL'
@@ -49,7 +50,7 @@ const FreightCard: React.FC<FreightCardProps> = ({
     return date.toLocaleDateString('pt-BR');
   };
 
-  const handleGenerateLink = () => {
+  const handleGenerateLink = async () => {
     if (!agentCode) {
       toast({
         title: "Código obrigatório",
@@ -61,6 +62,9 @@ const FreightCard: React.FC<FreightCardProps> = ({
 
     // Generate the agent URL with new format brasul.com/frete/ag?[code]&[freight-id]
     const url = `${window.location.origin}/frete/ag?${agentCode}&${freight.id}`;
+    
+    // Record referral in database
+    await recordFreightAgentReferral(freight.id, agentCode);
 
     // Copy URL to clipboard
     navigator.clipboard.writeText(url);
@@ -71,12 +75,15 @@ const FreightCard: React.FC<FreightCardProps> = ({
     });
   };
 
-  const handleContactClick = () => {
+  const handleContactClick = async () => {
     let whatsappText = `Olá! Tenho interesse no frete ${freight.id}`;
     
     // Add agent code if present
     if (currentAgentCode) {
       whatsappText += ` Agenciador: ${currentAgentCode}`;
+      
+      // Record referral in database
+      await recordFreightAgentReferral(freight.id, currentAgentCode);
     }
     
     // Open WhatsApp with the message
@@ -101,10 +108,10 @@ const FreightCard: React.FC<FreightCardProps> = ({
         
         <div className="mb-4">
           <p className="text-gray-700">
-            <strong>Tipo de Carga:</strong> {freight.cargoType}
+            <strong>Tipo de Carga:</strong> {freight.cargo_type}
           </p>
           <p className="text-gray-700">
-            <strong>Tipo de Caminhão:</strong> {freight.truckType}
+            <strong>Tipo de Caminhão:</strong> {freight.truck_type}
           </p>
         </div>
         
