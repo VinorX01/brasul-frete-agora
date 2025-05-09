@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Truck, ArrowLeft, Phone } from "lucide-react";
+import { Truck, ArrowLeft, Phone, RefrigeratorIcon, BadgeCheck, DollarSign } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { findFreightById, recordFreightAgentReferral } from "@/lib/freightService";
 import { type Freight } from "@/lib/supabase";
@@ -24,7 +24,7 @@ const FreightDetail = () => {
     if (ag) {
       setAgentCode(ag);
     } else {
-      // Check if the path has "ag" format (brasul.com/frete/ag?12345&freightId)
+      // Check if the path has "ag" format (brasultransportes.com/frete/ag?12345&freightId)
       const pathParts = location.pathname.split('/');
       const lastPart = pathParts[pathParts.length - 1];
       
@@ -77,7 +77,9 @@ const FreightDetail = () => {
     }).format(value);
   };
 
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return "Não informado";
+    
     const date = new Date(dateString);
     return date.toLocaleDateString('pt-BR');
   };
@@ -160,6 +162,25 @@ const FreightDetail = () => {
             </div>
           </div>
 
+          {/* Requirements badges */}
+          <div className="flex flex-wrap gap-2 mb-4">
+            {freight.refrigerated && (
+              <span className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">
+                <RefrigeratorIcon size={12} className="mr-1" /> Refrigerado
+              </span>
+            )}
+            {freight.requires_mopp && (
+              <span className="inline-flex items-center rounded-full bg-yellow-100 px-2.5 py-0.5 text-xs font-medium text-yellow-800">
+                <BadgeCheck size={12} className="mr-1" /> Requer MOPP
+              </span>
+            )}
+            {freight.toll_included && (
+              <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
+                <DollarSign size={12} className="mr-1" /> Pedágio Incluso
+              </span>
+            )}
+          </div>
+
           <div className="grid md:grid-cols-2 gap-6 mb-8">
             <div>
               <h2 className="font-semibold mb-2">Detalhes do Frete</h2>
@@ -184,6 +205,18 @@ const FreightDetail = () => {
                   <span className="text-gray-600">Valor:</span>
                   <span className="font-medium">{formatCurrency(freight.value)}</span>
                 </li>
+                {freight.weight && (
+                  <li className="flex justify-between">
+                    <span className="text-gray-600">Peso:</span>
+                    <span className="font-medium">{freight.weight} kg</span>
+                  </li>
+                )}
+                {freight.loading_date && (
+                  <li className="flex justify-between">
+                    <span className="text-gray-600">Data de Carregamento:</span>
+                    <span className="font-medium">{formatDate(freight.loading_date)}</span>
+                  </li>
+                )}
               </ul>
             </div>
 

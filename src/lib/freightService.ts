@@ -1,4 +1,3 @@
-
 import { supabase, type Freight } from './supabase';
 import { toast } from '@/components/ui/use-toast';
 
@@ -9,8 +8,16 @@ export const getFilteredFreights = async (
   cargoType?: string,
   truckType?: string,
   minValue?: number,
-  maxValue?: number
+  maxValue?: number,
+  minWeight?: number,
+  maxWeight?: number,
+  refrigerated?: boolean,
+  requiresMopp?: boolean,
+  tollIncluded?: boolean
 ): Promise<Freight[]> => {
+  // First, run the cleanup function to remove old freights
+  await cleanupOldFreights();
+  
   let query = supabase
     .from('freights')
     .select('*')
@@ -40,6 +47,27 @@ export const getFilteredFreights = async (
   if (maxValue !== undefined) {
     query = query.lte('value', maxValue);
   }
+  
+  // Add new filters
+  if (minWeight !== undefined) {
+    query = query.gte('weight', minWeight);
+  }
+  
+  if (maxWeight !== undefined) {
+    query = query.lte('weight', maxWeight);
+  }
+  
+  if (refrigerated !== undefined) {
+    query = query.eq('refrigerated', refrigerated);
+  }
+  
+  if (requiresMopp !== undefined) {
+    query = query.eq('requires_mopp', requiresMopp);
+  }
+  
+  if (tollIncluded !== undefined) {
+    query = query.eq('toll_included', tollIncluded);
+  }
 
   const { data, error } = await query;
   
@@ -54,6 +82,17 @@ export const getFilteredFreights = async (
   }
   
   return data as Freight[];
+};
+
+// Clean up old freights
+export const cleanupOldFreights = async (): Promise<void> => {
+  const { error } = await supabase.rpc('cleanup_old_freights');
+  
+  if (error) {
+    console.error('Error cleaning up old freights:', error);
+  } else {
+    console.log('Successfully cleaned up old freights');
+  }
 };
 
 // Find a freight by ID
@@ -73,7 +112,9 @@ export const findFreightById = async (id: string): Promise<Freight | null> => {
 };
 
 // Create a new freight
-export const createFreight = async (freight: Omit<Freight, 'id' | 'created_at' | 'updated_at' | 'status' | 'date'>): Promise<Freight | null> => {
+export const createFreight = async (
+  freight: Omit<Freight, 'id' | 'created_at' | 'updated_at' | 'status' | 'date'>
+): Promise<Freight | null> => {
   // Set current date for the freight
   const currentDate = new Date().toISOString();
   
@@ -117,6 +158,26 @@ export const recordFreightAgentReferral = async (freightId: string, agentCode: s
   }
   
   return true;
+};
+
+// Get municipalities
+export const getMunicipalities = async (search?: string, limit: number = 10): Promise<{name: string, state: string}[]> => {
+  let query = supabase
+    .from('municipalities')
+    .select('name, state');
+  
+  if (search) {
+    query = query.ilike('name', `%${search}%`);
+  }
+  
+  const { data, error } = await query.limit(limit);
+  
+  if (error) {
+    console.error('Error fetching municipalities:', error);
+    return [];
+  }
+  
+  return data as {name: string, state: string}[];
 };
 
 // Get unique values for different freight attributes

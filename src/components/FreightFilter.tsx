@@ -2,6 +2,8 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -9,11 +11,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from "@/components/ui/popover";
+import { Check, ChevronDown, Filter } from "lucide-react";
 import { 
   getUniqueOrigins, 
   getUniqueDestinations, 
   getUniqueCargoTypes, 
   getUniqueTruckTypes,
+  getMunicipalities,
   staticCargoTypes,
   staticTruckTypes
 } from "@/lib/freightService";
@@ -29,6 +38,11 @@ export interface FilterValues {
   truckType: string;
   minValue: string;
   maxValue: string;
+  minWeight: string;
+  maxWeight: string;
+  refrigerated: boolean;
+  requiresMopp: boolean;
+  tollIncluded: boolean;
 }
 
 const FreightFilter: React.FC<FreightFilterProps> = ({ onFilter }) => {
@@ -37,6 +51,8 @@ const FreightFilter: React.FC<FreightFilterProps> = ({ onFilter }) => {
   const [cargoTypes, setCargoTypes] = useState<string[]>(staticCargoTypes);
   const [truckTypes, setTruckTypes] = useState<string[]>(staticTruckTypes);
   const [loading, setLoading] = useState(true);
+  const [originSearch, setOriginSearch] = useState("");
+  const [destinationSearch, setDestinationSearch] = useState("");
   
   const [filters, setFilters] = useState<FilterValues>({
     origin: "",
@@ -45,6 +61,11 @@ const FreightFilter: React.FC<FreightFilterProps> = ({ onFilter }) => {
     truckType: "",
     minValue: "",
     maxValue: "",
+    minWeight: "",
+    maxWeight: "",
+    refrigerated: false,
+    requiresMopp: false,
+    tollIncluded: false,
   });
 
   useEffect(() => {
@@ -52,15 +73,10 @@ const FreightFilter: React.FC<FreightFilterProps> = ({ onFilter }) => {
     const loadFilterOptions = async () => {
       setLoading(true);
       try {
-        const [origins, destinations, cargoTypes, truckTypes] = await Promise.all([
-          getUniqueOrigins(),
-          getUniqueDestinations(),
+        const [cargoTypes, truckTypes] = await Promise.all([
           getUniqueCargoTypes(),
           getUniqueTruckTypes()
         ]);
-        
-        setOrigins(origins.length > 0 ? origins : []);
-        setDestinations(destinations.length > 0 ? destinations : []);
         
         // Only use database values if they exist, otherwise use static lists
         if (cargoTypes.length > 0) {
@@ -80,7 +96,27 @@ const FreightFilter: React.FC<FreightFilterProps> = ({ onFilter }) => {
     loadFilterOptions();
   }, []);
 
-  const handleFilterChange = (field: keyof FilterValues, value: string) => {
+  useEffect(() => {
+    if (originSearch.length > 2) {
+      const searchMunicipalities = async () => {
+        const results = await getMunicipalities(originSearch);
+        setOrigins(results.map(m => `${m.name}, ${m.state}`));
+      };
+      searchMunicipalities();
+    }
+  }, [originSearch]);
+
+  useEffect(() => {
+    if (destinationSearch.length > 2) {
+      const searchMunicipalities = async () => {
+        const results = await getMunicipalities(destinationSearch);
+        setDestinations(results.map(m => `${m.name}, ${m.state}`));
+      };
+      searchMunicipalities();
+    }
+  }, [destinationSearch]);
+
+  const handleFilterChange = (field: keyof FilterValues, value: string | boolean) => {
     setFilters((prev) => ({
       ...prev,
       [field]: value,
@@ -100,6 +136,11 @@ const FreightFilter: React.FC<FreightFilterProps> = ({ onFilter }) => {
       truckType: "",
       minValue: "",
       maxValue: "",
+      minWeight: "",
+      maxWeight: "",
+      refrigerated: false,
+      requiresMopp: false,
+      tollIncluded: false,
     });
     onFilter({
       origin: "",
@@ -108,6 +149,11 @@ const FreightFilter: React.FC<FreightFilterProps> = ({ onFilter }) => {
       truckType: "",
       minValue: "",
       maxValue: "",
+      minWeight: "",
+      maxWeight: "",
+      refrigerated: false,
+      requiresMopp: false,
+      tollIncluded: false,
     });
   };
 
@@ -118,44 +164,94 @@ const FreightFilter: React.FC<FreightFilterProps> = ({ onFilter }) => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
         <div>
           <label className="block text-sm font-medium mb-1">Origem</label>
-          <Select
-            value={filters.origin}
-            onValueChange={(value) => handleFilterChange("origin", value)}
-            disabled={loading}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Qualquer origem" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Qualquer origem</SelectItem>
-              {origins.map((origin) => (
-                <SelectItem key={origin} value={origin}>
-                  {origin}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" className="w-full justify-between">
+                {filters.origin || "Qualquer origem"}
+                <ChevronDown className="h-4 w-4 opacity-50" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-80 p-0">
+              <div className="p-2">
+                <Input 
+                  placeholder="Digite para pesquisar municípios" 
+                  value={originSearch} 
+                  onChange={(e) => setOriginSearch(e.target.value)}
+                />
+              </div>
+              <div className="max-h-72 overflow-y-auto">
+                <div 
+                  className="px-2 py-1 cursor-pointer hover:bg-gray-100 flex items-center"
+                  onClick={() => {
+                    handleFilterChange("origin", "");
+                    setOriginSearch("");
+                  }}
+                >
+                  {!filters.origin && <Check className="w-4 h-4 mr-2" />}
+                  <span>Qualquer origem</span>
+                </div>
+                {origins.map((origin) => (
+                  <div 
+                    key={origin} 
+                    className="px-2 py-1 cursor-pointer hover:bg-gray-100 flex items-center"
+                    onClick={() => {
+                      handleFilterChange("origin", origin);
+                      setOriginSearch("");
+                    }}
+                  >
+                    {filters.origin === origin && <Check className="w-4 h-4 mr-2" />}
+                    <span>{origin}</span>
+                  </div>
+                ))}
+              </div>
+            </PopoverContent>
+          </Popover>
         </div>
 
         <div>
           <label className="block text-sm font-medium mb-1">Destino</label>
-          <Select
-            value={filters.destination}
-            onValueChange={(value) => handleFilterChange("destination", value)}
-            disabled={loading}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Qualquer destino" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Qualquer destino</SelectItem>
-              {destinations.map((destination) => (
-                <SelectItem key={destination} value={destination}>
-                  {destination}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" className="w-full justify-between">
+                {filters.destination || "Qualquer destino"}
+                <ChevronDown className="h-4 w-4 opacity-50" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-80 p-0">
+              <div className="p-2">
+                <Input 
+                  placeholder="Digite para pesquisar municípios" 
+                  value={destinationSearch} 
+                  onChange={(e) => setDestinationSearch(e.target.value)}
+                />
+              </div>
+              <div className="max-h-72 overflow-y-auto">
+                <div 
+                  className="px-2 py-1 cursor-pointer hover:bg-gray-100 flex items-center"
+                  onClick={() => {
+                    handleFilterChange("destination", "");
+                    setDestinationSearch("");
+                  }}
+                >
+                  {!filters.destination && <Check className="w-4 h-4 mr-2" />}
+                  <span>Qualquer destino</span>
+                </div>
+                {destinations.map((destination) => (
+                  <div 
+                    key={destination} 
+                    className="px-2 py-1 cursor-pointer hover:bg-gray-100 flex items-center"
+                    onClick={() => {
+                      handleFilterChange("destination", destination);
+                      setDestinationSearch("");
+                    }}
+                  >
+                    {filters.destination === destination && <Check className="w-4 h-4 mr-2" />}
+                    <span>{destination}</span>
+                  </div>
+                ))}
+              </div>
+            </PopoverContent>
+          </Popover>
         </div>
 
         <div>
@@ -199,23 +295,75 @@ const FreightFilter: React.FC<FreightFilterProps> = ({ onFilter }) => {
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1">Valor Mínimo (R$)</label>
-          <Input
-            type="number"
-            placeholder="Mínimo"
-            value={filters.minValue}
-            onChange={(e) => handleFilterChange("minValue", e.target.value)}
-          />
+          <label className="block text-sm font-medium mb-1">Valor (R$)</label>
+          <div className="flex space-x-2">
+            <Input
+              type="number"
+              placeholder="Min"
+              value={filters.minValue}
+              onChange={(e) => handleFilterChange("minValue", e.target.value)}
+              className="w-1/2"
+            />
+            <Input
+              type="number"
+              placeholder="Max"
+              value={filters.maxValue}
+              onChange={(e) => handleFilterChange("maxValue", e.target.value)}
+              className="w-1/2"
+            />
+          </div>
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1">Valor Máximo (R$)</label>
-          <Input
-            type="number"
-            placeholder="Máximo"
-            value={filters.maxValue}
-            onChange={(e) => handleFilterChange("maxValue", e.target.value)}
-          />
+          <label className="block text-sm font-medium mb-1">Peso (kg)</label>
+          <div className="flex space-x-2">
+            <Input
+              type="number"
+              placeholder="Min"
+              value={filters.minWeight}
+              onChange={(e) => handleFilterChange("minWeight", e.target.value)}
+              className="w-1/2"
+            />
+            <Input
+              type="number"
+              placeholder="Max"
+              value={filters.maxWeight}
+              onChange={(e) => handleFilterChange("maxWeight", e.target.value)}
+              className="w-1/2"
+            />
+          </div>
+        </div>
+
+        <div className="lg:col-span-3">
+          <label className="block text-sm font-medium mb-2">Requisitos Especiais</label>
+          <div className="flex flex-wrap gap-6">
+            <div className="flex items-center space-x-2">
+              <Checkbox 
+                id="refrigerated" 
+                checked={filters.refrigerated}
+                onCheckedChange={(checked) => handleFilterChange("refrigerated", !!checked)} 
+              />
+              <Label htmlFor="refrigerated">Refrigerado</Label>
+            </div>
+            
+            <div className="flex items-center space-x-2">
+              <Checkbox 
+                id="requiresMopp" 
+                checked={filters.requiresMopp}
+                onCheckedChange={(checked) => handleFilterChange("requiresMopp", !!checked)} 
+              />
+              <Label htmlFor="requiresMopp">Requer MOPP</Label>
+            </div>
+            
+            <div className="flex items-center space-x-2">
+              <Checkbox 
+                id="tollIncluded" 
+                checked={filters.tollIncluded}
+                onCheckedChange={(checked) => handleFilterChange("tollIncluded", !!checked)} 
+              />
+              <Label htmlFor="tollIncluded">Pedágio Incluso</Label>
+            </div>
+          </div>
         </div>
       </div>
       
@@ -224,7 +372,7 @@ const FreightFilter: React.FC<FreightFilterProps> = ({ onFilter }) => {
           Limpar
         </Button>
         <Button type="submit" className="bg-primary hover:bg-primary-medium">
-          Filtrar Resultados
+          <Filter className="mr-2 h-4 w-4" /> Filtrar Resultados
         </Button>
       </div>
     </form>

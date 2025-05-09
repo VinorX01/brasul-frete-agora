@@ -43,6 +43,7 @@ export type Database = {
         Row: {
           contato: string | null
           data_postagem: string | null
+          data_processamento: string | null
           descricao: string | null
           destino: string | null
           grupo_origem: string | null
@@ -54,6 +55,7 @@ export type Database = {
         Insert: {
           contato?: string | null
           data_postagem?: string | null
+          data_processamento?: string | null
           descricao?: string | null
           destino?: string | null
           grupo_origem?: string | null
@@ -65,6 +67,7 @@ export type Database = {
         Update: {
           contato?: string | null
           data_postagem?: string | null
+          data_processamento?: string | null
           descricao?: string | null
           destino?: string | null
           grupo_origem?: string | null
@@ -115,11 +118,16 @@ export type Database = {
           date: string
           destination: string
           id: string
+          loading_date: string | null
           origin: string
+          refrigerated: boolean | null
+          requires_mopp: boolean | null
           status: string
+          toll_included: boolean | null
           truck_type: string
           updated_at: string
           value: number | null
+          weight: number | null
         }
         Insert: {
           cargo_type: string
@@ -128,11 +136,16 @@ export type Database = {
           date?: string
           destination: string
           id?: string
+          loading_date?: string | null
           origin: string
+          refrigerated?: boolean | null
+          requires_mopp?: boolean | null
           status?: string
+          toll_included?: boolean | null
           truck_type: string
           updated_at?: string
           value?: number | null
+          weight?: number | null
         }
         Update: {
           cargo_type?: string
@@ -141,11 +154,34 @@ export type Database = {
           date?: string
           destination?: string
           id?: string
+          loading_date?: string | null
           origin?: string
+          refrigerated?: boolean | null
+          requires_mopp?: boolean | null
           status?: string
+          toll_included?: boolean | null
           truck_type?: string
           updated_at?: string
           value?: number | null
+          weight?: number | null
+        }
+        Relationships: []
+      }
+      municipalities: {
+        Row: {
+          id: number
+          name: string
+          state: string
+        }
+        Insert: {
+          id?: number
+          name: string
+          state: string
+        }
+        Update: {
+          id?: number
+          name?: string
+          state?: string
         }
         Relationships: []
       }
@@ -154,6 +190,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      cleanup_old_freights: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       record_freight_agent_referral: {
         Args: { _freight_id: string; _agent_code: string }
         Returns: string

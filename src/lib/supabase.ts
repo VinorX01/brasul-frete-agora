@@ -19,6 +19,12 @@ export type Freight = {
   status: string;
   created_at: string;
   updated_at: string;
+  // New fields added
+  weight: number | null;
+  refrigerated: boolean;
+  requires_mopp: boolean;
+  toll_included: boolean;
+  loading_date: string | null;
 };
 
 export type Agent = {

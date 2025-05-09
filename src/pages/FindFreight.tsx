@@ -48,7 +48,12 @@ const FindFreight = () => {
         cargoTypeFilter,
         truckTypeFilter,
         filters.minValue ? parseInt(filters.minValue) : undefined,
-        filters.maxValue ? parseInt(filters.maxValue) : undefined
+        filters.maxValue ? parseInt(filters.maxValue) : undefined,
+        filters.minWeight ? parseInt(filters.minWeight) : undefined,
+        filters.maxWeight ? parseInt(filters.maxWeight) : undefined,
+        filters.refrigerated,
+        filters.requiresMopp,
+        filters.tollIncluded
       );
       setFilteredFreights(results);
     } catch (error) {

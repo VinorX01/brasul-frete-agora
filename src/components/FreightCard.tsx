@@ -6,6 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { toast } from "@/components/ui/use-toast";
 import { type Freight } from "@/lib/supabase";
 import { recordFreightAgentReferral } from "@/lib/freightService";
+import { BadgeCheck, Truck, RefrigeratorIcon, PackageCheck, DollarSign } from "lucide-react";
 
 interface FreightCardProps {
   freight: Freight;
@@ -45,7 +46,8 @@ const FreightCard: React.FC<FreightCardProps> = ({
     }).format(value);
   };
 
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return null;
     const date = new Date(dateString);
     return date.toLocaleDateString('pt-BR');
   };
@@ -60,8 +62,9 @@ const FreightCard: React.FC<FreightCardProps> = ({
       return;
     }
 
-    // Generate the agent URL with new format brasul.com/frete/ag?[code]&[freight-id]
-    const url = `${window.location.origin}/frete/ag?${agentCode}&${freight.id}`;
+    // Generate the agent URL with the new domain
+    const domain = "https://brasultransportes.com";
+    const url = `${domain}/frete/ag?${agentCode}&${freight.id}`;
     
     // Record referral in database
     await recordFreightAgentReferral(freight.id, agentCode);
@@ -98,7 +101,7 @@ const FreightCard: React.FC<FreightCardProps> = ({
             {formatCurrency(freight.value)}
           </div>
           <div className="text-gray-500 text-sm">
-            Publicado em: {formatDate(freight.date)}
+            {formatDate(freight.date)}
           </div>
         </div>
         
@@ -113,11 +116,40 @@ const FreightCard: React.FC<FreightCardProps> = ({
           <p className="text-gray-700">
             <strong>Tipo de Caminhão:</strong> {freight.truck_type}
           </p>
+          {freight.loading_date && (
+            <p className="text-gray-700">
+              <strong>Data de Carregamento:</strong> {formatDate(freight.loading_date)}
+            </p>
+          )}
+          {freight.weight && (
+            <p className="text-gray-700">
+              <strong>Peso:</strong> {freight.weight} kg
+            </p>
+          )}
+        </div>
+        
+        {/* Requirements badges */}
+        <div className="flex flex-wrap gap-2 mb-4">
+          {freight.refrigerated && (
+            <span className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">
+              <RefrigeratorIcon size={12} className="mr-1" /> Refrigerado
+            </span>
+          )}
+          {freight.requires_mopp && (
+            <span className="inline-flex items-center rounded-full bg-yellow-100 px-2.5 py-0.5 text-xs font-medium text-yellow-800">
+              <BadgeCheck size={12} className="mr-1" /> MOPP
+            </span>
+          )}
+          {freight.toll_included && (
+            <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
+              <DollarSign size={12} className="mr-1" /> Pedágio Incluso
+            </span>
+          )}
         </div>
         
         <div className="flex justify-between items-center mt-4">
           <Button variant="default" className="text-sm" onClick={handleContactClick}>
-            Quero Este
+            <Truck className="mr-2 h-4 w-4" /> Quero Este
           </Button>
           <Button variant="outline" onClick={() => setIsDialogOpen(true)}>
             Agenciar Frete

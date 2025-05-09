@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -10,10 +11,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from "@/components/ui/popover";
+import { ChevronDown } from "lucide-react";
 import { Label } from "@/components/ui/label";
-import { createFreight, staticCargoTypes, staticTruckTypes } from "@/lib/freightService";
+import { createFreight, getMunicipalities, staticCargoTypes, staticTruckTypes } from "@/lib/freightService";
 import { toast } from "@/components/ui/use-toast";
 import { Send } from "lucide-react";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
+import { Calendar } from "@/components/ui/calendar";
 
 const PublishFreight = () => {
   const [formData, setFormData] = useState({
@@ -24,18 +34,38 @@ const PublishFreight = () => {
     value: "",
     contact: "",
     description: "",
+    weight: "",
+    refrigerated: false,
+    requires_mopp: false,
+    toll_included: false,
+    loading_date: null as Date | null,
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [originSearch, setOriginSearch] = useState("");
+  const [destinationSearch, setDestinationSearch] = useState("");
+  const [originOptions, setOriginOptions] = useState<{name: string, state: string}[]>([]);
+  const [destinationOptions, setDestinationOptions] = useState<{name: string, state: string}[]>([]);
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   
   const cargoTypes = staticCargoTypes;
   const truckTypes = staticTruckTypes;
 
-  const handleChange = (field: string, value: string) => {
+  const handleChange = (field: string, value: string | boolean | Date | null) => {
     setFormData((prev) => ({
       ...prev,
       [field]: value,
     }));
+  };
+
+  const searchMunicipalities = async (query: string, setOptions: (options: {name: string, state: string}[]) => void) => {
+    if (query.length < 3) return;
+    try {
+      const results = await getMunicipalities(query);
+      setOptions(results);
+    } catch (error) {
+      console.error("Error searching municipalities:", error);
+    }
   };
 
   const validateForm = (): boolean => {
@@ -99,15 +129,21 @@ const PublishFreight = () => {
     try {
       // Convert value to number or null for "a combinar"
       const valueAsNumber = formData.value.trim() === "" ? null : parseFloat(formData.value);
+      const weightAsNumber = formData.weight.trim() === "" ? null : parseFloat(formData.weight);
       
-      // Create the freight
+      // Create the freight with new fields
       const result = await createFreight({
         origin: formData.origin,
         destination: formData.destination,
         cargo_type: formData.cargo_type,
         truck_type: formData.truck_type,
         value: valueAsNumber,
-        contact: formData.contact
+        contact: formData.contact,
+        weight: weightAsNumber,
+        refrigerated: formData.refrigerated,
+        requires_mopp: formData.requires_mopp,
+        toll_included: formData.toll_included,
+        loading_date: formData.loading_date ? formData.loading_date.toISOString() : null
       });
       
       if (result) {
@@ -120,6 +156,11 @@ const PublishFreight = () => {
           value: "",
           contact: "",
           description: "",
+          weight: "",
+          refrigerated: false,
+          requires_mopp: false,
+          toll_included: false,
+          loading_date: null,
         });
       }
     } catch (error) {
@@ -149,23 +190,119 @@ const PublishFreight = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
               <div>
                 <Label htmlFor="origin">Cidade de Origem *</Label>
-                <Input
-                  id="origin"
-                  placeholder="Ex: São Paulo, SP"
-                  value={formData.origin}
-                  onChange={(e) => handleChange("origin", e.target.value)}
-                  required
-                />
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" className="w-full justify-between">
+                      {formData.origin || "Selecione a origem"}
+                      <ChevronDown className="h-4 w-4 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-80 p-0">
+                    <div className="p-2">
+                      <Input 
+                        placeholder="Digite para pesquisar municípios" 
+                        value={originSearch} 
+                        onChange={(e) => {
+                          setOriginSearch(e.target.value);
+                          searchMunicipalities(e.target.value, setOriginOptions);
+                        }}
+                      />
+                    </div>
+                    <div className="max-h-72 overflow-y-auto">
+                      {originOptions.map((option) => (
+                        <div 
+                          key={`${option.name}-${option.state}`} 
+                          className="px-2 py-1 cursor-pointer hover:bg-gray-100"
+                          onClick={() => {
+                            handleChange("origin", `${option.name}, ${option.state}`);
+                            setOriginSearch("");
+                          }}
+                        >
+                          {option.name}, {option.state}
+                        </div>
+                      ))}
+                    </div>
+                  </PopoverContent>
+                </Popover>
               </div>
 
               <div>
                 <Label htmlFor="destination">Cidade de Destino *</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" className="w-full justify-between">
+                      {formData.destination || "Selecione o destino"}
+                      <ChevronDown className="h-4 w-4 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-80 p-0">
+                    <div className="p-2">
+                      <Input 
+                        placeholder="Digite para pesquisar municípios" 
+                        value={destinationSearch} 
+                        onChange={(e) => {
+                          setDestinationSearch(e.target.value);
+                          searchMunicipalities(e.target.value, setDestinationOptions);
+                        }}
+                      />
+                    </div>
+                    <div className="max-h-72 overflow-y-auto">
+                      {destinationOptions.map((option) => (
+                        <div 
+                          key={`${option.name}-${option.state}`} 
+                          className="px-2 py-1 cursor-pointer hover:bg-gray-100"
+                          onClick={() => {
+                            handleChange("destination", `${option.name}, ${option.state}`);
+                            setDestinationSearch("");
+                          }}
+                        >
+                          {option.name}, {option.state}
+                        </div>
+                      ))}
+                    </div>
+                  </PopoverContent>
+                </Popover>
+              </div>
+
+              <div>
+                <Label htmlFor="loading_date">Data de Carregamento</Label>
+                <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start text-left font-normal"
+                    >
+                      {formData.loading_date ? (
+                        format(formData.loading_date, "dd/MM/yyyy", {locale: ptBR})
+                      ) : (
+                        <span>Selecione uma data</span>
+                      )}
+                      <ChevronDown className="ml-auto h-4 w-4 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={formData.loading_date || undefined}
+                      onSelect={(date) => {
+                        handleChange("loading_date", date);
+                        setIsCalendarOpen(false);
+                      }}
+                      disabled={(date) => date < new Date()}
+                      locale={ptBR}
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+
+              <div>
+                <Label htmlFor="weight">Peso da Carga (kg)</Label>
                 <Input
-                  id="destination"
-                  placeholder="Ex: Rio de Janeiro, RJ"
-                  value={formData.destination}
-                  onChange={(e) => handleChange("destination", e.target.value)}
-                  required
+                  id="weight"
+                  type="number"
+                  placeholder="Ex: 1500"
+                  value={formData.weight}
+                  onChange={(e) => handleChange("weight", e.target.value)}
                 />
               </div>
 
@@ -232,11 +369,40 @@ const PublishFreight = () => {
                 />
               </div>
 
+              <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="flex items-center space-x-2">
+                  <Checkbox 
+                    id="refrigerated" 
+                    checked={formData.refrigerated}
+                    onCheckedChange={(checked) => handleChange("refrigerated", !!checked)} 
+                  />
+                  <Label htmlFor="refrigerated">Refrigerado</Label>
+                </div>
+                
+                <div className="flex items-center space-x-2">
+                  <Checkbox 
+                    id="requires_mopp" 
+                    checked={formData.requires_mopp}
+                    onCheckedChange={(checked) => handleChange("requires_mopp", !!checked)} 
+                  />
+                  <Label htmlFor="requires_mopp">Requer MOPP</Label>
+                </div>
+                
+                <div className="flex items-center space-x-2">
+                  <Checkbox 
+                    id="toll_included" 
+                    checked={formData.toll_included}
+                    onCheckedChange={(checked) => handleChange("toll_included", !!checked)} 
+                  />
+                  <Label htmlFor="toll_included">Pedágio Incluso</Label>
+                </div>
+              </div>
+
               <div className="md:col-span-2">
                 <Label htmlFor="description">Descrição da Carga (opcional)</Label>
                 <Textarea
                   id="description"
-                  placeholder="Descreva mais detalhes sobre a carga, como peso, dimensões, etc."
+                  placeholder="Descreva mais detalhes sobre a carga, como dimensões, requisitos específicos, etc."
                   value={formData.description}
                   onChange={(e) => handleChange("description", e.target.value)}
                   rows={4}
