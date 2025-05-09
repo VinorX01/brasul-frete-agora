@@ -118,6 +118,18 @@ const FreightDetails: React.FC<FreightDetailsProps> = ({
                 <span className="text-gray-600">Status do Frete:</span>
                 <span className="font-medium">{freight.status === 'available' ? 'Disponível' : freight.status}</span>
               </div>
+              {freight.expected_delivery_date && (
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Data de Entrega Prevista:</span>
+                  <span className="font-medium">{formatDate(freight.expected_delivery_date)}</span>
+                </div>
+              )}
+              {freight.sender_company && (
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Empresa Remetente:</span>
+                  <span className="font-medium">{freight.sender_company}</span>
+                </div>
+              )}
             </div>
           </div>
 
@@ -136,6 +148,16 @@ const FreightDetails: React.FC<FreightDetailsProps> = ({
                 <span className="text-gray-600">Requer MOPP:</span>
                 <span className="font-medium">{freight.requires_mopp ? 'Sim' : 'Não'}</span>
               </div>
+              {freight.freight_distance && (
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Distância:</span>
+                  <span className="font-medium">{freight.freight_distance} km</span>
+                </div>
+              )}
+              <div className="flex justify-between">
+                <span className="text-gray-600">Lona Obrigatória:</span>
+                <span className="font-medium">{freight.tarp_required ? 'Sim' : 'Não'}</span>
+              </div>
             </div>
           </div>
         </div>
@@ -148,6 +170,12 @@ const FreightDetails: React.FC<FreightDetailsProps> = ({
                 <span className="text-gray-600">Tipo de Carga:</span>
                 <span className="font-medium">{freight.cargo_type}</span>
               </div>
+              {freight.cargo_content && (
+                <div className="flex justify-between md:col-span-2">
+                  <span className="text-gray-600">Conteúdo da Carga:</span>
+                  <span className="font-medium">{freight.cargo_content}</span>
+                </div>
+              )}
               <div className="flex justify-between">
                 <span className="text-gray-600">Tipo de Caminhão:</span>
                 <span className="font-medium">{freight.truck_type}</span>
@@ -159,6 +187,28 @@ const FreightDetails: React.FC<FreightDetailsProps> = ({
               <div className="flex justify-between">
                 <span className="text-gray-600">Valor:</span>
                 <span className="font-medium">{formatCurrency(freight.value)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Carga Viva:</span>
+                <span className="font-medium">{freight.live_cargo ? 'Sim' : 'Não'}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Carga Seca:</span>
+                <span className="font-medium">{freight.dry_cargo ? 'Sim' : 'Não'}</span>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <h4 className="font-medium text-primary mb-2">Segurança e Rastreamento</h4>
+            <div className="bg-gray-50 p-4 rounded-md space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-gray-600">Seguro:</span>
+                <span className="font-medium">{freight.has_insurance ? 'Sim' : 'Não'}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Rastreador:</span>
+                <span className="font-medium">{freight.has_tracker ? 'Sim' : 'Não'}</span>
               </div>
             </div>
           </div>
@@ -176,6 +226,15 @@ const FreightDetails: React.FC<FreightDetailsProps> = ({
               </div>
             </div>
           </div>
+
+          {freight.observations && (
+            <div>
+              <h4 className="font-medium text-primary mb-2">Observações</h4>
+              <div className="bg-gray-50 p-4 rounded-md text-sm">
+                <p>{freight.observations}</p>
+              </div>
+            </div>
+          )}
         </div>
 
         <SheetFooter className="mt-6 flex flex-col sm:flex-row gap-3">

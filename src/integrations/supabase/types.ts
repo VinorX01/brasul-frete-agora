@@ -112,17 +112,27 @@ export type Database = {
       }
       freights: {
         Row: {
+          cargo_content: string | null
           cargo_type: string
           contact: string
           created_at: string
           date: string
           destination: string
+          dry_cargo: boolean | null
+          expected_delivery_date: string | null
+          freight_distance: number | null
+          has_insurance: boolean | null
+          has_tracker: boolean | null
           id: string
+          live_cargo: boolean | null
           loading_date: string | null
+          observations: string | null
           origin: string
           refrigerated: boolean | null
           requires_mopp: boolean | null
+          sender_company: string | null
           status: string
+          tarp_required: boolean | null
           toll_included: boolean | null
           truck_type: string
           updated_at: string
@@ -130,17 +140,27 @@ export type Database = {
           weight: number | null
         }
         Insert: {
+          cargo_content?: string | null
           cargo_type: string
           contact: string
           created_at?: string
           date?: string
           destination: string
+          dry_cargo?: boolean | null
+          expected_delivery_date?: string | null
+          freight_distance?: number | null
+          has_insurance?: boolean | null
+          has_tracker?: boolean | null
           id?: string
+          live_cargo?: boolean | null
           loading_date?: string | null
+          observations?: string | null
           origin: string
           refrigerated?: boolean | null
           requires_mopp?: boolean | null
+          sender_company?: string | null
           status?: string
+          tarp_required?: boolean | null
           toll_included?: boolean | null
           truck_type: string
           updated_at?: string
@@ -148,17 +168,27 @@ export type Database = {
           weight?: number | null
         }
         Update: {
+          cargo_content?: string | null
           cargo_type?: string
           contact?: string
           created_at?: string
           date?: string
           destination?: string
+          dry_cargo?: boolean | null
+          expected_delivery_date?: string | null
+          freight_distance?: number | null
+          has_insurance?: boolean | null
+          has_tracker?: boolean | null
           id?: string
+          live_cargo?: boolean | null
           loading_date?: string | null
+          observations?: string | null
           origin?: string
           refrigerated?: boolean | null
           requires_mopp?: boolean | null
+          sender_company?: string | null
           status?: string
+          tarp_required?: boolean | null
           toll_included?: boolean | null
           truck_type?: string
           updated_at?: string

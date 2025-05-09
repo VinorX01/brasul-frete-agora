@@ -1,4 +1,3 @@
-
 import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = 'https://dbixmwimnpetcnhmxctu.supabase.co';
@@ -19,12 +18,23 @@ export type Freight = {
   status: string;
   created_at: string;
   updated_at: string;
-  // New fields added
+  // Existing new fields
   weight: number | null;
   refrigerated: boolean;
   requires_mopp: boolean;
   toll_included: boolean;
   loading_date: string | null;
+  // Newly added fields
+  expected_delivery_date: string | null;
+  sender_company: string | null;
+  cargo_content: string | null;
+  live_cargo: boolean;
+  dry_cargo: boolean;
+  freight_distance: number | null;
+  has_insurance: boolean;
+  has_tracker: boolean;
+  observations: string | null;
+  tarp_required: boolean;
 };
 
 export type Agent = {

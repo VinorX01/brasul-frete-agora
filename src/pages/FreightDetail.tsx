@@ -2,7 +2,11 @@
 import { useState, useEffect } from "react";
 import { useParams, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Truck, ArrowLeft, Phone, RefrigeratorIcon, BadgeCheck, DollarSign } from "lucide-react";
+import { 
+  Truck, ArrowLeft, Phone, RefrigeratorIcon, BadgeCheck, 
+  DollarSign, MapPin, Calendar, AlertTriangle, Shield, 
+  LocateFixed, FileText, Tent 
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { findFreightById, recordFreightAgentReferral } from "@/lib/freightService";
 import { type Freight } from "@/lib/supabase";
@@ -151,6 +155,11 @@ const FreightDetail = () => {
               <p className="text-gray-500 text-sm">
                 ID: {freight.id} • Publicado em: {formatDate(freight.date)}
               </p>
+              {freight.sender_company && (
+                <p className="text-gray-600 mt-1">
+                  Empresa: {freight.sender_company}
+                </p>
+              )}
             </div>
             <div className="text-right">
               <div className="text-xl font-bold text-primary">
@@ -179,63 +188,134 @@ const FreightDetail = () => {
                 <DollarSign size={12} className="mr-1" /> Pedágio Incluso
               </span>
             )}
+            {freight.tarp_required && (
+              <span className="inline-flex items-center rounded-full bg-purple-100 px-2.5 py-0.5 text-xs font-medium text-purple-800">
+                <Tent size={12} className="mr-1" /> Lona Obrigatória
+              </span>
+            )}
+            {freight.has_insurance && (
+              <span className="inline-flex items-center rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-medium text-emerald-800">
+                <Shield size={12} className="mr-1" /> Seguro
+              </span>
+            )}
           </div>
 
-          <div className="grid md:grid-cols-2 gap-6 mb-8">
+          <div className="grid md:grid-cols-2 gap-6 mb-6">
             <div>
-              <h2 className="font-semibold mb-2">Detalhes do Frete</h2>
-              <ul className="space-y-2">
-                <li className="flex justify-between">
-                  <span className="text-gray-600">Origem:</span>
-                  <span className="font-medium">{freight.origin}</span>
-                </li>
-                <li className="flex justify-between">
-                  <span className="text-gray-600">Destino:</span>
-                  <span className="font-medium">{freight.destination}</span>
-                </li>
-                <li className="flex justify-between">
-                  <span className="text-gray-600">Tipo de Carga:</span>
-                  <span className="font-medium">{freight.cargo_type}</span>
-                </li>
-                <li className="flex justify-between">
-                  <span className="text-gray-600">Tipo de Caminhão:</span>
-                  <span className="font-medium">{freight.truck_type}</span>
-                </li>
-                <li className="flex justify-between">
-                  <span className="text-gray-600">Valor:</span>
-                  <span className="font-medium">{formatCurrency(freight.value)}</span>
-                </li>
-                {freight.weight && (
+              <h2 className="font-semibold text-lg mb-3">Detalhes do Frete</h2>
+              <div className="bg-gray-50 rounded-md p-4">
+                <ul className="space-y-2">
                   <li className="flex justify-between">
-                    <span className="text-gray-600">Peso:</span>
-                    <span className="font-medium">{freight.weight} kg</span>
+                    <span className="text-gray-600">Origem:</span>
+                    <span className="font-medium">{freight.origin}</span>
                   </li>
-                )}
-                {freight.loading_date && (
                   <li className="flex justify-between">
-                    <span className="text-gray-600">Data de Carregamento:</span>
-                    <span className="font-medium">{formatDate(freight.loading_date)}</span>
+                    <span className="text-gray-600">Destino:</span>
+                    <span className="font-medium">{freight.destination}</span>
                   </li>
-                )}
-              </ul>
+                  {freight.freight_distance && (
+                    <li className="flex justify-between">
+                      <span className="text-gray-600">Distância:</span>
+                      <span className="font-medium">{freight.freight_distance} km</span>
+                    </li>
+                  )}
+                  <li className="flex justify-between">
+                    <span className="text-gray-600">Tipo de Carga:</span>
+                    <span className="font-medium">{freight.cargo_type}</span>
+                  </li>
+                  {freight.cargo_content && (
+                    <li className="flex justify-between">
+                      <span className="text-gray-600">Conteúdo da Carga:</span>
+                      <span className="font-medium">{freight.cargo_content}</span>
+                    </li>
+                  )}
+                  <li className="flex justify-between">
+                    <span className="text-gray-600">Tipo de Caminhão:</span>
+                    <span className="font-medium">{freight.truck_type}</span>
+                  </li>
+                  <li className="flex justify-between">
+                    <span className="text-gray-600">Valor:</span>
+                    <span className="font-medium">{formatCurrency(freight.value)}</span>
+                  </li>
+                  {freight.weight && (
+                    <li className="flex justify-between">
+                      <span className="text-gray-600">Peso:</span>
+                      <span className="font-medium">{freight.weight} kg</span>
+                    </li>
+                  )}
+                </ul>
+              </div>
             </div>
 
             <div>
-              <h2 className="font-semibold mb-2">Informações de Contato</h2>
-              <p className="mb-4">
-                Entre em contato com o embarcador para negociar este frete:
-              </p>
-              <Button 
-                onClick={handleContactClick} 
-                className="w-full flex items-center justify-center"
-              >
-                <Phone className="mr-2 h-5 w-5" />
-                Contato via WhatsApp
-              </Button>
-              <p className="text-xs text-gray-500 text-center mt-2">
-                Mencione o ID do frete ao entrar em contato
-              </p>
+              <h2 className="font-semibold text-lg mb-3">Datas e Requisitos</h2>
+              <div className="bg-gray-50 rounded-md p-4">
+                <ul className="space-y-2">
+                  {freight.loading_date && (
+                    <li className="flex justify-between">
+                      <span className="text-gray-600">Data de Carregamento:</span>
+                      <span className="font-medium">{formatDate(freight.loading_date)}</span>
+                    </li>
+                  )}
+                  {freight.expected_delivery_date && (
+                    <li className="flex justify-between">
+                      <span className="text-gray-600">Data de Entrega Prevista:</span>
+                      <span className="font-medium">{formatDate(freight.expected_delivery_date)}</span>
+                    </li>
+                  )}
+                  <li className="flex justify-between">
+                    <span className="text-gray-600">Refrigerado:</span>
+                    <span className="font-medium">{freight.refrigerated ? 'Sim' : 'Não'}</span>
+                  </li>
+                  <li className="flex justify-between">
+                    <span className="text-gray-600">Carga Viva:</span>
+                    <span className="font-medium">{freight.live_cargo ? 'Sim' : 'Não'}</span>
+                  </li>
+                  <li className="flex justify-between">
+                    <span className="text-gray-600">Carga Seca:</span>
+                    <span className="font-medium">{freight.dry_cargo ? 'Sim' : 'Não'}</span>
+                  </li>
+                  <li className="flex justify-between">
+                    <span className="text-gray-600">Requer MOPP:</span>
+                    <span className="font-medium">{freight.requires_mopp ? 'Sim' : 'Não'}</span>
+                  </li>
+                  <li className="flex justify-between">
+                    <span className="text-gray-600">Rastreador:</span>
+                    <span className="font-medium">{freight.has_tracker ? 'Sim' : 'Não'}</span>
+                  </li>
+                  <li className="flex justify-between">
+                    <span className="text-gray-600">Lona Obrigatória:</span>
+                    <span className="font-medium">{freight.tarp_required ? 'Sim' : 'Não'}</span>
+                  </li>
+                </ul>
+              </div>
             </div>
+          </div>
+
+          {freight.observations && (
+            <div className="mb-6">
+              <h2 className="font-semibold text-lg mb-3">Observações</h2>
+              <div className="bg-gray-50 rounded-md p-4">
+                <p className="text-gray-700">{freight.observations}</p>
+              </div>
+            </div>
+          )}
+
+          <div className="bg-accent p-4 rounded-lg mb-6">
+            <h2 className="font-semibold text-lg mb-2">Informações de Contato</h2>
+            <p className="mb-4">
+              Entre em contato com o embarcador para negociar este frete:
+            </p>
+            <Button 
+              onClick={handleContactClick} 
+              className="w-full flex items-center justify-center"
+            >
+              <Phone className="mr-2 h-5 w-5" />
+              Contato via WhatsApp
+            </Button>
+            <p className="text-xs text-gray-500 text-center mt-2">
+              Mencione o ID do frete ao entrar em contato
+            </p>
           </div>
 
           <div className="bg-gray-50 p-4 rounded-lg text-sm">
