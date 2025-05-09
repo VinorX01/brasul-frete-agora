@@ -39,6 +39,17 @@ const PublishFreight = () => {
     requires_mopp: false,
     toll_included: false,
     loading_date: null as Date | null,
+    // Novos campos adicionados
+    expected_delivery_date: null as Date | null,
+    sender_company: "",
+    cargo_content: "",
+    live_cargo: false,
+    dry_cargo: false,
+    freight_distance: "",
+    has_insurance: false,
+    has_tracker: false,
+    observations: "",
+    tarp_required: false,
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -47,6 +58,7 @@ const PublishFreight = () => {
   const [originOptions, setOriginOptions] = useState<{name: string, state: string}[]>([]);
   const [destinationOptions, setDestinationOptions] = useState<{name: string, state: string}[]>([]);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+  const [isDeliveryDateCalendarOpen, setIsDeliveryDateCalendarOpen] = useState(false);
   
   const cargoTypes = staticCargoTypes;
   const truckTypes = staticTruckTypes;
@@ -130,6 +142,7 @@ const PublishFreight = () => {
       // Convert value to number or null for "a combinar"
       const valueAsNumber = formData.value.trim() === "" ? null : parseFloat(formData.value);
       const weightAsNumber = formData.weight.trim() === "" ? null : parseFloat(formData.weight);
+      const distanceAsNumber = formData.freight_distance.trim() === "" ? null : parseFloat(formData.freight_distance);
       
       // Create the freight with new fields
       const result = await createFreight({
@@ -143,7 +156,18 @@ const PublishFreight = () => {
         refrigerated: formData.refrigerated,
         requires_mopp: formData.requires_mopp,
         toll_included: formData.toll_included,
-        loading_date: formData.loading_date ? formData.loading_date.toISOString() : null
+        loading_date: formData.loading_date ? formData.loading_date.toISOString() : null,
+        // Novos campos adicionados
+        expected_delivery_date: formData.expected_delivery_date ? formData.expected_delivery_date.toISOString() : null,
+        sender_company: formData.sender_company.trim() === "" ? null : formData.sender_company,
+        cargo_content: formData.cargo_content.trim() === "" ? null : formData.cargo_content,
+        live_cargo: formData.live_cargo,
+        dry_cargo: formData.dry_cargo,
+        freight_distance: distanceAsNumber,
+        has_insurance: formData.has_insurance,
+        has_tracker: formData.has_tracker,
+        observations: formData.observations.trim() === "" ? null : formData.observations,
+        tarp_required: formData.tarp_required
       });
       
       if (result) {
@@ -161,6 +185,17 @@ const PublishFreight = () => {
           requires_mopp: false,
           toll_included: false,
           loading_date: null,
+          // Reset novos campos
+          expected_delivery_date: null,
+          sender_company: "",
+          cargo_content: "",
+          live_cargo: false,
+          dry_cargo: false,
+          freight_distance: "",
+          has_insurance: false,
+          has_tracker: false,
+          observations: "",
+          tarp_required: false
         });
       }
     } catch (error) {
@@ -296,13 +331,43 @@ const PublishFreight = () => {
               </div>
 
               <div>
-                <Label htmlFor="weight">Peso da Carga (kg)</Label>
+                <Label htmlFor="expected_delivery_date">Data de Entrega Prevista</Label>
+                <Popover open={isDeliveryDateCalendarOpen} onOpenChange={setIsDeliveryDateCalendarOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start text-left font-normal"
+                    >
+                      {formData.expected_delivery_date ? (
+                        format(formData.expected_delivery_date, "dd/MM/yyyy", {locale: ptBR})
+                      ) : (
+                        <span>Selecione uma data</span>
+                      )}
+                      <ChevronDown className="ml-auto h-4 w-4 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={formData.expected_delivery_date || undefined}
+                      onSelect={(date) => {
+                        handleChange("expected_delivery_date", date);
+                        setIsDeliveryDateCalendarOpen(false);
+                      }}
+                      disabled={(date) => date < new Date()}
+                      locale={ptBR}
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+
+              <div>
+                <Label htmlFor="sender_company">Empresa Remetente</Label>
                 <Input
-                  id="weight"
-                  type="number"
-                  placeholder="Ex: 1500"
-                  value={formData.weight}
-                  onChange={(e) => handleChange("weight", e.target.value)}
+                  id="sender_company"
+                  placeholder="Ex: Transportadora ABC"
+                  value={formData.sender_company}
+                  onChange={(e) => handleChange("sender_company", e.target.value)}
                 />
               </div>
 
@@ -326,6 +391,16 @@ const PublishFreight = () => {
                 </Select>
               </div>
               
+              <div>
+                <Label htmlFor="cargo_content">Conteúdo da Carga</Label>
+                <Input
+                  id="cargo_content"
+                  placeholder="Ex: Arroz, Computadores, etc."
+                  value={formData.cargo_content}
+                  onChange={(e) => handleChange("cargo_content", e.target.value)}
+                />
+              </div>
+
               <div>
                 <Label htmlFor="truck_type">Tipo de Caminhão/Carroceria *</Label>
                 <Select
@@ -369,6 +444,28 @@ const PublishFreight = () => {
                 />
               </div>
 
+              <div>
+                <Label htmlFor="weight">Peso da Carga (kg)</Label>
+                <Input
+                  id="weight"
+                  type="number"
+                  placeholder="Ex: 1500"
+                  value={formData.weight}
+                  onChange={(e) => handleChange("weight", e.target.value)}
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="freight_distance">Distância do Frete (km)</Label>
+                <Input
+                  id="freight_distance"
+                  type="number"
+                  placeholder="Ex: 350"
+                  value={formData.freight_distance}
+                  onChange={(e) => handleChange("freight_distance", e.target.value)}
+                />
+              </div>
+
               <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="flex items-center space-x-2">
                   <Checkbox 
@@ -396,15 +493,60 @@ const PublishFreight = () => {
                   />
                   <Label htmlFor="toll_included">Pedágio Incluso</Label>
                 </div>
+
+                <div className="flex items-center space-x-2">
+                  <Checkbox 
+                    id="live_cargo" 
+                    checked={formData.live_cargo}
+                    onCheckedChange={(checked) => handleChange("live_cargo", !!checked)} 
+                  />
+                  <Label htmlFor="live_cargo">Carga Viva</Label>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <Checkbox 
+                    id="dry_cargo" 
+                    checked={formData.dry_cargo}
+                    onCheckedChange={(checked) => handleChange("dry_cargo", !!checked)} 
+                  />
+                  <Label htmlFor="dry_cargo">Carga Seca</Label>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <Checkbox 
+                    id="tarp_required" 
+                    checked={formData.tarp_required}
+                    onCheckedChange={(checked) => handleChange("tarp_required", !!checked)} 
+                  />
+                  <Label htmlFor="tarp_required">Lona Obrigatória</Label>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <Checkbox 
+                    id="has_insurance" 
+                    checked={formData.has_insurance}
+                    onCheckedChange={(checked) => handleChange("has_insurance", !!checked)} 
+                  />
+                  <Label htmlFor="has_insurance">Com Seguro</Label>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <Checkbox 
+                    id="has_tracker" 
+                    checked={formData.has_tracker}
+                    onCheckedChange={(checked) => handleChange("has_tracker", !!checked)} 
+                  />
+                  <Label htmlFor="has_tracker">Com Rastreador</Label>
+                </div>
               </div>
 
               <div className="md:col-span-2">
-                <Label htmlFor="description">Descrição da Carga (opcional)</Label>
+                <Label htmlFor="observations">Observações (opcional)</Label>
                 <Textarea
-                  id="description"
+                  id="observations"
                   placeholder="Descreva mais detalhes sobre a carga, como dimensões, requisitos específicos, etc."
-                  value={formData.description}
-                  onChange={(e) => handleChange("description", e.target.value)}
+                  value={formData.observations}
+                  onChange={(e) => handleChange("observations", e.target.value)}
                   rows={4}
                 />
               </div>
