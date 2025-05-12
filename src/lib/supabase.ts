@@ -1,9 +1,21 @@
+
 import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = 'https://dbixmwimnpetcnhmxctu.supabase.co';
 const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRiaXhtd2ltbnBldGNuaG14Y3R1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY2NTE0OTYsImV4cCI6MjA2MjIyNzQ5Nn0.aNWyizl2RJheA8qrTocY995hzT0Dm1IFpTbDlJb4MCQ';
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// Inicializa o cliente Supabase com configurações otimizadas
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+  },
+  realtime: {
+    params: {
+      eventsPerSecond: 10,
+    }
+  }
+});
 
 // Types for our database
 export type Freight = {

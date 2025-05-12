@@ -116,34 +116,57 @@ export const findFreightById = async (id: string): Promise<Freight | null> => {
 export const createFreight = async (
   freight: Omit<Freight, 'id' | 'created_at' | 'updated_at' | 'status' | 'date'>
 ): Promise<Freight | null> => {
-  // Set current date for the freight
-  const currentDate = new Date().toISOString();
-  
-  const { data, error } = await supabase
-    .from('freights')
-    .insert({
-      ...freight,
-      status: 'available',
-      date: currentDate,
-    })
-    .select();
+  try {
+    console.log('Creating freight with data:', freight);
     
-  if (error) {
-    console.error('Error creating freight:', error);
+    // Set current date for the freight
+    const currentDate = new Date().toISOString();
+    
+    const { data, error } = await supabase
+      .from('freights')
+      .insert({
+        ...freight,
+        status: 'available',
+        date: currentDate,
+      })
+      .select();
+      
+    if (error) {
+      console.error('Error creating freight (Supabase error):', error);
+      toast({
+        title: "Erro ao publicar frete",
+        description: `Ocorreu um erro ao publicar o frete: ${error.message}. Código: ${error.code}`,
+        variant: "destructive",
+      });
+      return null;
+    }
+    
+    if (!data || data.length === 0) {
+      console.error('No data returned after freight creation');
+      toast({
+        title: "Erro ao publicar frete",
+        description: "Ocorreu um erro ao publicar o frete. Nenhum dado foi retornado.",
+        variant: "destructive",
+      });
+      return null;
+    }
+    
+    console.log('Freight created successfully:', data[0]);
+    toast({
+      title: "Frete publicado com sucesso!",
+      description: "Seu frete já está disponível para os caminhoneiros e agenciadores.",
+    });
+    
+    return data[0] as Freight;
+  } catch (e) {
+    console.error('Unexpected error creating freight:', e);
     toast({
       title: "Erro ao publicar frete",
-      description: "Ocorreu um erro ao publicar o frete. Tente novamente.",
+      description: "Ocorreu um erro inesperado ao publicar o frete. Tente novamente.",
       variant: "destructive",
     });
     return null;
   }
-  
-  toast({
-    title: "Frete publicado com sucesso!",
-    description: "Seu frete já está disponível para os caminhoneiros e agenciadores.",
-  });
-  
-  return data[0] as Freight;
 };
 
 // Record a freight agent referral

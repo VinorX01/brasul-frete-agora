@@ -1,9 +1,18 @@
+
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
+
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const location = useLocation();
+
+  // Função para determinar se o link está ativo
+  const isActiveRoute = (path: string) => {
+    return location.pathname === path;
+  };
+
   return <nav className="bg-white shadow-md">
       <div className="container mx-auto px-4 py-3">
         <div className="flex items-center justify-between">
@@ -27,21 +36,29 @@ const Navbar = () => {
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-4">
             <Link to="/">
-              <Button variant="ghost">Início</Button>
+              <Button variant={isActiveRoute("/") ? "default" : "ghost"}>Início</Button>
             </Link>
             <Link to="/frete">
-              <Button variant="ghost" className="bg-black text-white hover:bg-gray-800">
+              <Button 
+                variant={isActiveRoute("/frete") ? "default" : "ghost"} 
+                className={isActiveRoute("/frete") ? "bg-black text-white hover:bg-gray-800" : ""}
+              >
                 Encontrar Frete
               </Button>
             </Link>
             <Link to="/publicar-frete">
-              <Button variant="ghost">Publicar Frete</Button>
+              <Button 
+                variant={isActiveRoute("/publicar-frete") ? "default" : "ghost"}
+                className={isActiveRoute("/publicar-frete") ? "bg-black text-white hover:bg-gray-800" : ""}
+              >
+                Publicar Frete
+              </Button>
             </Link>
             <Link to="/agenciadores">
-              <Button variant="ghost">Agenciadores</Button>
+              <Button variant={isActiveRoute("/agenciadores") ? "default" : "ghost"}>Agenciadores</Button>
             </Link>
             <Link to="/sobre">
-              <Button variant="ghost">Sobre</Button>
+              <Button variant={isActiveRoute("/sobre") ? "default" : "ghost"}>Sobre</Button>
             </Link>
           </div>
         </div>
@@ -57,13 +74,7 @@ const Navbar = () => {
               </Link>
               <Link to="/publicar-frete" className="px-4 py-2 text-primary hover:bg-gray-100 rounded" onClick={() => setIsMenuOpen(false)}>
                 Publicar Frete
-              </Link>
-              <Link to="/agenciadores" className="px-4 py-2 text-primary hover:bg-gray-100 rounded" onClick={() => setIsMenuOpen(false)}>
-                Agenciadores
-              </Link>
-              <Link to="/sobre" className="px-4 py-2 text-primary hover:bg-gray-100 rounded" onClick={() => setIsMenuOpen(false)}>
-                Sobre
-              </Link>
+              </Button>
             </div>
           </div>}
       </div>
