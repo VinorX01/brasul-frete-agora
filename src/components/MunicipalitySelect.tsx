@@ -40,6 +40,7 @@ const MunicipalitySelect = ({
   const [searchTerm, setSearchTerm] = useState("");
   const [municipalities, setMunicipalities] = useState<Municipality[]>([]);
   const [loading, setLoading] = useState(false);
+  const [selectedMunicipality, setSelectedMunicipality] = useState<Municipality | null>(null);
 
   useEffect(() => {
     // Only search if there's a search term and it's at least 2 characters
@@ -67,9 +68,27 @@ const MunicipalitySelect = ({
     }
   }, [searchTerm]);
 
+  // Format the display value correctly
   const displayValue = value === "all" 
     ? allowAll ? (placeholder.includes("Origem") ? "Todas as origens" : "Todos os destinos") : ""
-    : value;
+    : selectedMunicipality ? `${selectedMunicipality.name} - ${selectedMunicipality.state}` : value;
+
+  // Find the selected municipality when value changes
+  useEffect(() => {
+    if (value !== "all" && value) {
+      // Try to find if this is one of our municipalities
+      const found = municipalities.find(m => 
+        `${m.name}, ${m.state}` === value || 
+        `${m.name} - ${m.state}` === value
+      );
+      
+      if (found) {
+        setSelectedMunicipality(found);
+      }
+    } else {
+      setSelectedMunicipality(null);
+    }
+  }, [value, municipalities]);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -129,14 +148,19 @@ const MunicipalitySelect = ({
                       key={`${municipality.name}-${municipality.state}`}
                       value={municipality.name}
                       onSelect={() => {
-                        onValueChange(municipality.name);
+                        // Format the value with comma (City, State) to match database format
+                        const formattedValue = `${municipality.name}, ${municipality.state}`;
+                        setSelectedMunicipality(municipality);
+                        onValueChange(formattedValue);
                         setOpen(false);
                       }}
                     >
                       <Check
                         className={cn(
                           "mr-2 h-4 w-4",
-                          value === municipality.name ? "opacity-100" : "opacity-0"
+                          selectedMunicipality?.name === municipality.name && 
+                          selectedMunicipality?.state === municipality.state 
+                            ? "opacity-100" : "opacity-0"
                         )}
                       />
                       {municipality.name} - {municipality.state}
