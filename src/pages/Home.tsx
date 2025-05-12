@@ -1,9 +1,7 @@
-
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Truck, Search, Calendar, Send } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
-
 const Home = () => {
   const handleQuickContact = () => {
     window.open("https://wa.me/5538997353264", "_blank");
@@ -12,9 +10,7 @@ const Home = () => {
       description: "Você será atendido em breve por nossos especialistas."
     });
   };
-
-  return (
-    <div className="flex flex-col min-h-screen">
+  return <div className="flex flex-col min-h-screen">
       {/* Hero Section */}
       <section className="bg-gradient-to-b from-primary to-primary-medium py-16 text-white">
         <div className="container mx-auto px-4 text-center">
@@ -98,8 +94,6 @@ const Home = () => {
           </div>
         </div>
       </section>
-    </div>
-  );
+    </div>;
 };
-
 export default Home;
