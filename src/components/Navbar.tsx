@@ -74,7 +74,7 @@ const Navbar = () => {
               </Link>
               <Link to="/publicar-frete" className="px-4 py-2 text-primary hover:bg-gray-100 rounded" onClick={() => setIsMenuOpen(false)}>
                 Publicar Frete
-              </Button>
+              </Link>
             </div>
           </div>}
       </div>

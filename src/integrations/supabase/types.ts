@@ -41,7 +41,6 @@ export type Database = {
       }
       cargas: {
         Row: {
-          contato: string | null
           data_postagem: string | null
           data_processamento: string | null
           descricao: string | null
@@ -55,7 +54,6 @@ export type Database = {
           telefone_remetente: string | null
         }
         Insert: {
-          contato?: string | null
           data_postagem?: string | null
           data_processamento?: string | null
           descricao?: string | null
@@ -69,7 +67,6 @@ export type Database = {
           telefone_remetente?: string | null
         }
         Update: {
-          contato?: string | null
           data_postagem?: string | null
           data_processamento?: string | null
           descricao?: string | null
