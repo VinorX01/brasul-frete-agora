@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Truck, Phone, Mail, MapPin } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
@@ -12,7 +13,7 @@ const About = () => {
   };
 
   return (
-    <div className="bg-[#E6EAF2] min-h-screen">
+    <div className="bg-[#f4f4fc] min-h-screen">
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
           <div className="mb-8 text-center">

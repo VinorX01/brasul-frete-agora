@@ -66,7 +66,7 @@ const FindFreight = () => {
     setIsDetailOpen(true);
   };
 
-  return <div className="bg-[#E6EAF2] min-h-screen">
+  return <div className="bg-[#f4f4fc] min-h-screen">
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8 text-center">
           <h1 className="text-3xl font-bold mb-2">Encontrar Fretes Disponíveis</h1>
