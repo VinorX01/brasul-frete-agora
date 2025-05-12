@@ -73,17 +73,23 @@ const MunicipalitySelect = ({
     ? allowAll ? (placeholder.includes("Origem") ? "Todas as origens" : "Todos os destinos") : ""
     : selectedMunicipality ? `${selectedMunicipality.name} - ${selectedMunicipality.state}` : value;
 
-  // Find the selected municipality when value changes
+  // Find the selected municipality when value changes using only the City, State format
   useEffect(() => {
     if (value !== "all" && value) {
-      // Try to find if this is one of our municipalities
-      const found = municipalities.find(m => 
-        `${m.name}, ${m.state}` === value || 
-        `${m.name} - ${m.state}` === value
-      );
-      
-      if (found) {
-        setSelectedMunicipality(found);
+      // Parse the value which should be in format "City, State"
+      const parts = value.split(", ");
+      if (parts.length === 2) {
+        const cityName = parts[0];
+        const stateName = parts[1];
+        
+        // Find the municipality with matching city and state
+        const found = municipalities.find(m => 
+          m.name === cityName && m.state === stateName
+        );
+        
+        if (found) {
+          setSelectedMunicipality(found);
+        }
       }
     } else {
       setSelectedMunicipality(null);
@@ -148,7 +154,7 @@ const MunicipalitySelect = ({
                       key={`${municipality.name}-${municipality.state}`}
                       value={municipality.name}
                       onSelect={() => {
-                        // Format the value with comma (City, State) to match database format
+                        // Format the value ONLY with comma (City, State) format
                         const formattedValue = `${municipality.name}, ${municipality.state}`;
                         setSelectedMunicipality(municipality);
                         onValueChange(formattedValue);
