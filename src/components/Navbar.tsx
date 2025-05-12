@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -10,7 +9,7 @@ const Navbar = () => {
         <div className="flex items-center justify-between">
           <div className="flex items-center">
             <Link to="/" className="flex items-center">
-              <img src="/lovable-uploads/0346d88c-fbb2-4575-9b01-9f91a3c4357a.png" alt="Brasul Transportes Logo" className="h-10 w-auto mr-2" />
+              <img alt="Brasul Transportes Logo" className="h-10 w-auto mr-2" src="/lovable-uploads/a6bb16cf-d425-4129-8432-dd145542833e.png" />
               <div>
                 <h1 className="text-xl font-bold text-primary leading-none">Brasul</h1>
                 <p className="text-xs text-gray-600">TRANSPORTES</p>
