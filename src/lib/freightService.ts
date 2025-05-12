@@ -1,4 +1,3 @@
-
 import { supabase, type Freight } from './supabase';
 import { toast } from '@/components/ui/use-toast';
 
@@ -83,6 +82,20 @@ export const getFilteredFreights = async (
   }
   
   return data as Freight[];
+};
+
+// Get freight count
+export const getFreightCount = async (): Promise<number> => {
+  const { count, error } = await supabase
+    .from('freights')
+    .select('*', { count: 'exact', head: true });
+  
+  if (error) {
+    console.error('Error counting freights:', error);
+    return 0;
+  }
+  
+  return count || 0;
 };
 
 // Clean up old freights

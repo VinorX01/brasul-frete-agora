@@ -4,7 +4,7 @@ import FreightFilter, { FilterValues } from "@/components/FreightFilter";
 import FreightCard from "@/components/FreightCard";
 import FreightDetails from "@/components/FreightDetails";
 import { Truck } from "lucide-react";
-import { getFilteredFreights } from "@/lib/freightService";
+import { getFilteredFreights, getFreightCount } from "@/lib/freightService";
 import { type Freight } from "@/lib/supabase";
 
 const FindFreight = () => {
@@ -13,6 +13,7 @@ const FindFreight = () => {
   const [hasFiltered, setHasFiltered] = useState(false);
   const [selectedFreight, setSelectedFreight] = useState<Freight | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [freightCount, setFreightCount] = useState<number>(0);
 
   useEffect(() => {
     // Load all freights initially
@@ -21,6 +22,7 @@ const FindFreight = () => {
       try {
         const freights = await getFilteredFreights();
         setFilteredFreights(freights);
+        setFreightCount(freights.length);
       } catch (error) {
         console.error("Error fetching freights:", error);
       } finally {
@@ -55,6 +57,7 @@ const FindFreight = () => {
         filters.tollIncluded
       );
       setFilteredFreights(results);
+      setFreightCount(results.length);
     } catch (error) {
       console.error("Error filtering freights:", error);
     } finally {
@@ -88,7 +91,9 @@ const FindFreight = () => {
             </div>
           </div> : filteredFreights.length > 0 ? <div>
             <h2 className="text-xl font-semibold mb-4">
-              {hasFiltered ? 'Resultados da busca' : 'Todos os fretes disponíveis'}
+              {hasFiltered 
+                ? `${freightCount} fretes encontrados`
+                : `${freightCount} fretes disponíveis`}
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredFreights.map(freight => <FreightCard key={freight.id} freight={freight} onViewDetails={handleViewDetails} />)}
