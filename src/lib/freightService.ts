@@ -1,4 +1,3 @@
-
 import { supabase, type Freight } from './supabase';
 import { toast } from '@/components/ui/use-toast';
 
@@ -267,35 +266,4 @@ export const staticTruckTypes = [
   "Sider",
   "Cegonha",
   "Prancha"
-];
-
-// Adding the missing static arrays
-export const staticOrigins = [
-  "São Paulo",
-  "Rio de Janeiro",
-  "Belo Horizonte",
-  "Curitiba",
-  "Porto Alegre",
-  "Recife",
-  "Salvador",
-  "Fortaleza",
-  "Brasília",
-  "Manaus",
-  "Belém",
-  "Goiânia"
-];
-
-export const staticDestinations = [
-  "São Paulo",
-  "Rio de Janeiro",
-  "Belo Horizonte",
-  "Curitiba",
-  "Porto Alegre",
-  "Recife",
-  "Salvador",
-  "Fortaleza",
-  "Brasília",
-  "Manaus",
-  "Belém",
-  "Goiânia"
 ];

@@ -49,10 +49,8 @@ export type Database = {
           grupo_origem: string | null
           id: string
           mensagem_original: string | null
-          nome_remetente: string | null
           origem: string | null
           processado: boolean | null
-          telefone_remetente: string | null
         }
         Insert: {
           contato?: string | null
@@ -63,10 +61,8 @@ export type Database = {
           grupo_origem?: string | null
           id?: string
           mensagem_original?: string | null
-          nome_remetente?: string | null
           origem?: string | null
           processado?: boolean | null
-          telefone_remetente?: string | null
         }
         Update: {
           contato?: string | null
@@ -77,10 +73,8 @@ export type Database = {
           grupo_origem?: string | null
           id?: string
           mensagem_original?: string | null
-          nome_remetente?: string | null
           origem?: string | null
           processado?: boolean | null
-          telefone_remetente?: string | null
         }
         Relationships: []
       }
