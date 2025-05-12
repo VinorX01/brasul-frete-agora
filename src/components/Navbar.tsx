@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -30,7 +31,7 @@ const Navbar = () => {
               <Button variant="ghost">Início</Button>
             </Link>
             <Link to="/frete">
-              <Button variant="default" className="">
+              <Button variant="ghost" className="bg-black text-white hover:bg-gray-800">
                 Encontrar Frete
               </Button>
             </Link>
@@ -52,7 +53,7 @@ const Navbar = () => {
               <Link to="/" className="px-4 py-2 text-primary hover:bg-gray-100 rounded" onClick={() => setIsMenuOpen(false)}>
                 Início
               </Link>
-              <Link to="/frete" className="px-4 py-2 bg-primary text-white hover:bg-primary-dark rounded" onClick={() => setIsMenuOpen(false)}>
+              <Link to="/frete" className="px-4 py-2 bg-black text-white hover:bg-gray-800 rounded" onClick={() => setIsMenuOpen(false)}>
                 Encontrar Frete
               </Link>
               <Link to="/publicar-frete" className="px-4 py-2 text-primary hover:bg-gray-100 rounded" onClick={() => setIsMenuOpen(false)}>
