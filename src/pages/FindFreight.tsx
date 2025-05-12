@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import FreightFilter, { FilterValues } from "@/components/FreightFilter";
 import FreightCard from "@/components/FreightCard";
@@ -6,12 +5,14 @@ import FreightDetails from "@/components/FreightDetails";
 import { Truck } from "lucide-react";
 import { getFilteredFreights } from "@/lib/freightService";
 import { type Freight } from "@/lib/supabase";
+
 const FindFreight = () => {
   const [filteredFreights, setFilteredFreights] = useState<Freight[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [hasFiltered, setHasFiltered] = useState(false);
   const [selectedFreight, setSelectedFreight] = useState<Freight | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
+
   useEffect(() => {
     // Load all freights initially
     const loadFreights = async () => {
@@ -27,6 +28,7 @@ const FindFreight = () => {
     };
     loadFreights();
   }, []);
+
   const handleFilter = async (filters: FilterValues) => {
     setIsLoading(true);
     setHasFiltered(true);
@@ -36,8 +38,21 @@ const FindFreight = () => {
     const destinationFilter = filters.destination === "all" ? "" : filters.destination;
     const cargoTypeFilter = filters.cargoType === "all" ? "" : filters.cargoType;
     const truckTypeFilter = filters.truckType === "all" ? "" : filters.truckType;
+
     try {
-      const results = await getFilteredFreights(originFilter, destinationFilter, cargoTypeFilter, truckTypeFilter, filters.minValue ? parseInt(filters.minValue) : undefined, filters.maxValue ? parseInt(filters.maxValue) : undefined, filters.minWeight ? parseInt(filters.minWeight) : undefined, filters.maxWeight ? parseInt(filters.maxWeight) : undefined, filters.refrigerated, filters.requiresMopp, filters.tollIncluded);
+      const results = await getFilteredFreights(
+        originFilter, 
+        destinationFilter, 
+        cargoTypeFilter, 
+        truckTypeFilter, 
+        filters.minValue ? parseInt(filters.minValue) : undefined, 
+        filters.maxValue ? parseInt(filters.maxValue) : undefined,
+        filters.minWeight ? parseInt(filters.minWeight) : undefined, 
+        filters.maxWeight ? parseInt(filters.maxWeight) : undefined,
+        filters.refrigerated,
+        filters.requiresMopp,
+        filters.tollIncluded
+      );
       setFilteredFreights(results);
     } catch (error) {
       console.error("Error filtering freights:", error);
@@ -45,10 +60,12 @@ const FindFreight = () => {
       setIsLoading(false);
     }
   };
+
   const handleViewDetails = (freight: Freight) => {
     setSelectedFreight(freight);
     setIsDetailOpen(true);
   };
+
   return <div className="bg-[#E6EAF2] min-h-screen">
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8 text-center">
@@ -87,4 +104,5 @@ const FindFreight = () => {
       </div>
     </div>;
 };
+
 export default FindFreight;

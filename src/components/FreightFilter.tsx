@@ -10,7 +10,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { Search } from "lucide-react";
+import { Search, RotateCcw } from "lucide-react";
 import { staticOrigins, staticDestinations, staticCargoTypes, staticTruckTypes } from "@/lib/freightService";
 
 export type FilterValues = {
@@ -63,7 +63,25 @@ const FreightFilter = ({ onFilter }: FreightFilterProps) => {
     onFilter(filters);
   };
 
-  // Change the button style from primary to black
+  const handleClear = () => {
+    const defaultFilters = {
+      origin: "all",
+      destination: "all",
+      cargoType: "all",
+      truckType: "all",
+      minValue: "",
+      maxValue: "",
+      minWeight: "",
+      maxWeight: "",
+      refrigerated: false,
+      requiresMopp: false,
+      tollIncluded: false,
+    };
+    
+    setFilters(defaultFilters);
+    onFilter(defaultFilters);
+  };
+
   return (
     <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
       <form onSubmit={handleSubmit}>
@@ -228,12 +246,20 @@ const FreightFilter = ({ onFilter }: FreightFilterProps) => {
           </div>
         </div>
         
-        <div className="mt-6 flex justify-center">
+        <div className="mt-6 flex justify-center gap-4">
           <Button 
             type="submit" 
             className="bg-black text-white hover:bg-gray-800"
           >
             <Search className="mr-2 h-4 w-4" /> Filtrar Resultados
+          </Button>
+          
+          <Button 
+            type="button"
+            variant="outline"
+            onClick={handleClear}
+          >
+            <RotateCcw className="mr-2 h-4 w-4" /> Limpar
           </Button>
         </div>
       </form>
