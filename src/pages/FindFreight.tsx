@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import FreightFilter, { FilterValues } from "@/components/FreightFilter";
 import FreightCard from "@/components/FreightCard";

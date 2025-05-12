@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,7 +12,8 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Search, RotateCcw } from "lucide-react";
-import { staticOrigins, staticDestinations, staticCargoTypes, staticTruckTypes } from "@/lib/freightService";
+import { staticCargoTypes, staticTruckTypes } from "@/lib/freightService";
+import MunicipalitySelect from "./MunicipalitySelect";
 
 export type FilterValues = {
   origin: string;
@@ -46,8 +48,6 @@ const FreightFilter = ({ onFilter }: FreightFilterProps) => {
     tollIncluded: false,
   });
 
-  const origins = staticOrigins;
-  const destinations = staticDestinations;
   const cargoTypes = staticCargoTypes;
   const truckTypes = staticTruckTypes;
 
@@ -88,42 +88,22 @@ const FreightFilter = ({ onFilter }: FreightFilterProps) => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <Label htmlFor="origin">Origem</Label>
-            <Select
+            <MunicipalitySelect
               value={filters.origin}
               onValueChange={(value) => handleChange("origin", value)}
-            >
-              <SelectTrigger id="origin">
-                <SelectValue placeholder="Todas as origens" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todas as origens</SelectItem>
-                {origins.map((origin) => (
-                  <SelectItem key={origin} value={origin}>
-                    {origin}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              placeholder="Origem"
+              allowAll={true}
+            />
           </div>
 
           <div>
             <Label htmlFor="destination">Destino</Label>
-            <Select
+            <MunicipalitySelect
               value={filters.destination}
               onValueChange={(value) => handleChange("destination", value)}
-            >
-              <SelectTrigger id="destination">
-                <SelectValue placeholder="Todos os destinos" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todos os destinos</SelectItem>
-                {destinations.map((destination) => (
-                  <SelectItem key={destination} value={destination}>
-                    {destination}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              placeholder="Destino"
+              allowAll={true}
+            />
           </div>
 
           <div>
