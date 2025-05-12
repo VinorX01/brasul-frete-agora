@@ -9,6 +9,7 @@ import {
   CommandGroup,
   CommandInput,
   CommandItem,
+  CommandList,
 } from "@/components/ui/command";
 import {
   Popover,
@@ -50,6 +51,7 @@ const MunicipalitySelect = ({
           setMunicipalities(results);
         } catch (error) {
           console.error("Error fetching municipalities:", error);
+          setMunicipalities([]);
         } finally {
           setLoading(false);
         }
@@ -89,59 +91,61 @@ const MunicipalitySelect = ({
             value={searchTerm}
             onValueChange={setSearchTerm}
           />
-          {loading && (
-            <div className="py-6 text-center text-sm text-muted-foreground">
-              Carregando...
-            </div>
-          )}
-          {!loading && searchTerm.length < 2 && (
-            <div className="py-6 text-center text-sm text-muted-foreground">
-              Digite pelo menos 2 caracteres para pesquisar
-            </div>
-          )}
-          {!loading && searchTerm.length >= 2 && (
-            <>
-              <CommandEmpty>Nenhum município encontrado</CommandEmpty>
-              <CommandGroup>
-                {allowAll && (
-                  <CommandItem
-                    key="all"
-                    value="all"
-                    onSelect={() => {
-                      onValueChange("all");
-                      setOpen(false);
-                    }}
-                  >
-                    <Check
-                      className={cn(
-                        "mr-2 h-4 w-4",
-                        value === "all" ? "opacity-100" : "opacity-0"
-                      )}
-                    />
-                    {placeholder.includes("Origem") ? "Todas as origens" : "Todos os destinos"}
-                  </CommandItem>
-                )}
-                {municipalities.map((municipality) => (
-                  <CommandItem
-                    key={`${municipality.name}-${municipality.state}`}
-                    value={municipality.name}
-                    onSelect={() => {
-                      onValueChange(municipality.name);
-                      setOpen(false);
-                    }}
-                  >
-                    <Check
-                      className={cn(
-                        "mr-2 h-4 w-4",
-                        value === municipality.name ? "opacity-100" : "opacity-0"
-                      )}
-                    />
-                    {municipality.name} - {municipality.state}
-                  </CommandItem>
-                ))}
-              </CommandGroup>
-            </>
-          )}
+          <CommandList>
+            {loading && (
+              <div className="py-6 text-center text-sm text-muted-foreground">
+                Carregando...
+              </div>
+            )}
+            {!loading && searchTerm.length < 2 && (
+              <div className="py-6 text-center text-sm text-muted-foreground">
+                Digite pelo menos 2 caracteres para pesquisar
+              </div>
+            )}
+            {!loading && searchTerm.length >= 2 && (
+              <>
+                <CommandEmpty>Nenhum município encontrado</CommandEmpty>
+                <CommandGroup>
+                  {allowAll && (
+                    <CommandItem
+                      key="all"
+                      value="all"
+                      onSelect={() => {
+                        onValueChange("all");
+                        setOpen(false);
+                      }}
+                    >
+                      <Check
+                        className={cn(
+                          "mr-2 h-4 w-4",
+                          value === "all" ? "opacity-100" : "opacity-0"
+                        )}
+                      />
+                      {placeholder.includes("Origem") ? "Todas as origens" : "Todos os destinos"}
+                    </CommandItem>
+                  )}
+                  {municipalities.map((municipality) => (
+                    <CommandItem
+                      key={`${municipality.name}-${municipality.state}`}
+                      value={municipality.name}
+                      onSelect={() => {
+                        onValueChange(municipality.name);
+                        setOpen(false);
+                      }}
+                    >
+                      <Check
+                        className={cn(
+                          "mr-2 h-4 w-4",
+                          value === municipality.name ? "opacity-100" : "opacity-0"
+                        )}
+                      />
+                      {municipality.name} - {municipality.state}
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              </>
+            )}
+          </CommandList>
         </Command>
       </PopoverContent>
     </Popover>
