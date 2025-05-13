@@ -141,7 +141,7 @@ const BecomeAgent = () => {
               </div>
               
               <div className="mt-6 p-4 bg-white rounded-lg border border-primary-light">
-                <p className="text-sm text-center font-medium text-primary">A comissão média dos agenciadores varia de R$ 50,00 até 10% do valor do frete, dependendo do tipo e distância da carga.</p>
+                <p className="text-sm text-center font-medium text-primary">A comissão média dos agenciadores varia de R$ 50,00 até 10% do valor do frete, dependendo do tipo, número de intermediários e distância da carga.</p>
               </div>
             </div>
           </div>
