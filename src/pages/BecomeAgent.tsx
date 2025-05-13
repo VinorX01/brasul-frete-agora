@@ -1,9 +1,26 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/components/ui/use-toast";
 import { Check } from "lucide-react";
+import { supabase } from "@/lib/supabase";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { 
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+
 const BecomeAgent = () => {
   const [formData, setFormData] = useState({
     name: "",
@@ -11,14 +28,52 @@ const BecomeAgent = () => {
     email: ""
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showCodeDialog, setShowCodeDialog] = useState(false);
+  const [generatedCode, setGeneratedCode] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [showErrorDialog, setShowErrorDialog] = useState(false);
+
   const handleChange = (field: string, value: string) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
     }));
   };
-  const handleSubmit = (e: React.FormEvent) => {
+
+  const generateAgentCode = async () => {
+    try {
+      // Get the highest existing code
+      const { data: agents, error: countError } = await supabase
+        .from("agents")
+        .select("code")
+        .order("code", { ascending: false })
+        .limit(1);
+
+      if (countError) {
+        throw new Error("Error fetching agent codes");
+      }
+
+      let newCode: string;
+
+      // Generate a new code by incrementing the highest existing code or start at 10000
+      if (agents && agents.length > 0 && !isNaN(Number(agents[0].code))) {
+        const highestCode = Number(agents[0].code);
+        newCode = String(highestCode + 1).padStart(5, '0');
+      } else {
+        newCode = "10000"; // Start with this if no codes exist
+      }
+
+      return newCode;
+    } catch (error) {
+      console.error("Error generating agent code:", error);
+      throw error;
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate required fields
     if (!formData.name || !formData.phone) {
       toast({
         title: "Campos obrigatórios",
@@ -27,25 +82,47 @@ const BecomeAgent = () => {
       });
       return;
     }
+    
     setIsSubmitting(true);
 
-    // Simulate API call
-    setTimeout(() => {
-      toast({
-        title: "Solicitação enviada com sucesso!",
-        description: "Entraremos em contato com você em breve para fornecer seu código de agenciador."
+    try {
+      // Generate a new agent code
+      const newCode = await generateAgentCode();
+      
+      // Insert new agent data into the database
+      const { error } = await supabase.from("agents").insert({
+        code: newCode,
+        name: formData.name,
+        phone: formData.phone,
+        email: formData.email || null,
+        active: true
       });
 
+      if (error) {
+        throw error;
+      }
+
+      // Store the generated code and show the success dialog
+      setGeneratedCode(newCode);
+      setShowCodeDialog(true);
+      
       // Reset form
       setFormData({
         name: "",
         phone: "",
         email: ""
       });
+    } catch (error) {
+      console.error("Error creating agent:", error);
+      setErrorMessage("Ocorreu um erro ao gerar seu código. Por favor tente novamente.");
+      setShowErrorDialog(true);
+    } finally {
       setIsSubmitting(false);
-    }, 1000);
+    }
   };
-  return <div className="bg-[#f4f4fc] min-h-screen">
+
+  return (
+    <div className="bg-[#f4f4fc] min-h-screen">
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
           <div className="mb-8 text-center">
@@ -79,7 +156,7 @@ const BecomeAgent = () => {
                   </div>
 
                   <Button type="submit" className="w-full mt-4" disabled={isSubmitting}>
-                    {isSubmitting ? "Enviando..." : "Solicitar Código"}
+                    {isSubmitting ? "Gerando código..." : "Solicitar Código"}
                   </Button>
                   
                   <p className="text-xs text-gray-500 mt-2">
@@ -177,6 +254,40 @@ const BecomeAgent = () => {
           </div>
         </div>
       </div>
-    </div>;
+
+      {/* Success Dialog - Show when code is generated */}
+      <Dialog open={showCodeDialog} onOpenChange={setShowCodeDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-center text-xl">Parabéns, {formData.name}!</DialogTitle>
+            <DialogDescription className="text-center">
+              <p className="mt-4 mb-6">Seu código é:</p>
+              <div className="text-3xl font-bold text-primary mb-6">{generatedCode}</div>
+              <p>O código já está pronto para ser utilizado.</p>
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-center mt-4">
+            <Button onClick={() => setShowCodeDialog(false)}>Fechar</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Error Dialog */}
+      <AlertDialog open={showErrorDialog} onOpenChange={setShowErrorDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Erro</AlertDialogTitle>
+            <AlertDialogDescription>
+              {errorMessage}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="flex justify-end mt-4">
+            <Button onClick={() => setShowErrorDialog(false)}>Fechar</Button>
+          </div>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
+  );
 };
+
 export default BecomeAgent;
