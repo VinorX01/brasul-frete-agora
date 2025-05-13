@@ -10,6 +10,9 @@ import {
 import { useNavigate } from "react-router-dom";
 import { findFreightById, recordFreightAgentReferral } from "@/lib/freightService";
 import { type Freight } from "@/lib/supabase";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { toast } from "@/components/ui/use-toast";
 
 const FreightDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -18,6 +21,9 @@ const FreightDetail = () => {
   const [freight, setFreight] = useState<Freight | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [agentCode, setAgentCode] = useState<string | null>(null);
+  const [isAgentDialogOpen, setIsAgentDialogOpen] = useState(false);
+  const [agentInputCode, setAgentInputCode] = useState("");
+  const [generatedLink, setGeneratedLink] = useState("");
 
   useEffect(() => {
     setIsLoading(true);
@@ -81,6 +87,11 @@ const FreightDetail = () => {
     }).format(value);
   };
 
+  const calculateAgentCommission = (value: number | null) => {
+    if (value === null) return null;
+    return value * 0.1; // 10% commission
+  };
+
   const formatDate = (dateString: string | null) => {
     if (!dateString) return "Não informado";
     
@@ -104,6 +115,32 @@ const FreightDetail = () => {
 
   const handleGoBack = () => {
     navigate(-1);
+  };
+
+  const handleGenerateLink = async () => {
+    if (!agentInputCode || !freight) {
+      toast({
+        title: "Código obrigatório",
+        description: "Por favor, insira seu código de agenciador.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Generate the agent URL with the new domain
+    const domain = "https://brasultransportes.com";
+    const url = `${domain}/frete/ag?${agentInputCode}&${freight.id}`;
+    
+    // Record referral in database
+    await recordFreightAgentReferral(freight.id, agentInputCode);
+
+    // Copy URL to clipboard
+    navigator.clipboard.writeText(url);
+    setGeneratedLink(url);
+    toast({
+      title: "Link gerado com sucesso!",
+      description: "O link foi copiado para sua área de transferência."
+    });
   };
 
   if (isLoading) {
@@ -306,13 +343,22 @@ const FreightDetail = () => {
             <p className="mb-4">
               Entre em contato com o embarcador para negociar este frete:
             </p>
-            <Button 
-              onClick={handleContactClick} 
-              className="w-full flex items-center justify-center"
-            >
-              <Phone className="mr-2 h-5 w-5" />
-              Contato via WhatsApp
-            </Button>
+            <div className="flex flex-wrap gap-3">
+              <Button 
+                onClick={handleContactClick} 
+                className="flex-1 flex items-center justify-center"
+              >
+                <Phone className="mr-2 h-5 w-5" />
+                Contato via WhatsApp
+              </Button>
+              <Button 
+                variant="outline"
+                onClick={() => setIsAgentDialogOpen(true)}
+                className="flex-1 flex items-center justify-center"
+              >
+                Agenciar este Frete
+              </Button>
+            </div>
             <p className="text-xs text-gray-500 text-center mt-2">
               Mencione o ID do frete ao entrar em contato
             </p>
@@ -334,6 +380,50 @@ const FreightDetail = () => {
           </Button>
         </div>
       </div>
+
+      {/* Agent Dialog */}
+      <Dialog open={isAgentDialogOpen} onOpenChange={setIsAgentDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Agenciar este frete</DialogTitle>
+            <DialogDescription>
+              Digite seu código de agenciador para gerar um link personalizado para este frete.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="py-4">
+            <p className="mb-4 text-sm">
+              <strong>Origem:</strong> {freight.origin}<br />
+              <strong>Destino:</strong> {freight.destination}<br />
+              <strong>Valor:</strong> {formatCurrency(freight.value)}
+              {freight.value !== null && (
+                <span className="block mt-2 text-green-600 font-medium">
+                  *Você pode receber até {formatCurrency(calculateAgentCommission(freight.value))}
+                </span>
+              )}
+              <span className="block mt-1 text-xs text-gray-500">
+                *Valor máximo caso seja o único intermediário.
+              </span>
+            </p>
+            
+            <Input placeholder="Digite seu código de agenciador" value={agentInputCode} onChange={e => setAgentInputCode(e.target.value)} className="mb-2" />
+            
+            <p className="text-xs text-gray-500 mt-2">
+              Este código será usado para identificar você como agenciador deste frete.
+            </p>
+            
+            {generatedLink && <div className="mt-4 p-3 bg-gray-100 rounded-md">
+                <p className="text-sm font-medium">Seu link único:</p>
+                <p className="text-xs break-all mt-1 text-[#0095ff] font-normal">{generatedLink}</p>
+              </div>}
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsAgentDialogOpen(false)}>Cancelar</Button>
+            <Button onClick={handleGenerateLink}>Gerar Link</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

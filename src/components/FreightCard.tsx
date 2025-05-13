@@ -46,6 +46,11 @@ const FreightCard: React.FC<FreightCardProps> = ({
     }).format(value);
   };
 
+  const calculateAgentCommission = (value: number | null) => {
+    if (value === null) return null;
+    return value * 0.1; // 10% commission
+  };
+
   const formatDate = (dateString: string | null) => {
     if (!dateString) return null;
     const date = new Date(dateString);
@@ -177,6 +182,14 @@ const FreightCard: React.FC<FreightCardProps> = ({
               <strong>Origem:</strong> {freight.origin}<br />
               <strong>Destino:</strong> {freight.destination}<br />
               <strong>Valor:</strong> {formatCurrency(freight.value)}
+              {freight.value !== null && (
+                <span className="block mt-2 text-green-600 font-medium">
+                  *Você pode receber até {formatCurrency(calculateAgentCommission(freight.value))}
+                </span>
+              )}
+              <span className="block mt-1 text-xs text-gray-500">
+                *Valor máximo caso seja o único intermediário.
+              </span>
             </p>
             
             <Input placeholder="Digite seu código de agenciador" value={agentCode} onChange={e => setAgentCode(e.target.value)} className="mb-2" />
