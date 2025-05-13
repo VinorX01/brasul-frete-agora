@@ -259,7 +259,7 @@ const BecomeAgent = () => {
       <Dialog open={showCodeDialog} onOpenChange={setShowCodeDialog}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-center text-xl">Parabéns, {formData.name}!</DialogTitle>
+            <DialogTitle className="text-center text-xl">Novo código gerado com sucesso!</DialogTitle>
             <DialogDescription className="text-center">
               <p className="mt-4 mb-6">Seu código é:</p>
               <div className="text-3xl font-bold text-primary mb-6">{generatedCode}</div>
