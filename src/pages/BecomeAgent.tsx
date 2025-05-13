@@ -171,7 +171,7 @@ const BecomeAgent = () => {
               
               <div>
                 <h3 className="font-semibold text-primary mb-2">Quanto tempo leva para receber meu código?</h3>
-                <p className="text-gray-600 text-sm">Sem demora, seu código fica pronto em até 5 minutos após a solicitação.</p>
+                <p className="text-gray-600 text-sm">Sem demora, seu código fica pronto no mesmo instante após a solicitação.</p>
               </div>
             </div>
           </div>
