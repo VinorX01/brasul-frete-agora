@@ -6,6 +6,7 @@ import FreightDetails from "@/components/FreightDetails";
 import { Truck } from "lucide-react";
 import { getFilteredFreights, getFreightCount } from "@/lib/freightService";
 import { type Freight } from "@/lib/supabase";
+import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 
 const FindFreight = () => {
   const [filteredFreights, setFilteredFreights] = useState<Freight[]>([]);
@@ -14,61 +15,90 @@ const FindFreight = () => {
   const [selectedFreight, setSelectedFreight] = useState<Freight | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [freightCount, setFreightCount] = useState<number>(0);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [currentFilters, setCurrentFilters] = useState<FilterValues | null>(null);
+  const ITEMS_PER_PAGE = 50;
+
+  // Load freights with the current filters and page
+  const loadFreights = async (filters: FilterValues | null = null, page = 0) => {
+    setIsLoading(true);
+    
+    try {
+      // If we have filters, use them, otherwise use empty values
+      const originFilter = filters?.origin === "all" ? "" : filters?.origin || "";
+      const destinationFilter = filters?.destination === "all" ? "" : filters?.destination || "";
+      const cargoTypeFilter = filters?.cargoType === "all" ? "" : filters?.cargoType || "";
+      const truckTypeFilter = filters?.truckType === "all" ? "" : filters?.truckType || "";
+      const minValueNum = filters?.minValue ? parseInt(filters.minValue) : undefined;
+      const maxValueNum = filters?.maxValue ? parseInt(filters.maxValue) : undefined;
+      const minWeightNum = filters?.minWeight ? parseInt(filters.minWeight) : undefined;
+      const maxWeightNum = filters?.maxWeight ? parseInt(filters.maxWeight) : undefined;
+
+      // Get total count first (without pagination)
+      const count = await getFreightCount(
+        originFilter,
+        destinationFilter,
+        cargoTypeFilter,
+        truckTypeFilter,
+        minValueNum,
+        maxValueNum,
+        minWeightNum,
+        maxWeightNum,
+        filters?.refrigerated,
+        filters?.requiresMopp,
+        filters?.tollIncluded
+      );
+      setFreightCount(count);
+
+      // Then get paginated results
+      const freights = await getFilteredFreights(
+        originFilter,
+        destinationFilter,
+        cargoTypeFilter,
+        truckTypeFilter,
+        minValueNum,
+        maxValueNum,
+        minWeightNum,
+        maxWeightNum,
+        filters?.refrigerated,
+        filters?.requiresMopp,
+        filters?.tollIncluded,
+        ITEMS_PER_PAGE,
+        page
+      );
+      setFilteredFreights(freights);
+    } catch (error) {
+      console.error("Error loading freights:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
     // Load all freights initially
-    const loadFreights = async () => {
-      setIsLoading(true);
-      try {
-        const freights = await getFilteredFreights();
-        setFilteredFreights(freights);
-        setFreightCount(freights.length);
-      } catch (error) {
-        console.error("Error fetching freights:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
     loadFreights();
   }, []);
 
   const handleFilter = async (filters: FilterValues) => {
-    setIsLoading(true);
     setHasFiltered(true);
+    setCurrentFilters(filters);
+    setCurrentPage(0); // Reset to first page on new filter
+    
+    await loadFreights(filters, 0);
+  };
 
-    // Convert "all" values to empty string for the backend filter
-    const originFilter = filters.origin === "all" ? "" : filters.origin;
-    const destinationFilter = filters.destination === "all" ? "" : filters.destination;
-    const cargoTypeFilter = filters.cargoType === "all" ? "" : filters.cargoType;
-    const truckTypeFilter = filters.truckType === "all" ? "" : filters.truckType;
-
-    try {
-      const results = await getFilteredFreights(
-        originFilter, 
-        destinationFilter, 
-        cargoTypeFilter, 
-        truckTypeFilter, 
-        filters.minValue ? parseInt(filters.minValue) : undefined, 
-        filters.maxValue ? parseInt(filters.maxValue) : undefined,
-        filters.minWeight ? parseInt(filters.minWeight) : undefined, 
-        filters.maxWeight ? parseInt(filters.maxWeight) : undefined,
-        filters.refrigerated,
-        filters.requiresMopp,
-        filters.tollIncluded
-      );
-      setFilteredFreights(results);
-      setFreightCount(results.length);
-    } catch (error) {
-      console.error("Error filtering freights:", error);
-    } finally {
-      setIsLoading(false);
-    }
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    loadFreights(currentFilters, page);
   };
 
   const handleViewDetails = (freight: Freight) => {
     setSelectedFreight(freight);
     setIsDetailOpen(true);
   };
+
+  // Calculate total pages
+  const totalPages = Math.ceil(freightCount / ITEMS_PER_PAGE);
 
   return <div className="bg-[#f4f4fc] min-h-screen">
       <div className="container mx-auto px-4 py-8">
@@ -98,6 +128,74 @@ const FindFreight = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredFreights.map(freight => <FreightCard key={freight.id} freight={freight} onViewDetails={handleViewDetails} />)}
             </div>
+            
+            {/* Show pagination if we have more than one page */}
+            {totalPages > 1 && (
+              <Pagination className="mt-8">
+                <PaginationContent>
+                  {currentPage > 0 && (
+                    <PaginationItem>
+                      <PaginationPrevious 
+                        href="#" 
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handlePageChange(currentPage - 1);
+                        }} 
+                      />
+                    </PaginationItem>
+                  )}
+                  
+                  {/* Show current page and neighbors */}
+                  {[...Array(totalPages)].map((_, i) => {
+                    // Only show a few pages to avoid cluttering
+                    if (
+                      i === 0 || // First page
+                      i === totalPages - 1 || // Last page
+                      (i >= currentPage - 1 && i <= currentPage + 1) // Neighbors
+                    ) {
+                      return (
+                        <PaginationItem key={i}>
+                          <PaginationLink
+                            href="#"
+                            isActive={currentPage === i}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              handlePageChange(i);
+                            }}
+                          >
+                            {i + 1}
+                          </PaginationLink>
+                        </PaginationItem>
+                      );
+                    }
+                    // Add ellipsis for skipped pages (but don't duplicate them)
+                    else if (
+                      (i === currentPage - 2 && currentPage > 2) ||
+                      (i === currentPage + 2 && currentPage < totalPages - 3)
+                    ) {
+                      return (
+                        <PaginationItem key={i}>
+                          <PaginationLink disabled>...</PaginationLink>
+                        </PaginationItem>
+                      );
+                    }
+                    return null;
+                  })}
+                  
+                  {currentPage < totalPages - 1 && (
+                    <PaginationItem>
+                      <PaginationNext 
+                        href="#" 
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handlePageChange(currentPage + 1);
+                        }} 
+                      />
+                    </PaginationItem>
+                  )}
+                </PaginationContent>
+              </Pagination>
+            )}
           </div> : <div className="text-center py-12">
             <Truck size={48} className="mx-auto mb-4 text-gray-400" />
             <h2 className="text-xl font-semibold mb-2">Nenhum frete encontrado</h2>

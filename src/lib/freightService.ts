@@ -1,7 +1,8 @@
+
 import { supabase, type Freight } from './supabase';
 import { toast } from '@/components/ui/use-toast';
 
-// Get filtered freights
+// Get filtered freights with pagination
 export const getFilteredFreights = async (
   origin?: string,
   destination?: string,
@@ -13,7 +14,9 @@ export const getFilteredFreights = async (
   maxWeight?: number,
   refrigerated?: boolean,
   requiresMopp?: boolean,
-  tollIncluded?: boolean
+  tollIncluded?: boolean,
+  limit: number = 50,
+  page: number = 0
 ): Promise<Freight[]> => {
   // First, run the cleanup function to remove old freights
   await cleanupOldFreights();
@@ -68,6 +71,11 @@ export const getFilteredFreights = async (
   if (tollIncluded !== undefined) {
     query = query.eq('toll_included', tollIncluded);
   }
+  
+  // Add pagination
+  if (limit > 0) {
+    query = query.range(page * limit, (page * limit) + limit - 1);
+  }
 
   const { data, error } = await query;
   
@@ -85,10 +93,69 @@ export const getFilteredFreights = async (
 };
 
 // Get freight count
-export const getFreightCount = async (): Promise<number> => {
-  const { count, error } = await supabase
+export const getFreightCount = async (
+  origin?: string,
+  destination?: string,
+  cargoType?: string,
+  truckType?: string,
+  minValue?: number,
+  maxValue?: number,
+  minWeight?: number,
+  maxWeight?: number,
+  refrigerated?: boolean,
+  requiresMopp?: boolean,
+  tollIncluded?: boolean
+): Promise<number> => {
+  let query = supabase
     .from('freights')
     .select('*', { count: 'exact', head: true });
+  
+  // Apply the same filters as getFilteredFreights for consistent counting
+  if (origin && origin !== 'all') {
+    query = query.ilike('origin', `%${origin}%`);
+  }
+  
+  if (destination && destination !== 'all') {
+    query = query.ilike('destination', `%${destination}%`);
+  }
+  
+  if (cargoType && cargoType !== 'all') {
+    query = query.eq('cargo_type', cargoType);
+  }
+  
+  if (truckType && truckType !== 'all') {
+    query = query.eq('truck_type', truckType);
+  }
+  
+  if (minValue !== undefined) {
+    query = query.gte('value', minValue);
+  }
+  
+  if (maxValue !== undefined) {
+    query = query.lte('value', maxValue);
+  }
+  
+  if (minWeight !== undefined) {
+    query = query.gte('weight', minWeight);
+  }
+  
+  if (maxWeight !== undefined) {
+    query = query.lte('weight', maxWeight);
+  }
+  
+  if (refrigerated !== undefined) {
+    query = query.eq('refrigerated', refrigerated);
+  }
+  
+  if (requiresMopp !== undefined) {
+    query = query.eq('requires_mopp', requiresMopp);
+  }
+  
+  if (tollIncluded !== undefined) {
+    query = query.eq('toll_included', tollIncluded);
+  }
+  
+  const { count, error } = await query;
   
   if (error) {
     console.error('Error counting freights:', error);
