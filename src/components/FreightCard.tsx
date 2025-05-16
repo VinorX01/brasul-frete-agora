@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -246,7 +245,7 @@ Link: ${url}`;
                   </Button>
                 </div>
                 <pre 
-                  className="text-xs break-all whitespace-pre-wrap font-normal text-gray-800 cursor-pointer" 
+                  className="text-xs break-all whitespace-pre-wrap font-normal text-blue-600 cursor-pointer" 
                   onClick={handleCopyClick}
                 >
                   {shareableText}
@@ -266,4 +265,3 @@ Link: ${url}`;
 };
 
 export default FreightCard;
-
