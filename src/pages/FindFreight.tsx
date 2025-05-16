@@ -6,7 +6,7 @@ import FreightDetails from "@/components/FreightDetails";
 import { Truck } from "lucide-react";
 import { getFilteredFreights, getFreightCount } from "@/lib/freightService";
 import { type Freight } from "@/lib/supabase";
-import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
+import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious, PaginationEllipsis } from "@/components/ui/pagination";
 
 const FindFreight = () => {
   const [filteredFreights, setFilteredFreights] = useState<Freight[]>([]);
@@ -175,7 +175,7 @@ const FindFreight = () => {
                     ) {
                       return (
                         <PaginationItem key={i}>
-                          <PaginationLink disabled>...</PaginationLink>
+                          <PaginationEllipsis />
                         </PaginationItem>
                       );
                     }
