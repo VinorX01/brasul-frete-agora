@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -5,7 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { toast } from "@/components/ui/use-toast";
 import { type Freight } from "@/lib/supabase";
 import { recordFreightAgentReferral } from "@/lib/freightService";
-import { BadgeCheck, Truck, RefrigeratorIcon, PackageCheck, DollarSign } from "lucide-react";
+import { BadgeCheck, Truck, RefrigeratorIcon, PackageCheck, DollarSign, Copy, CheckCircle2 } from "lucide-react";
 
 interface FreightCardProps {
   freight: Freight;
@@ -19,6 +20,8 @@ const FreightCard: React.FC<FreightCardProps> = ({
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [agentCode, setAgentCode] = useState("");
   const [generatedLink, setGeneratedLink] = useState("");
+  const [shareableText, setShareableText] = useState("");
+  const [copied, setCopied] = useState(false);
 
   // Check for agent code in URL parameters
   const [currentAgentCode, setCurrentAgentCode] = useState<string | null>(null);
@@ -73,13 +76,45 @@ const FreightCard: React.FC<FreightCardProps> = ({
     // Record referral in database
     await recordFreightAgentReferral(freight.id, agentCode);
 
-    // Copy URL to clipboard
-    navigator.clipboard.writeText(url);
+    // Criar o texto completo para compartilhamento
+    const formattedWeight = freight.weight ? `${freight.weight} kg` : "Não informado";
+    const cargoContent = freight.cargo_content || "Não informado";
+    
+    const text = `Origem: ${freight.origin}
+Destino: ${freight.destination}
+Valor: ${formatCurrency(freight.value)}
+Peso: ${formattedWeight}
+Conteúdo da carga: ${cargoContent}
+Link: ${url}`;
+
+    // Armazenar o link e o texto completo
     setGeneratedLink(url);
+    setShareableText(text);
+    
+    // Copiar para área de transferência
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    
     toast({
-      title: "Link gerado com sucesso!",
-      description: "O link foi copiado para sua área de transferência."
+      title: "Texto gerado com sucesso!",
+      description: "As informações foram copiadas para sua área de transferência."
     });
+    
+    // Reset copied status after 3 seconds
+    setTimeout(() => setCopied(false), 3000);
+  };
+
+  const handleCopyClick = () => {
+    navigator.clipboard.writeText(shareableText);
+    setCopied(true);
+    
+    toast({
+      title: "Copiado!",
+      description: "As informações foram copiadas para sua área de transferência."
+    });
+    
+    // Reset copied status after 3 seconds
+    setTimeout(() => setCopied(false), 3000);
   };
 
   const handleContactClick = async () => {
@@ -197,10 +232,27 @@ const FreightCard: React.FC<FreightCardProps> = ({
               Este código será usado para identificar você como agenciador deste frete.
             </p>
             
-            {generatedLink && <div className="mt-4 p-3 bg-gray-100 rounded-md">
-                <p className="text-sm font-medium">Seu link único:</p>
-                <p className="text-xs break-all mt-1 text-[#0095ff] font-normal">{generatedLink}</p>
-              </div>}
+            {shareableText && (
+              <div className="mt-4 p-3 bg-gray-100 rounded-md relative">
+                <div className="flex justify-between items-start mb-2">
+                  <p className="text-sm font-medium">Seu texto para compartilhamento:</p>
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    onClick={handleCopyClick}
+                    className="h-6 w-6"
+                  >
+                    {copied ? <CheckCircle2 size={16} className="text-green-500" /> : <Copy size={16} />}
+                  </Button>
+                </div>
+                <pre 
+                  className="text-xs break-all whitespace-pre-wrap font-normal text-gray-800 cursor-pointer" 
+                  onClick={handleCopyClick}
+                >
+                  {shareableText}
+                </pre>
+              </div>
+            )}
           </div>
           
           <DialogFooter>
@@ -214,3 +266,4 @@ const FreightCard: React.FC<FreightCardProps> = ({
 };
 
 export default FreightCard;
+
