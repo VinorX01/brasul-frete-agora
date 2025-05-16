@@ -39,48 +39,6 @@ export type Database = {
         }
         Relationships: []
       }
-      cargas: {
-        Row: {
-          data_postagem: string | null
-          data_processamento: string | null
-          descricao: string | null
-          destino: string | null
-          grupo_origem: string | null
-          id: string
-          mensagem_original: string | null
-          nome_remetente: string | null
-          origem: string | null
-          processado: boolean | null
-          telefone_remetente: string | null
-        }
-        Insert: {
-          data_postagem?: string | null
-          data_processamento?: string | null
-          descricao?: string | null
-          destino?: string | null
-          grupo_origem?: string | null
-          id?: string
-          mensagem_original?: string | null
-          nome_remetente?: string | null
-          origem?: string | null
-          processado?: boolean | null
-          telefone_remetente?: string | null
-        }
-        Update: {
-          data_postagem?: string | null
-          data_processamento?: string | null
-          descricao?: string | null
-          destino?: string | null
-          grupo_origem?: string | null
-          id?: string
-          mensagem_original?: string | null
-          nome_remetente?: string | null
-          origem?: string | null
-          processado?: boolean | null
-          telefone_remetente?: string | null
-        }
-        Relationships: []
-      }
       freight_agent_referrals: {
         Row: {
           agent_code: string
@@ -120,6 +78,7 @@ export type Database = {
           contact: string
           created_at: string
           date: string
+          description: string | null
           destination: string
           dry_cargo: boolean | null
           expected_delivery_date: string | null
@@ -131,6 +90,7 @@ export type Database = {
           loading_date: string | null
           observations: string | null
           origin: string
+          processing_date: string | null
           refrigerated: boolean | null
           requires_mopp: boolean | null
           sender_company: string | null
@@ -148,6 +108,7 @@ export type Database = {
           contact: string
           created_at?: string
           date?: string
+          description?: string | null
           destination: string
           dry_cargo?: boolean | null
           expected_delivery_date?: string | null
@@ -159,6 +120,7 @@ export type Database = {
           loading_date?: string | null
           observations?: string | null
           origin: string
+          processing_date?: string | null
           refrigerated?: boolean | null
           requires_mopp?: boolean | null
           sender_company?: string | null
@@ -176,6 +138,7 @@ export type Database = {
           contact?: string
           created_at?: string
           date?: string
+          description?: string | null
           destination?: string
           dry_cargo?: boolean | null
           expected_delivery_date?: string | null
@@ -187,6 +150,7 @@ export type Database = {
           loading_date?: string | null
           observations?: string | null
           origin?: string
+          processing_date?: string | null
           refrigerated?: boolean | null
           requires_mopp?: boolean | null
           sender_company?: string | null

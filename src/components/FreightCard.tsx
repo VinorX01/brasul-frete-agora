@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -34,9 +33,9 @@ const FreightCard: React.FC<FreightCardProps> = ({
   }, []);
 
   const formatCurrency = (value: number | null) => {
-    // Return "Valor a combinar" for null values
-    if (value === null) {
-      return "Valor a combinar";
+    // Return "Valor a combinar" for null or zero values
+    if (value === null || value === 0 || value === 0.00) {
+      return "A combinar";
     }
     
     // Format as currency

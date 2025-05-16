@@ -1,4 +1,3 @@
-
 import { type Freight } from "@/lib/supabase";
 import { recordFreightAgentReferral } from "@/lib/freightService";
 import {
@@ -45,9 +44,9 @@ const FreightDetails: React.FC<FreightDetailsProps> = ({
   }, []);
 
   const formatCurrency = (value: number | null) => {
-    // Return "Valor a combinar" for null values
-    if (value === null) {
-      return "Valor a combinar";
+    // Return "A combinar" for null or zero values
+    if (value === null || value === 0 || value === 0.00) {
+      return "A combinar";
     }
     
     return new Intl.NumberFormat('pt-BR', {
