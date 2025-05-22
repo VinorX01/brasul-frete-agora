@@ -139,7 +139,7 @@ Link: ${url}`;
             {formatCurrency(freight.value)}
           </div>
           <div className="text-gray-500 text-sm">
-            {formatDate(freight.date)}
+            <p>Publicado em: {formatDate(freight.date)}</p>  
           </div>
         </div>
         
