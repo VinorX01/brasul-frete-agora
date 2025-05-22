@@ -183,6 +183,16 @@ Link: ${url}`;
               <DollarSign size={12} className="mr-1" /> Pedágio Incluso
             </span>
           )}
+          {freight.has_insurance && (
+            <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
+              <DollarSign size={12} className="mr-1" /> Seguro
+            </span>
+          )}
+          {freight.tarp_required && (
+            <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
+              <DollarSign size={12} className="mr-1" /> Lona Obrigatória
+            </span>
+          )}
         </div>
         
         <div className="flex justify-between items-center mt-4">
