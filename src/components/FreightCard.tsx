@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { toast } from "@/components/ui/use-toast";
 import { type Freight } from "@/lib/supabase";
 import { recordFreightAgentReferral } from "@/lib/freightService";
-import { BadgeCheck, Truck, RefrigeratorIcon, PackageCheck, DollarSign, Copy, CheckCircle2 } from "lucide-react";
+import { BadgeCheck, Truck, RefrigeratorIcon, PackageCheck, DollarSign, Copy, CheckCircle2, Shield, Tent } from "lucide-react";
 
 interface FreightCardProps {
   freight: Freight;
@@ -185,12 +185,12 @@ Link: ${url}`;
           )}
           {freight.tarp_required && (
             <span className="inline-flex items-center rounded-full bg-purple-100 px-2.5 py-0.5 text-xs font-medium text-purple-800">
-              <DollarSign size={12} className="mr-1" /> Lona Obrigatória
+              <Tent size={12} className="mr-1" /> Lona Obrigatória
             </span>
           )}
           {freight.has_insurance && (
             <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
-              <DollarSign size={12} className="mr-1" /> Seguro
+              <Shield size={12} className="mr-1" /> Seguro
             </span>
           )}
           
