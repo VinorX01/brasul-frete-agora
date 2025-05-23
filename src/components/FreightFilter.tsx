@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Search, RotateCcw } from "lucide-react";
 import { staticCargoTypes, staticTruckTypes } from "@/lib/freightService";
 import MunicipalitySelect from "./MunicipalitySelect";
+import { Switch } from "@/components/ui/switch";
 
 export type FilterValues = {
   origin: string;
@@ -27,6 +27,7 @@ export type FilterValues = {
   refrigerated: boolean;
   requiresMopp: boolean;
   tollIncluded: boolean;
+  showPerKmRate: boolean; // New property for the rate display toggle
 };
 
 type FreightFilterProps = {
@@ -46,6 +47,7 @@ const FreightFilter = ({ onFilter }: FreightFilterProps) => {
     refrigerated: false,
     requiresMopp: false,
     tollIncluded: false,
+    showPerKmRate: false, // Default to showing per ton/km
   });
 
   const cargoTypes = staticCargoTypes;
@@ -56,6 +58,14 @@ const FreightFilter = ({ onFilter }: FreightFilterProps) => {
       ...prev,
       [field]: value,
     }));
+    
+    // Immediately apply filter change for the rate display toggle
+    if (field === "showPerKmRate") {
+      onFilter({
+        ...filters,
+        showPerKmRate: value as boolean
+      });
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -76,6 +86,7 @@ const FreightFilter = ({ onFilter }: FreightFilterProps) => {
       refrigerated: false,
       requiresMopp: false,
       tollIncluded: false,
+      showPerKmRate: false,
     };
     
     setFilters(defaultFilters);
@@ -224,6 +235,16 @@ const FreightFilter = ({ onFilter }: FreightFilterProps) => {
             />
             <Label htmlFor="tollIncluded">Pedágio Incluso</Label>
           </div>
+        </div>
+        
+        {/* Rate comparison toggle */}
+        <div className="flex items-center justify-center mt-6 space-x-2 pb-4 border-b border-gray-200">
+          <span className="text-sm font-medium">Comparativo por ton/km</span>
+          <Switch 
+            checked={filters.showPerKmRate}
+            onCheckedChange={(checked) => handleChange("showPerKmRate", checked)}
+          />
+          <span className="text-sm font-medium">Comparativo por km</span>
         </div>
         
         <div className="mt-6 flex justify-center gap-4">

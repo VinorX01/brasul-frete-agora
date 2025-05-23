@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import FreightFilter, { FilterValues } from "@/components/FreightFilter";
 import FreightCard from "@/components/FreightCard";
@@ -17,6 +16,7 @@ const FindFreight = () => {
   const [freightCount, setFreightCount] = useState<number>(0);
   const [currentPage, setCurrentPage] = useState(0);
   const [currentFilters, setCurrentFilters] = useState<FilterValues | null>(null);
+  const [showPerKmRate, setShowPerKmRate] = useState(false); // New state for rate display toggle
   const ITEMS_PER_PAGE = 50;
 
   // Load freights with the current filters and page
@@ -84,6 +84,9 @@ const FindFreight = () => {
     setCurrentFilters(filters);
     setCurrentPage(0); // Reset to first page on new filter
     
+    // Update the rate display preference
+    setShowPerKmRate(filters.showPerKmRate);
+    
     await loadFreights(filters, 0);
   };
 
@@ -126,7 +129,14 @@ const FindFreight = () => {
                 : `${freightCount} fretes disponíveis`}
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredFreights.map(freight => <FreightCard key={freight.id} freight={freight} onViewDetails={handleViewDetails} />)}
+              {filteredFreights.map(freight => (
+                <FreightCard 
+                  key={freight.id} 
+                  freight={freight} 
+                  onViewDetails={handleViewDetails}
+                  showPerKmRate={showPerKmRate} 
+                />
+              ))}
             </div>
             
             {/* Show pagination if we have more than one page */}

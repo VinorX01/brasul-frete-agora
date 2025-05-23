@@ -10,11 +10,13 @@ import { BadgeCheck, Truck, RefrigeratorIcon, PackageCheck, DollarSign, Copy, Ch
 interface FreightCardProps {
   freight: Freight;
   onViewDetails: (freight: Freight) => void;
+  showPerKmRate?: boolean; // New prop to determine which comparison to show
 }
 
 const FreightCard: React.FC<FreightCardProps> = ({
   freight,
-  onViewDetails
+  onViewDetails,
+  showPerKmRate = false // Default to per ton/km
 }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [agentCode, setAgentCode] = useState("");
@@ -56,6 +58,57 @@ const FreightCard: React.FC<FreightCardProps> = ({
     if (!dateString) return null;
     const date = new Date(dateString);
     return date.toLocaleDateString('pt-BR');
+  };
+
+  // Calculate distance between origin and destination
+  const calculateDistance = (): number | null => {
+    // This would ideally use a real distance calculation API
+    // For now, we'll use a simplified approach with the freight.distance field if available
+    return freight.distance || null;
+  };
+
+  // Calculate the rate comparisons
+  const calculateFreightRate = () => {
+    const distance = calculateDistance();
+    const weight = freight.weight ? freight.weight / 1000 : null; // Convert kg to tons
+    const value = freight.value;
+
+    // If any required value is missing, we can't calculate the rate
+    if (!distance || !weight || !value) return null;
+
+    // If value is less than R$ 1,000, it represents per-ton price
+    const isPerTonValue = value < 1000;
+    
+    if (showPerKmRate) {
+      // Comparison per km: (value per ton * weight in tons / distance in km) or (total freight value / distance in km)
+      if (isPerTonValue) {
+        return (value * weight) / distance;
+      } else {
+        return value / distance;
+      }
+    } else {
+      // Comparison per ton/km: (value per ton / distance in km) or (total freight value / (weight in tons * distance in km))
+      if (isPerTonValue) {
+        return value / distance;
+      } else {
+        return value / (weight * distance);
+      }
+    }
+  };
+
+  // Format the rate for display
+  const getFormattedRate = () => {
+    const rate = calculateFreightRate();
+    if (rate === null) return null;
+
+    const formattedRate = new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(rate);
+
+    return showPerKmRate ? `${formattedRate} /km` : `${formattedRate} /ton/km`;
   };
 
   const handleGenerateLink = async () => {
@@ -137,6 +190,12 @@ Link: ${url}`;
         <div className="flex justify-between mb-4">
           <div className="text-primary font-bold">
             {formatCurrency(freight.value)}
+            {/* Display the freight rate comparison if available */}
+            {getFormattedRate() && (
+              <div className="text-green-600 text-sm font-normal">
+                {getFormattedRate()}
+              </div>
+            )}
           </div>
           <div className="text-gray-500 text-sm">
             <p>Publicado em: {formatDate(freight.date)}</p>  

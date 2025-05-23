@@ -85,6 +85,7 @@ export type Database = {
           freight_distance: number | null
           has_insurance: boolean | null
           has_tracker: boolean | null
+          hashFrete: string | null
           id: string
           live_cargo: boolean | null
           loading_date: string | null
@@ -115,6 +116,7 @@ export type Database = {
           freight_distance?: number | null
           has_insurance?: boolean | null
           has_tracker?: boolean | null
+          hashFrete?: string | null
           id?: string
           live_cargo?: boolean | null
           loading_date?: string | null
@@ -145,6 +147,7 @@ export type Database = {
           freight_distance?: number | null
           has_insurance?: boolean | null
           has_tracker?: boolean | null
+          hashFrete?: string | null
           id?: string
           live_cargo?: boolean | null
           loading_date?: string | null
