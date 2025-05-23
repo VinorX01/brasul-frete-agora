@@ -73,13 +73,16 @@ const FreightCard: React.FC<FreightCardProps> = ({
     const weight = freight.weight ? freight.weight / 1000 : null; // Convert kg to tons
     const value = freight.value;
 
-    // If any required value is missing, we can't calculate the rate
-    if (!distance || !weight || !value) return null;
+    // If distance or value is missing, we can't calculate the rate
+    if (!distance || !value) return null;
 
-    // If value is less than R$ 1,000, it represents per-ton price
+    // Check if we're dealing with a per-ton price (less than R$1,000)
     const isPerTonValue = value < 1000;
     
     if (showPerKmRate) {
+      // Comparison per km requires weight for both cases
+      if (!weight) return null;
+      
       // Comparison per km: (value per ton * weight in tons / distance in km) or (total freight value / distance in km)
       if (isPerTonValue) {
         return (value * weight) / distance;
@@ -87,10 +90,13 @@ const FreightCard: React.FC<FreightCardProps> = ({
         return value / distance;
       }
     } else {
-      // Comparison per ton/km: (value per ton / distance in km) or (total freight value / (weight in tons * distance in km))
+      // Per ton/km comparison
       if (isPerTonValue) {
-        return value / distance;
+        // For per-ton pricing (less than R$1,000), we don't need weight
+        return value / distance; // Just divide the per-ton value by distance
       } else {
+        // For total pricing (R$1,000 or more), we do need weight to calculate the per-ton rate
+        if (!weight) return null;
         return value / (weight * distance);
       }
     }
