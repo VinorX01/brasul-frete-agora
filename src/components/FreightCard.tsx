@@ -63,8 +63,8 @@ const FreightCard: React.FC<FreightCardProps> = ({
   // Calculate distance between origin and destination
   const calculateDistance = (): number | null => {
     // This would ideally use a real distance calculation API
-    // For now, we'll use a simplified approach with the freight.distance field if available
-    return freight.distance || null;
+    // For now, we'll use the freight_distance field if available
+    return freight.freight_distance || null;
   };
 
   // Calculate the rate comparisons
