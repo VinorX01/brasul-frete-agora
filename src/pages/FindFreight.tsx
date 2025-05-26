@@ -118,7 +118,6 @@ const FindFreight = () => {
         {/* Map visualization section */}
         <div className="mb-8">
           <h2 className="text-xl font-semibold mb-4 flex items-center">
-            <span className="mr-2">📍</span>
             Visualização no Mapa
           </h2>
           <p className="text-gray-600 mb-4 text-sm">
