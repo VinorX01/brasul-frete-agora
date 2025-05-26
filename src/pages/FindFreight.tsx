@@ -1,262 +1,195 @@
-
 import { useState, useEffect } from "react";
-import FreightFilter, { FilterValues } from "@/components/FreightFilter";
+import { useLocation, useSearchParams } from "react-router-dom";
 import FreightCard from "@/components/FreightCard";
-import FreightDetails from "@/components/FreightDetails";
+import FreightFilter from "@/components/FreightFilter";
 import FreightMap from "@/components/FreightMap";
-import { Truck, Settings } from "lucide-react";
-import { getFilteredFreights, getFreightCount } from "@/lib/freightService";
-import { type Freight } from "@/lib/supabase";
-import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious, PaginationEllipsis } from "@/components/ui/pagination";
 import { Button } from "@/components/ui/button";
+import { Settings, MapPin } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { getFilteredFreights, getFreightCount } from "@/lib/freightService";
+import { toast } from "@/components/ui/use-toast";
+import MobilePageWrapper from "@/components/MobilePageWrapper";
+
+interface Freight {
+  id: string;
+  title: string;
+  origin: string;
+  destination: string;
+  price: number;
+  date: string;
+  description: string;
+  vehicleType: string;
+  weight: number;
+  dimensions: string;
+  contactName: string;
+  contactPhone: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+const ITEMS_PER_PAGE = 100;
+
+interface FreightFilters {
+  searchTerm: string;
+  origin: string;
+  destination: string;
+  vehicleType: string;
+  minPrice: number;
+  maxPrice: number;
+  minWeight: number;
+  maxWeight: number;
+}
 
 const FindFreight = () => {
-  const [filteredFreights, setFilteredFreights] = useState<Freight[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [hasFiltered, setHasFiltered] = useState(false);
-  const [selectedFreight, setSelectedFreight] = useState<Freight | null>(null);
-  const [isDetailOpen, setIsDetailOpen] = useState(false);
-  const [freightCount, setFreightCount] = useState<number>(0);
-  const [currentPage, setCurrentPage] = useState(0);
-  const [currentFilters, setCurrentFilters] = useState<FilterValues | null>(null);
-  const [showPerKmRate, setShowPerKmRate] = useState(false);
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const ITEMS_PER_PAGE = 100;
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [isFilterVisible, setIsFilterVisible] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [filters, setFilters] = useState<FreightFilters>({
+    searchTerm: searchParams.get("searchTerm") || "",
+    origin: searchParams.get("origin") || "",
+    destination: searchParams.get("destination") || "",
+    vehicleType: searchParams.get("vehicleType") || "",
+    minPrice: Number(searchParams.get("minPrice")) || 0,
+    maxPrice: Number(searchParams.get("maxPrice")) || 10000,
+    minWeight: Number(searchParams.get("minWeight")) || 0,
+    maxWeight: Number(searchParams.get("maxWeight")) || 10000,
+  });
 
-  // Load freights with the current filters and page
-  const loadFreights = async (filters: FilterValues | null = null, page = 0) => {
-    setIsLoading(true);
-    
-    try {
-      // If we have filters, use them, otherwise use empty values
-      const originFilter = filters?.origin === "all" ? "" : filters?.origin || "";
-      const destinationFilter = filters?.destination === "all" ? "" : filters?.destination || "";
-      const originStateFilter = filters?.originState === "all" ? "" : filters?.originState || "";
-      const cargoTypeFilter = filters?.cargoType === "all" ? "" : filters?.cargoType || "";
-      const truckTypeFilter = filters?.truckType === "all" ? "" : filters?.truckType || "";
-      const minValueNum = filters?.minValue ? parseInt(filters.minValue) : undefined;
-      const maxValueNum = filters?.maxValue ? parseInt(filters.maxValue) : undefined;
-      const minWeightNum = filters?.minWeight ? parseInt(filters.minWeight) : undefined;
-      const maxWeightNum = filters?.maxWeight ? parseInt(filters.maxWeight) : undefined;
+  const { data, isLoading, refetch } = useQuery(
+    ["freights", filters, currentPage],
+    () =>
+      getFilteredFreights({
+        ...filters,
+        page: currentPage,
+        itemsPerPage: ITEMS_PER_PAGE,
+      })
+  );
 
-      // Get total count first (without pagination)
-      const count = await getFreightCount(
-        originFilter,
-        destinationFilter,
-        cargoTypeFilter,
-        truckTypeFilter,
-        minValueNum,
-        maxValueNum,
-        minWeightNum,
-        maxWeightNum,
-        filters?.refrigerated,
-        filters?.requiresMopp,
-        filters?.tollIncluded,
-        originStateFilter
-      );
-      setFreightCount(count);
-
-      // Then get paginated results
-      const freights = await getFilteredFreights(
-        originFilter,
-        destinationFilter,
-        cargoTypeFilter,
-        truckTypeFilter,
-        minValueNum,
-        maxValueNum,
-        minWeightNum,
-        maxWeightNum,
-        filters?.refrigerated,
-        filters?.requiresMopp,
-        filters?.tollIncluded,
-        originStateFilter,
-        ITEMS_PER_PAGE,
-        page
-      );
-      setFilteredFreights(freights);
-    } catch (error) {
-      console.error("Error loading freights:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const { data: totalFreights } = useQuery(
+    ["freightsCount", filters],
+    () => getFreightCount(filters)
+  );
 
   useEffect(() => {
-    // Load all freights initially
-    loadFreights();
-  }, []);
+    if (totalFreights === undefined) return;
+    if (data === undefined) return;
 
-  const handleFilter = async (filters: FilterValues) => {
-    setHasFiltered(true);
-    setCurrentFilters(filters);
-    setCurrentPage(0); // Reset to first page on new filter
-    
-    // Update the rate display preference
-    setShowPerKmRate(filters.showPerKmRate);
-    
-    await loadFreights(filters, 0);
-    
-    // Close filter form after filtering
-    setIsFilterOpen(false);
+    if (data?.freights?.length === 0 && totalFreights > 0) {
+      toast({
+        title: "Nenhum frete encontrado com esses filtros.",
+        description: "Tente ajustar os filtros para encontrar fretes.",
+      });
+    }
+  }, [data, totalFreights]);
+
+  const handleFiltersChange = (newFilters: Partial<FreightFilters>) => {
+    setFilters({ ...filters, ...newFilters });
   };
 
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-    loadFreights(currentFilters, page);
+  const handleApplyFilters = () => {
+    setSearchParams(filters as any);
+    refetch();
   };
 
-  const handleViewDetails = (freight: Freight) => {
-    setSelectedFreight(freight);
-    setIsDetailOpen(true);
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
   };
-
-  const toggleFilter = () => {
-    setIsFilterOpen(!isFilterOpen);
-  };
-
-  // Calculate total pages
-  const totalPages = Math.ceil(freightCount / ITEMS_PER_PAGE);
 
   return (
-    <div className="bg-[#f4f4fc] min-h-screen">
-      <div className="container mx-auto px-4 py-8">
-    
-        {/* Map visualization section */}
-        <div className="mb-8">
-          <h2 className="text-xl font-semibold mb-4 flex items-center">
-            Visualização no Mapa
-          </h2>
-          <p className="text-gray-600 mb-4 text-sm">
-            Veja as localizações de origem dos fretes disponíveis. Cada ponto azul representa uma cidade com fretes disponíveis.
-          </p>
-          <FreightMap freights={filteredFreights} />
-        </div>
-
-        {/* Filter toggle button and freight count */}
-        <div className="mb-6 flex items-center justify-between">
-          <h2 className="text-xl font-semibold">
-            {hasFiltered 
-              ? `${freightCount} fretes encontrados`
-              : `${freightCount} fretes disponíveis`}
-          </h2>
-          <Button
-            onClick={toggleFilter}
-            variant="outline"
-            className="bg-white hover:bg-gray-50"
-          >
-            <Settings className="mr-2 h-4 w-4" />
-            Filtros
-          </Button>
-        </div>
-
-        {/* Collapsible filter section */}
-        {isFilterOpen && (
-          <div className="mb-8 animate-fade-in">
-            <FreightFilter onFilter={handleFilter} />
-          </div>
-        )}
-
-        {isLoading ? (
-          <div className="flex flex-col items-center justify-center py-12">
-            <div className="animate-pulse flex flex-col items-center">
-              <Truck size={48} className="text-primary mb-4" />
-              <p className="text-lg font-medium">Carregando fretes disponíveis...</p>
-            </div>
-          </div>
-        ) : filteredFreights.length > 0 ? (
-          <div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredFreights.map(freight => (
-                <FreightCard 
-                  key={freight.id} 
-                  freight={freight} 
-                  onViewDetails={handleViewDetails}
-                  showPerKmRate={showPerKmRate} 
-                />
-              ))}
-            </div>
-            
-            {/* Show pagination if we have more than one page */}
-            {totalPages > 1 && (
-              <Pagination className="mt-8">
-                <PaginationContent>
-                  {currentPage > 0 && (
-                    <PaginationItem>
-                      <PaginationPrevious 
-                        href="#" 
-                        onClick={(e) => {
-                          e.preventDefault();
-                          handlePageChange(currentPage - 1);
-                        }} 
-                      />
-                    </PaginationItem>
-                  )}
-                  
-                  {/* Show current page and neighbors */}
-                  {[...Array(totalPages)].map((_, i) => {
-                    // Only show a few pages to avoid cluttering
-                    if (
-                      i === 0 || // First page
-                      i === totalPages - 1 || // Last page
-                      (i >= currentPage - 1 && i <= currentPage + 1) // Neighbors
-                    ) {
-                      return (
-                        <PaginationItem key={i}>
-                          <PaginationLink
-                            href="#"
-                            isActive={currentPage === i}
-                            onClick={(e) => {
-                              e.preventDefault();
-                              handlePageChange(i);
-                            }}
-                          >
-                            {i + 1}
-                          </PaginationLink>
-                        </PaginationItem>
-                      );
-                    }
-                    // Add ellipsis for skipped pages (but don't duplicate them)
-                    else if (
-                      (i === currentPage - 2 && currentPage > 2) ||
-                      (i === currentPage + 2 && currentPage < totalPages - 3)
-                    ) {
-                      return (
-                        <PaginationItem key={i}>
-                          <PaginationEllipsis />
-                        </PaginationItem>
-                      );
-                    }
-                    return null;
-                  })}
-                  
-                  {currentPage < totalPages - 1 && (
-                    <PaginationItem>
-                      <PaginationNext 
-                        href="#" 
-                        onClick={(e) => {
-                          e.preventDefault();
-                          handlePageChange(currentPage + 1);
-                        }} 
-                      />
-                    </PaginationItem>
-                  )}
-                </PaginationContent>
-              </Pagination>
-            )}
-          </div>
-        ) : (
-          <div className="text-center py-12">
-            <Truck size={48} className="mx-auto mb-4 text-gray-400" />
-            <h2 className="text-xl font-semibold mb-2">Nenhum frete encontrado</h2>
+    <MobilePageWrapper>
+      <div className="min-h-screen bg-gray-50">
+        <div className="container mx-auto px-4 py-6">
+          <div className="mb-6">
+            <h1 className="text-3xl font-bold mb-2">Encontrar Fretes</h1>
             <p className="text-gray-600">
-              Não encontramos fretes com os filtros selecionados. Tente outros critérios de busca.
+              Encontre as melhores oportunidades de frete para seu veículo
             </p>
           </div>
-        )}
-        
-        <FreightDetails freight={selectedFreight} isOpen={isDetailOpen} onClose={() => setIsDetailOpen(false)} />
+
+          {/* Mapa */}
+          <div className="mb-6">
+            <FreightMap 
+              freights={data?.freights || []} 
+              className="h-64 w-full rounded-lg shadow-sm"
+            />
+          </div>
+
+          {/* Filtros com botão toggle */}
+          <div className="mb-6">
+            <div className="flex justify-between items-center mb-4">
+              <p className="text-sm text-gray-600">
+                {data?.total || 0} fretes disponíveis
+              </p>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setIsFilterVisible(!isFilterVisible)}
+                className="bg-white"
+              >
+                <Settings className="h-4 w-4 mr-2" />
+                Filtros
+              </Button>
+            </div>
+            
+            {isFilterVisible && (
+              <div className="bg-white rounded-lg shadow-sm p-4 mb-4">
+                <FreightFilter
+                  filters={filters}
+                  onFiltersChange={handleFiltersChange}
+                  onApplyFilters={handleApplyFilters}
+                />
+              </div>
+            )}
+          </div>
+
+          {/* Lista de fretes */}
+          <div className="space-y-4">
+            {isLoading ? (
+              <div className="text-center py-8">
+                <p>Carregando fretes...</p>
+              </div>
+            ) : data?.freights && data.freights.length > 0 ? (
+              data.freights.map((freight) => (
+                <FreightCard key={freight.id} freight={freight} />
+              ))
+            ) : (
+              <div className="text-center py-8">
+                <MapPin className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  Nenhum frete encontrado
+                </h3>
+                <p className="text-gray-500">
+                  Tente ajustar os filtros para encontrar mais opções
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Paginação */}
+          {data && data.total > ITEMS_PER_PAGE && (
+            <div className="mt-8 flex justify-center space-x-4">
+              <Button
+                variant="outline"
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage <= 1}
+              >
+                Anterior
+              </Button>
+              <span className="flex items-center px-4">
+                Página {currentPage} de {Math.ceil(data.total / ITEMS_PER_PAGE)}
+              </span>
+              <Button
+                variant="outline"
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage >= Math.ceil(data.total / ITEMS_PER_PAGE)}
+              >
+                Próxima
+              </Button>
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+    </MobilePageWrapper>
   );
 };
 
