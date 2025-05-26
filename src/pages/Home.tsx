@@ -19,8 +19,14 @@ const Home = () => {
     return (
       <div className="min-h-screen flex flex-col" style={{ backgroundColor: '#f4f4fc' }}>
         <div className="p-6">
-          <div className="flex justify-between items-start mb-8">
-            <h1 className="text-2xl font-bold text-black">Bem-vindo!</h1>
+          <div className="flex justify-between items-center mb-8">
+            <div className="flex items-center">
+              <img alt="Brasul Transportes Logo" className="h-8 w-auto mr-2" src="/lovable-uploads/a6bb16cf-d425-4129-8432-dd145542833e.png" />
+              <div>
+                <h1 className="text-lg font-bold text-primary leading-none">Brasul</h1>
+                <p className="text-xs text-gray-600">TRANSPORTES</p>
+              </div>
+            </div>
             <button 
               onClick={handleQuickContact}
               className="bg-white rounded-full p-3 shadow-sm flex items-center justify-center"
@@ -28,6 +34,8 @@ const Home = () => {
               <Phone className="h-5 w-5 text-primary" />
             </button>
           </div>
+
+          <h1 className="text-2xl font-bold text-black mb-8">Bem-vindo!</h1>
           
           <div className="grid grid-cols-4 gap-4">
             <Link to="/frete" className="flex flex-col items-center">
