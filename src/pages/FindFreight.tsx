@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import FreightFilter, { FilterValues } from "@/components/FreightFilter";
 import FreightCard from "@/components/FreightCard";
@@ -19,7 +18,7 @@ const FindFreight = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [currentFilters, setCurrentFilters] = useState<FilterValues | null>(null);
   const [showPerKmRate, setShowPerKmRate] = useState(false);
-  const ITEMS_PER_PAGE = 50;
+  const ITEMS_PER_PAGE = 100;
 
   // Load freights with the current filters and page
   const loadFreights = async (filters: FilterValues | null = null, page = 0) => {
