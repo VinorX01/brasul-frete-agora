@@ -90,7 +90,7 @@ const FreightMap: React.FC<FreightMapProps> = ({ freights }) => {
 
   // Initialize map when Google Maps is loaded
   useEffect(() => {
-    if (!isLoaded || !mapRef.current || error) return;
+    if (!isLoaded || !mapRef.current) return;
 
     try {
       // Initialize map centered on Brazil
@@ -105,21 +105,24 @@ const FreightMap: React.FC<FreightMapProps> = ({ freights }) => {
       console.error('Error initializing map:', err);
       setError('Erro ao inicializar o mapa');
     }
-  }, [isLoaded, error]);
+  }, [isLoaded]);
 
-  // Update markers when freights change
+  // Update markers when freights change - Fixed dependency array
   useEffect(() => {
-    if (!isLoaded || !mapInstanceRef.current || !freights.length || error) return;
+    if (!isLoaded || !mapInstanceRef.current || !freights.length) return;
 
     console.log(`Processing ${freights.length} freights for map markers`);
 
-    // Clear existing markers
+    // Clear existing markers first
     markersRef.current.forEach(marker => {
       if (marker.setMap) {
         marker.setMap(null);
       }
     });
     markersRef.current = [];
+
+    // Reset any previous errors when processing new freights
+    setError(null);
 
     // Get unique origins to avoid duplicate markers
     const uniqueOrigins = [...new Set(freights.map(freight => freight.origin))];
@@ -149,7 +152,7 @@ const FreightMap: React.FC<FreightMapProps> = ({ freights }) => {
           return;
         }
 
-        // Clear any previous error
+        // Clear any previous error when we have valid data
         setError(null);
 
         // Create markers for each municipality
@@ -268,7 +271,7 @@ const FreightMap: React.FC<FreightMapProps> = ({ freights }) => {
     };
 
     fetchCoordinatesAndAddMarkers();
-  }, [isLoaded, freights, error]);
+  }, [isLoaded, freights]); // Removed 'error' from dependencies to allow updates after errors
 
   if (isLoading) {
     return (
@@ -288,7 +291,10 @@ const FreightMap: React.FC<FreightMapProps> = ({ freights }) => {
           <div className="text-red-500 mb-2">⚠️</div>
           <p className="text-gray-600 text-sm">{error}</p>
           <button 
-            onClick={() => window.location.reload()} 
+            onClick={() => {
+              setError(null);
+              window.location.reload();
+            }} 
             className="mt-2 text-blue-600 hover:text-blue-800 underline text-sm"
           >
             Tentar novamente
