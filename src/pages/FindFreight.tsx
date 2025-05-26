@@ -1,12 +1,14 @@
+
 import { useState, useEffect } from "react";
 import FreightFilter, { FilterValues } from "@/components/FreightFilter";
 import FreightCard from "@/components/FreightCard";
 import FreightDetails from "@/components/FreightDetails";
 import FreightMap from "@/components/FreightMap";
-import { Truck } from "lucide-react";
+import { Truck, Settings } from "lucide-react";
 import { getFilteredFreights, getFreightCount } from "@/lib/freightService";
 import { type Freight } from "@/lib/supabase";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious, PaginationEllipsis } from "@/components/ui/pagination";
+import { Button } from "@/components/ui/button";
 
 const FindFreight = () => {
   const [filteredFreights, setFilteredFreights] = useState<Freight[]>([]);
@@ -18,6 +20,7 @@ const FindFreight = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [currentFilters, setCurrentFilters] = useState<FilterValues | null>(null);
   const [showPerKmRate, setShowPerKmRate] = useState(false);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
   const ITEMS_PER_PAGE = 100;
 
   // Load freights with the current filters and page
@@ -92,6 +95,9 @@ const FindFreight = () => {
     setShowPerKmRate(filters.showPerKmRate);
     
     await loadFreights(filters, 0);
+    
+    // Close filter form after filtering
+    setIsFilterOpen(false);
   };
 
   const handlePageChange = (page: number) => {
@@ -102,6 +108,10 @@ const FindFreight = () => {
   const handleViewDetails = (freight: Freight) => {
     setSelectedFreight(freight);
     setIsDetailOpen(true);
+  };
+
+  const toggleFilter = () => {
+    setIsFilterOpen(!isFilterOpen);
   };
 
   // Calculate total pages
@@ -129,9 +139,29 @@ const FindFreight = () => {
           <FreightMap freights={filteredFreights} />
         </div>
 
-        <div className="mb-8">
-          <FreightFilter onFilter={handleFilter} />
+        {/* Filter toggle button and freight count */}
+        <div className="mb-6 flex items-center justify-between">
+          <h2 className="text-xl font-semibold">
+            {hasFiltered 
+              ? `${freightCount} fretes encontrados`
+              : `${freightCount} fretes disponíveis`}
+          </h2>
+          <Button
+            onClick={toggleFilter}
+            variant="outline"
+            className="bg-white hover:bg-gray-50"
+          >
+            <Settings className="mr-2 h-4 w-4" />
+            Filtros
+          </Button>
         </div>
+
+        {/* Collapsible filter section */}
+        {isFilterOpen && (
+          <div className="mb-8 animate-fade-in">
+            <FreightFilter onFilter={handleFilter} />
+          </div>
+        )}
 
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-12">
@@ -142,11 +172,6 @@ const FindFreight = () => {
           </div>
         ) : filteredFreights.length > 0 ? (
           <div>
-            <h2 className="text-xl font-semibold mb-4">
-              {hasFiltered 
-                ? `${freightCount} fretes encontrados`
-                : `${freightCount} fretes disponíveis`}
-            </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredFreights.map(freight => (
                 <FreightCard 
