@@ -98,8 +98,9 @@ const FreightMap: React.FC<FreightMapProps> = ({ freights }) => {
         zoom: 4,
         center: { lat: -14.235, lng: -51.9253 }, // Center of Brazil
         mapTypeId: window.google.maps.MapTypeId.ROADMAP,
-        mapId: 'FREIGHT_MAP', // Required for AdvancedMarkerElement
       });
+      
+      console.log('Map initialized successfully');
     } catch (err) {
       console.error('Error initializing map:', err);
       setError('Erro ao inicializar o mapa');
@@ -110,20 +111,25 @@ const FreightMap: React.FC<FreightMapProps> = ({ freights }) => {
   useEffect(() => {
     if (!isLoaded || !mapInstanceRef.current || !freights.length || error) return;
 
+    console.log(`Processing ${freights.length} freights for map markers`);
+
     // Clear existing markers
     markersRef.current.forEach(marker => {
-      if (marker.map) {
-        marker.map = null;
+      if (marker.setMap) {
+        marker.setMap(null);
       }
     });
     markersRef.current = [];
 
     // Get unique origins to avoid duplicate markers
     const uniqueOrigins = [...new Set(freights.map(freight => freight.origin))];
+    console.log('Unique origins:', uniqueOrigins);
     
     // Fetch coordinates using our Edge Function
     const fetchCoordinatesAndAddMarkers = async () => {
       try {
+        console.log('Fetching coordinates for cities:', uniqueOrigins);
+        
         const { data, error: funcError } = await supabase.functions.invoke('get-municipality-coordinates', {
           body: { cities: uniqueOrigins }
         });
@@ -135,40 +141,53 @@ const FreightMap: React.FC<FreightMapProps> = ({ freights }) => {
         }
 
         const municipalities = data?.municipalities || [];
+        console.log(`Received ${municipalities.length} municipalities with coordinates:`, municipalities);
 
         if (municipalities.length === 0) {
-          setError('Nenhuma coordenada encontrada para as cidades');
+          console.warn('Nenhuma coordenada válida encontrada para as cidades');
+          setError('Nenhuma coordenada encontrada para as cidades dos fretes');
           return;
         }
+
+        // Clear any previous error
+        setError(null);
 
         // Create markers for each municipality
         municipalities.forEach((municipality: any) => {
           const lat = parseFloat(municipality.lat);
           const lng = parseFloat(municipality.lng);
 
-          if (isNaN(lat) || isNaN(lng)) return;
+          console.log(`Processing municipality: ${municipality.name}, ${municipality.state} - Coords: ${lat}, ${lng}`);
+
+          if (isNaN(lat) || isNaN(lng)) {
+            console.warn(`Invalid coordinates for ${municipality.name}: lat=${lat}, lng=${lng}`);
+            return;
+          }
 
           // Count freights from this origin
           const matchingFreights = freights.filter(freight => {
             const freightOrigin = freight.origin.includes(',') 
               ? freight.origin.split(',')[0].trim() 
               : freight.origin;
-            return freightOrigin.toLowerCase() === municipality.name.toLowerCase();
+            const cityMatch = freightOrigin.toLowerCase() === municipality.name.toLowerCase();
+            return cityMatch;
           });
+
+          console.log(`Found ${matchingFreights.length} freights for ${municipality.name}`);
 
           if (matchingFreights.length === 0) return;
 
           try {
-            // Create a simple marker using the standard Marker class
+            // Create a marker using the standard Marker class
             const marker = new window.google.maps.Marker({
               position: { lat, lng },
               map: mapInstanceRef.current,
               title: `${municipality.name}, ${municipality.state} (${matchingFreights.length} frete${matchingFreights.length > 1 ? 's' : ''})`,
               icon: {
                 path: window.google.maps.SymbolPath.CIRCLE,
-                scale: 8,
+                scale: 10,
                 fillColor: '#3B82F6',
-                fillOpacity: 0.8,
+                fillOpacity: 0.9,
                 strokeColor: '#1E40AF',
                 strokeWeight: 2,
               },
@@ -183,22 +202,38 @@ const FreightMap: React.FC<FreightMapProps> = ({ freights }) => {
             // Add info window
             const infoWindow = new window.google.maps.InfoWindow({
               content: `
-                <div style="padding: 8px;">
-                  <h4 style="margin: 0 0 8px 0; font-weight: bold;">${municipality.name}, ${municipality.state}</h4>
-                  <p style="margin: 0; color: #666;">${matchingFreights.length} frete${matchingFreights.length > 1 ? 's' : ''} disponível${matchingFreights.length > 1 ? 'is' : ''}</p>
+                <div style="padding: 8px; min-width: 200px;">
+                  <h4 style="margin: 0 0 8px 0; font-weight: bold; color: #1E40AF;">${municipality.name}, ${municipality.state}</h4>
+                  <p style="margin: 0; color: #666; font-size: 14px;">${matchingFreights.length} frete${matchingFreights.length > 1 ? 's' : ''} disponível${matchingFreights.length > 1 ? 'is' : ''}</p>
+                  <div style="margin-top: 8px; font-size: 12px; color: #888;">
+                    Coordenadas: ${lat.toFixed(4)}, ${lng.toFixed(4)}
+                  </div>
                 </div>
               `
             });
 
             marker.addListener('click', () => {
+              // Close any open info windows
+              markersRef.current.forEach(m => {
+                if (m.infoWindow) {
+                  m.infoWindow.close();
+                }
+              });
+              
               infoWindow.open(mapInstanceRef.current, marker);
             });
 
+            // Store reference with info window for cleanup
+            marker.infoWindow = infoWindow;
             markersRef.current.push(marker);
+            
+            console.log(`Successfully created marker for ${municipality.name} at ${lat}, ${lng}`);
           } catch (markerError) {
-            console.error('Error creating marker:', markerError);
+            console.error('Error creating marker for', municipality.name, ':', markerError);
           }
         });
+
+        console.log(`Successfully created ${markersRef.current.length} markers`);
 
         // Adjust map bounds to show all markers
         if (markersRef.current.length > 0) {
@@ -209,15 +244,21 @@ const FreightMap: React.FC<FreightMapProps> = ({ freights }) => {
               bounds.extend(position);
             }
           });
+          
           mapInstanceRef.current.fitBounds(bounds);
           
-          // Ensure minimum zoom level
+          // Ensure minimum and maximum zoom levels
           const listener = window.google.maps.event.addListener(mapInstanceRef.current, 'idle', () => {
-            if (mapInstanceRef.current.getZoom() > 6) {
-              mapInstanceRef.current.setZoom(6);
+            const currentZoom = mapInstanceRef.current.getZoom();
+            if (currentZoom > 8) {
+              mapInstanceRef.current.setZoom(8);
+            } else if (currentZoom < 4) {
+              mapInstanceRef.current.setZoom(4);
             }
             window.google.maps.event.removeListener(listener);
           });
+        } else {
+          console.warn('No markers were created');
         }
 
       } catch (error) {
@@ -245,10 +286,10 @@ const FreightMap: React.FC<FreightMapProps> = ({ freights }) => {
       <div className="h-64 bg-gray-100 rounded-lg flex items-center justify-center">
         <div className="text-center">
           <div className="text-red-500 mb-2">⚠️</div>
-          <p className="text-gray-600">{error}</p>
+          <p className="text-gray-600 text-sm">{error}</p>
           <button 
             onClick={() => window.location.reload()} 
-            className="mt-2 text-blue-600 hover:text-blue-800 underline"
+            className="mt-2 text-blue-600 hover:text-blue-800 underline text-sm"
           >
             Tentar novamente
           </button>
