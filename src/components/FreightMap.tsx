@@ -1,7 +1,7 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 import { type Freight } from "@/lib/supabase";
 import { supabase } from '@/lib/supabase';
+import { Locate } from "lucide-react";
 
 interface FreightMapProps {
   freights: Freight[];
@@ -98,6 +98,8 @@ const FreightMap: React.FC<FreightMapProps> = ({ freights }) => {
         zoom: 4,
         center: { lat: -14.235, lng: -51.9253 }, // Center of Brazil
         mapTypeId: window.google.maps.MapTypeId.ROADMAP,
+        streetViewControl: false, // Disable Street View control
+        fullscreenControl: false, // Optional: also disable fullscreen for cleaner UI
       });
       
       console.log('Map initialized successfully');
@@ -273,6 +275,46 @@ const FreightMap: React.FC<FreightMapProps> = ({ freights }) => {
     fetchCoordinatesAndAddMarkers();
   }, [isLoaded, freights]); // Removed 'error' from dependencies to allow updates after errors
 
+  // Function to get user location and center map
+  const centerOnUserLocation = () => {
+    if (!mapInstanceRef.current) return;
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const userLocation = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          };
+          
+          mapInstanceRef.current.setCenter(userLocation);
+          mapInstanceRef.current.setZoom(10);
+          
+          // Add a marker at user's location
+          new window.google.maps.Marker({
+            position: userLocation,
+            map: mapInstanceRef.current,
+            title: 'Sua localização',
+            icon: {
+              path: window.google.maps.SymbolPath.CIRCLE,
+              scale: 8,
+              fillColor: '#4285F4',
+              fillOpacity: 1,
+              strokeColor: '#ffffff',
+              strokeWeight: 2,
+            }
+          });
+        },
+        (error) => {
+          console.error('Error getting user location:', error);
+          setError('Não foi possível obter sua localização');
+        }
+      );
+    } else {
+      setError('Geolocalização não é suportada pelo seu navegador');
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="h-64 bg-gray-100 rounded-lg flex items-center justify-center">
@@ -305,8 +347,19 @@ const FreightMap: React.FC<FreightMapProps> = ({ freights }) => {
   }
 
   return (
-    <div className="h-64 w-full rounded-lg overflow-hidden border border-gray-200">
+    <div className="h-64 w-full rounded-lg overflow-hidden border border-gray-200 relative">
       <div ref={mapRef} className="h-full w-full" />
+      
+      {/* Custom location button */}
+      {isLoaded && (
+        <button
+          onClick={centerOnUserLocation}
+          className="absolute top-2 right-2 bg-white hover:bg-gray-50 border border-gray-300 rounded-md p-2 shadow-sm transition-colors"
+          title="Centralizar na minha localização"
+        >
+          <Locate size={16} className="text-gray-600" />
+        </button>
+      )}
     </div>
   );
 };
