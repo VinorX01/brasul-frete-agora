@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import FreightFilter, { FilterValues } from "@/components/FreightFilter";
 import FreightCard from "@/components/FreightCard";
@@ -17,7 +18,7 @@ const FindFreight = () => {
   const [freightCount, setFreightCount] = useState<number>(0);
   const [currentPage, setCurrentPage] = useState(0);
   const [currentFilters, setCurrentFilters] = useState<FilterValues | null>(null);
-  const [showPerKmRate, setShowPerKmRate] = useState(false); // New state for rate display toggle
+  const [showPerKmRate, setShowPerKmRate] = useState(false);
   const ITEMS_PER_PAGE = 50;
 
   // Load freights with the current filters and page
@@ -28,6 +29,7 @@ const FindFreight = () => {
       // If we have filters, use them, otherwise use empty values
       const originFilter = filters?.origin === "all" ? "" : filters?.origin || "";
       const destinationFilter = filters?.destination === "all" ? "" : filters?.destination || "";
+      const originStateFilter = filters?.originState === "all" ? "" : filters?.originState || "";
       const cargoTypeFilter = filters?.cargoType === "all" ? "" : filters?.cargoType || "";
       const truckTypeFilter = filters?.truckType === "all" ? "" : filters?.truckType || "";
       const minValueNum = filters?.minValue ? parseInt(filters.minValue) : undefined;
@@ -47,7 +49,8 @@ const FindFreight = () => {
         maxWeightNum,
         filters?.refrigerated,
         filters?.requiresMopp,
-        filters?.tollIncluded
+        filters?.tollIncluded,
+        originStateFilter
       );
       setFreightCount(count);
 
@@ -64,6 +67,7 @@ const FindFreight = () => {
         filters?.refrigerated,
         filters?.requiresMopp,
         filters?.tollIncluded,
+        originStateFilter,
         ITEMS_PER_PAGE,
         page
       );
