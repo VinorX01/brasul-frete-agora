@@ -15,6 +15,7 @@ export const getFilteredFreights = async (
   refrigerated?: boolean,
   requiresMopp?: boolean,
   tollIncluded?: boolean,
+  originState?: string, // New parameter for state filtering
   limit: number = 50,
   page: number = 0
 ): Promise<Freight[]> => {
@@ -33,6 +34,11 @@ export const getFilteredFreights = async (
   
   if (destination && destination !== 'all') {
     query = query.ilike('destination', `%${destination}%`);
+  }
+  
+  // Filter by state if provided
+  if (originState && originState !== 'all') {
+    query = query.ilike('origin', `%, ${originState}`);
   }
   
   if (cargoType && cargoType !== 'all') {
@@ -104,7 +110,8 @@ export const getFreightCount = async (
   maxWeight?: number,
   refrigerated?: boolean,
   requiresMopp?: boolean,
-  tollIncluded?: boolean
+  tollIncluded?: boolean,
+  originState?: string // New parameter for state filtering
 ): Promise<number> => {
   let query = supabase
     .from('freights')
@@ -117,6 +124,11 @@ export const getFreightCount = async (
   
   if (destination && destination !== 'all') {
     query = query.ilike('destination', `%${destination}%`);
+  }
+  
+  // Filter by state if provided
+  if (originState && originState !== 'all') {
+    query = query.ilike('origin', `%, ${originState}`);
   }
   
   if (cargoType && cargoType !== 'all') {

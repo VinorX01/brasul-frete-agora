@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,6 +19,7 @@ import { Switch } from "@/components/ui/switch";
 export type FilterValues = {
   origin: string;
   destination: string;
+  originState: string; // New field for state filter
   cargoType: string;
   truckType: string;
   minValue: string;
@@ -27,17 +29,25 @@ export type FilterValues = {
   refrigerated: boolean;
   requiresMopp: boolean;
   tollIncluded: boolean;
-  showPerKmRate: boolean; // New property for the rate display toggle
+  showPerKmRate: boolean;
 };
 
 type FreightFilterProps = {
   onFilter: (values: FilterValues) => void;
 };
 
+// Brazilian states list
+const brazilianStates = [
+  "AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", 
+  "MT", "MS", "MG", "PA", "PB", "PR", "PE", "PI", "RJ", "RN", 
+  "RS", "RO", "RR", "SC", "SP", "SE", "TO"
+];
+
 const FreightFilter = ({ onFilter }: FreightFilterProps) => {
   const [filters, setFilters] = useState<FilterValues>({
     origin: "all",
     destination: "all",
+    originState: "all", // Initialize new state filter
     cargoType: "all",
     truckType: "all",
     minValue: "",
@@ -47,7 +57,7 @@ const FreightFilter = ({ onFilter }: FreightFilterProps) => {
     refrigerated: false,
     requiresMopp: false,
     tollIncluded: false,
-    showPerKmRate: false, // Default to showing per ton/km
+    showPerKmRate: false,
   });
 
   const cargoTypes = staticCargoTypes;
@@ -77,6 +87,7 @@ const FreightFilter = ({ onFilter }: FreightFilterProps) => {
     const defaultFilters = {
       origin: "all",
       destination: "all",
+      originState: "all", // Reset state filter
       cargoType: "all",
       truckType: "all",
       minValue: "",
@@ -115,6 +126,26 @@ const FreightFilter = ({ onFilter }: FreightFilterProps) => {
               placeholder="Destino"
               allowAll={true}
             />
+          </div>
+
+          <div>
+            <Label htmlFor="originState">Estado de Origem</Label>
+            <Select
+              value={filters.originState}
+              onValueChange={(value) => handleChange("originState", value)}
+            >
+              <SelectTrigger id="originState">
+                <SelectValue placeholder="Todos os estados" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos os estados</SelectItem>
+                {brazilianStates.map((state) => (
+                  <SelectItem key={state} value={state}>
+                    {state}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div>
