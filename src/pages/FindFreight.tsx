@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import FreightFilter, { FilterValues } from "@/components/FreightFilter";
 import FreightCard from "@/components/FreightCard";
 import FreightDetails from "@/components/FreightDetails";
+import FreightMap from "@/components/FreightMap";
 import { Truck } from "lucide-react";
 import { getFilteredFreights, getFreightCount } from "@/lib/freightService";
 import { type Freight } from "@/lib/supabase";
@@ -103,7 +104,8 @@ const FindFreight = () => {
   // Calculate total pages
   const totalPages = Math.ceil(freightCount / ITEMS_PER_PAGE);
 
-  return <div className="bg-[#f4f4fc] min-h-screen">
+  return (
+    <div className="bg-[#f4f4fc] min-h-screen">
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8 text-center">
           <h1 className="text-3xl font-bold mb-2">Encontrar Fretes Disponíveis</h1>
@@ -113,16 +115,31 @@ const FindFreight = () => {
           </p>
         </div>
 
+        {/* Map visualization section */}
+        <div className="mb-8">
+          <h2 className="text-xl font-semibold mb-4 flex items-center">
+            <span className="mr-2">📍</span>
+            Visualização no Mapa
+          </h2>
+          <p className="text-gray-600 mb-4 text-sm">
+            Veja as localizações de origem dos fretes disponíveis. Cada ponto azul representa uma cidade com fretes disponíveis.
+          </p>
+          <FreightMap freights={filteredFreights} />
+        </div>
+
         <div className="mb-8">
           <FreightFilter onFilter={handleFilter} />
         </div>
 
-        {isLoading ? <div className="flex flex-col items-center justify-center py-12">
+        {isLoading ? (
+          <div className="flex flex-col items-center justify-center py-12">
             <div className="animate-pulse flex flex-col items-center">
               <Truck size={48} className="text-primary mb-4" />
               <p className="text-lg font-medium">Carregando fretes disponíveis...</p>
             </div>
-          </div> : filteredFreights.length > 0 ? <div>
+          </div>
+        ) : filteredFreights.length > 0 ? (
+          <div>
             <h2 className="text-xl font-semibold mb-4">
               {hasFiltered 
                 ? `${freightCount} fretes encontrados`
@@ -206,17 +223,21 @@ const FindFreight = () => {
                 </PaginationContent>
               </Pagination>
             )}
-          </div> : <div className="text-center py-12">
+          </div>
+        ) : (
+          <div className="text-center py-12">
             <Truck size={48} className="mx-auto mb-4 text-gray-400" />
             <h2 className="text-xl font-semibold mb-2">Nenhum frete encontrado</h2>
             <p className="text-gray-600">
               Não encontramos fretes com os filtros selecionados. Tente outros critérios de busca.
             </p>
-          </div>}
+          </div>
+        )}
         
         <FreightDetails freight={selectedFreight} isOpen={isDetailOpen} onClose={() => setIsDetailOpen(false)} />
       </div>
-    </div>;
+    </div>
+  );
 };
 
 export default FindFreight;

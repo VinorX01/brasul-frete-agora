@@ -170,16 +170,22 @@ export type Database = {
       municipalities: {
         Row: {
           id: number
+          lat: string | null
+          lng: string | null
           name: string
           state: string
         }
         Insert: {
           id?: number
+          lat?: string | null
+          lng?: string | null
           name: string
           state: string
         }
         Update: {
           id?: number
+          lat?: string | null
+          lng?: string | null
           name?: string
           state?: string
         }
