@@ -31,3 +31,6 @@ port = 54326
 
 [functions.get-municipality-coordinates]
 verify_jwt = false
+
+[functions.get-maps-api-key]
+verify_jwt = false

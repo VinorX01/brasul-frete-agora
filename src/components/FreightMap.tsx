@@ -21,18 +21,50 @@ const FreightMap: React.FC<FreightMapProps> = ({ freights }) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [mapApiKey, setMapApiKey] = useState<string | null>(null);
 
-  // Initialize Google Maps with optimized loading
+  // Fetch Google Maps API key from our edge function
   useEffect(() => {
+    const fetchApiKey = async () => {
+      try {
+        const { data, error } = await supabase.functions.invoke('get-maps-api-key');
+        
+        if (error) {
+          console.error('Error fetching Maps API key:', error);
+          setError('Erro ao carregar configuração do mapa');
+          setIsLoading(false);
+          return;
+        }
+        
+        if (data?.apiKey) {
+          setMapApiKey(data.apiKey);
+        } else {
+          setError('Chave da API não configurada');
+          setIsLoading(false);
+        }
+      } catch (err) {
+        console.error('Error fetching API key:', err);
+        setError('Erro ao carregar configuração do mapa');
+        setIsLoading(false);
+      }
+    };
+
+    fetchApiKey();
+  }, []);
+
+  // Initialize Google Maps when API key is available
+  useEffect(() => {
+    if (!mapApiKey) return;
+
     if (window.google) {
       setIsLoaded(true);
       setIsLoading(false);
       return;
     }
 
-    // Load Google Maps API with async loading and marker library
+    // Load Google Maps API with the secure key
     const script = document.createElement('script');
-    script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyBdVl-cGnaq0C3-pyFleYfIFgJCu4fKiXM&libraries=marker&loading=async&callback=initFreightMap`;
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${mapApiKey}&libraries=marker&loading=async&callback=initFreightMap`;
     script.async = true;
     script.defer = true;
 
@@ -54,7 +86,7 @@ const FreightMap: React.FC<FreightMapProps> = ({ freights }) => {
       }
       delete window.initFreightMap;
     };
-  }, []);
+  }, [mapApiKey]);
 
   // Initialize map when Google Maps is loaded
   useEffect(() => {
@@ -109,7 +141,7 @@ const FreightMap: React.FC<FreightMapProps> = ({ freights }) => {
           return;
         }
 
-        // Create advanced markers for each municipality
+        // Create markers for each municipality
         municipalities.forEach((municipality: any) => {
           const lat = parseFloat(municipality.lat);
           const lng = parseFloat(municipality.lng);
@@ -127,53 +159,26 @@ const FreightMap: React.FC<FreightMapProps> = ({ freights }) => {
           if (matchingFreights.length === 0) return;
 
           try {
-            // Create marker element with modern styling
-            const markerDiv = document.createElement('div');
-            markerDiv.className = 'advanced-marker';
-            markerDiv.innerHTML = `
-              <div style="
-                background: #3B82F6;
-                color: white;
-                border-radius: 50%;
-                width: 24px;
-                height: 24px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 12px;
-                font-weight: bold;
-                border: 2px solid #1E40AF;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-              ">
-                ${matchingFreights.length}
-              </div>
-            `;
-
-            // Use AdvancedMarkerElement if available, fallback to regular Marker
-            let marker;
-            if (window.google.maps.marker && window.google.maps.marker.AdvancedMarkerElement) {
-              marker = new window.google.maps.marker.AdvancedMarkerElement({
-                position: { lat, lng },
-                map: mapInstanceRef.current,
-                title: `${municipality.name}, ${municipality.state} (${matchingFreights.length} frete${matchingFreights.length > 1 ? 's' : ''})`,
-                content: markerDiv,
-              });
-            } else {
-              // Fallback to regular marker
-              marker = new window.google.maps.Marker({
-                position: { lat, lng },
-                map: mapInstanceRef.current,
-                title: `${municipality.name}, ${municipality.state} (${matchingFreights.length} frete${matchingFreights.length > 1 ? 's' : ''})`,
-                icon: {
-                  path: window.google.maps.SymbolPath.CIRCLE,
-                  scale: 12,
-                  fillColor: '#3B82F6',
-                  fillOpacity: 0.8,
-                  strokeColor: '#1E40AF',
-                  strokeWeight: 2,
-                }
-              });
-            }
+            // Create a simple marker using the standard Marker class
+            const marker = new window.google.maps.Marker({
+              position: { lat, lng },
+              map: mapInstanceRef.current,
+              title: `${municipality.name}, ${municipality.state} (${matchingFreights.length} frete${matchingFreights.length > 1 ? 's' : ''})`,
+              icon: {
+                path: window.google.maps.SymbolPath.CIRCLE,
+                scale: 8,
+                fillColor: '#3B82F6',
+                fillOpacity: 0.8,
+                strokeColor: '#1E40AF',
+                strokeWeight: 2,
+              },
+              label: {
+                text: matchingFreights.length.toString(),
+                color: 'white',
+                fontSize: '12px',
+                fontWeight: 'bold'
+              }
+            });
 
             // Add info window
             const infoWindow = new window.google.maps.InfoWindow({
@@ -199,7 +204,7 @@ const FreightMap: React.FC<FreightMapProps> = ({ freights }) => {
         if (markersRef.current.length > 0) {
           const bounds = new window.google.maps.LatLngBounds();
           markersRef.current.forEach(marker => {
-            const position = marker.position || marker.getPosition();
+            const position = marker.getPosition();
             if (position) {
               bounds.extend(position);
             }
