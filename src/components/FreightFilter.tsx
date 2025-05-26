@@ -117,17 +117,6 @@ const FreightFilter = ({ onFilter }: FreightFilterProps) => {
               allowAll={true}
             />
           </div>
-
-          <div>
-            <Label htmlFor="destination">Destino</Label>
-            <MunicipalitySelect
-              value={filters.destination}
-              onValueChange={(value) => handleChange("destination", value)}
-              placeholder="Destino"
-              allowAll={true}
-            />
-          </div>
-
           <div>
             <Label htmlFor="originState">Estado de Origem</Label>
             <Select
@@ -148,6 +137,17 @@ const FreightFilter = ({ onFilter }: FreightFilterProps) => {
             </Select>
           </div>
 
+          <div>
+            <Label htmlFor="destination">Destino</Label>
+            <MunicipalitySelect
+              value={filters.destination}
+              onValueChange={(value) => handleChange("destination", value)}
+              placeholder="Destino"
+              allowAll={true}
+            />
+          </div>
+
+          
           <div>
             <Label htmlFor="cargoType">Tipo de Carga</Label>
             <Select
