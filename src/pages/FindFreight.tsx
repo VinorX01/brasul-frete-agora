@@ -120,14 +120,7 @@ const FindFreight = () => {
   return (
     <div className="bg-[#f4f4fc] min-h-screen">
       <div className="container mx-auto px-4 py-8">
-        <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold mb-2">Encontrar Fretes Disponíveis</h1>
-          <p className="text-gray-600 max-w-2xl mx-auto">
-            Utilize os filtros abaixo para encontrar os melhores fretes para seu veículo. 
-            Todos os fretes são disponibilizados diretamente pelos embarcadores.
-          </p>
-        </div>
-
+    
         {/* Map visualization section */}
         <div className="mb-8">
           <h2 className="text-xl font-semibold mb-4 flex items-center">
