@@ -1,7 +1,6 @@
-
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Truck, Search, Calendar, Send } from "lucide-react";
+import { Truck, Search, Calendar, Send, Phone } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 import { useIsMobile } from "@/hooks/useIsMobile";
 
@@ -20,36 +19,44 @@ const Home = () => {
     return (
       <div className="min-h-screen flex flex-col" style={{ backgroundColor: '#f4f4fc' }}>
         <div className="p-6">
-          <h1 className="text-2xl font-bold text-left mb-8 text-primary">Bem-vindo!</h1>
+          <div className="flex justify-between items-start mb-8">
+            <h1 className="text-2xl font-bold text-black">Bem-vindo!</h1>
+            <button 
+              onClick={handleQuickContact}
+              className="bg-white rounded-full p-3 shadow-sm flex items-center justify-center"
+            >
+              <Phone className="h-5 w-5 text-primary" />
+            </button>
+          </div>
           
-          <div className="grid grid-cols-2 gap-6">
+          <div className="grid grid-cols-4 gap-4">
             <Link to="/frete" className="flex flex-col items-center">
-              <div className="bg-white rounded-2xl p-6 shadow-sm mb-2 w-full aspect-square flex items-center justify-center">
-                <Search className="h-8 w-8 text-primary" />
+              <div className="bg-white rounded-2xl p-4 shadow-sm mb-2 w-full aspect-square flex items-center justify-center">
+                <Search className="h-6 w-6 text-primary" />
               </div>
-              <span className="text-sm font-medium text-primary text-center">Buscar Frete</span>
+              <span className="text-xs font-medium text-primary text-center">Buscar Frete</span>
             </Link>
 
             <Link to="/publicar-frete" className="flex flex-col items-center">
-              <div className="bg-white rounded-2xl p-6 shadow-sm mb-2 w-full aspect-square flex items-center justify-center">
-                <Send className="h-8 w-8 text-primary" />
+              <div className="bg-white rounded-2xl p-4 shadow-sm mb-2 w-full aspect-square flex items-center justify-center">
+                <Send className="h-6 w-6 text-primary" />
               </div>
-              <span className="text-sm font-medium text-primary text-center">Publicar Frete</span>
+              <span className="text-xs font-medium text-primary text-center">Publicar Frete</span>
             </Link>
 
             <Link to="/agenciadores" className="flex flex-col items-center">
-              <div className="bg-white rounded-2xl p-6 shadow-sm mb-2 w-full aspect-square flex items-center justify-center">
-                <Truck className="h-8 w-8 text-primary" />
+              <div className="bg-white rounded-2xl p-4 shadow-sm mb-2 w-full aspect-square flex items-center justify-center">
+                <Truck className="h-6 w-6 text-primary" />
               </div>
-              <span className="text-sm font-medium text-primary text-center">Agenciadores</span>
+              <span className="text-xs font-medium text-primary text-center">Agenciadores</span>
             </Link>
 
-            <button onClick={handleQuickContact} className="flex flex-col items-center">
-              <div className="bg-white rounded-2xl p-6 shadow-sm mb-2 w-full aspect-square flex items-center justify-center">
-                <Calendar className="h-8 w-8 text-primary" />
+            <Link to="/sobre" className="flex flex-col items-center">
+              <div className="bg-white rounded-2xl p-4 shadow-sm mb-2 w-full aspect-square flex items-center justify-center">
+                <Calendar className="h-6 w-6 text-primary" />
               </div>
-              <span className="text-sm font-medium text-primary text-center">Suporte</span>
-            </button>
+              <span className="text-xs font-medium text-primary text-center">Sobre</span>
+            </Link>
           </div>
         </div>
       </div>
