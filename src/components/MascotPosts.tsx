@@ -94,7 +94,7 @@ const MascotPosts = () => {
 
   if (isLoading) {
     return (
-      <div className="bg-white rounded-2xl p-4 mb-6 shadow-sm h-32">
+      <div className="bg-white rounded-2xl p-4 mb-6 shadow-sm h-[200px]">
         <div className="flex items-center mb-3">
           <div className="w-10 h-10 bg-gray-300 rounded-full mr-3 animate-pulse"></div>
           <div>
@@ -115,7 +115,7 @@ const MascotPosts = () => {
   const currentPost = posts[currentPostIndex];
 
   return (
-    <div className="bg-white rounded-2xl p-4 mb-6 shadow-sm h-32 flex flex-col">
+    <div className="bg-white rounded-2xl p-4 mb-6 shadow-sm h-[200px] flex flex-col">
       <div className="flex items-center mb-3">
         <img 
           src="/lovable-uploads/3b6b5518-b391-4631-9e1c-e22b9ce9fe48.png" 
@@ -129,7 +129,7 @@ const MascotPosts = () => {
       </div>
       
       <div className="mb-3 flex-grow overflow-hidden">
-        <p className="text-sm text-gray-700 leading-relaxed line-clamp-2">
+        <p className="text-sm text-gray-700 leading-relaxed line-clamp-6">
           {currentPost.content}
         </p>
       </div>
