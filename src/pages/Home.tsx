@@ -5,6 +5,7 @@ import { toast } from "@/components/ui/use-toast";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import LastFreightUpdate from "@/components/LastFreightUpdate";
 import MascotPosts from "@/components/MascotPosts";
+import PromotionalBanner from "@/components/PromotionalBanner";
 
 const Home = () => {
   const isMobile = useIsMobile();
@@ -77,6 +78,9 @@ const Home = () => {
           
           {/* Bloco de posts do mascote */}
           <MascotPosts />
+          
+          {/* Banner promocional */}
+          <PromotionalBanner />
         </div>
       </div>;
   }

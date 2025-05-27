@@ -1,4 +1,3 @@
-
 import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = 'https://dbixmwimnpetcnhmxctu.supabase.co';
@@ -65,4 +64,13 @@ export type FreightAgentReferral = {
   agent_code: string;
   contact_date: string | null;
   created_at: string;
+};
+
+export type PromotionalBanner = {
+  id: string;
+  image_url: string;
+  redirect_url: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
 };
