@@ -61,16 +61,16 @@ const PromotionalBanner = () => {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center w-full mb-6">
-        <div 
-          className="bg-white rounded-2xl p-4 shadow-sm"
-          style={{
-            width: '100%',
-            maxWidth: '400px',
-            height: '200px'
-          }}
-        >
-          <div className="w-full h-full bg-gray-300 rounded-xl animate-pulse"></div>
+      <div className="flex justify-center w-full mb-6 px-4">
+        <div className="w-full max-w-md">
+          <div 
+            className="bg-white rounded-2xl p-1 shadow-sm w-full"
+            style={{
+              aspectRatio: '2/1'
+            }}
+          >
+            <div className="w-full h-full bg-gray-300 rounded-xl animate-pulse"></div>
+          </div>
         </div>
       </div>
     );
@@ -83,24 +83,24 @@ const PromotionalBanner = () => {
   const currentBanner = banners[currentBannerIndex];
 
   return (
-    <div className="flex justify-center w-full mb-6">
-      <div 
-        className="bg-white rounded-2xl p-4 shadow-sm px-[5px] py-[5px]"
-        style={{
-          width: '100%',
-          maxWidth: '400px',
-          height: '200px'
-        }}
-      >
+    <div className="flex justify-center w-full mb-6 px-4">
+      <div className="w-full max-w-md">
         <div 
-          className="w-full h-full rounded-xl overflow-hidden cursor-pointer transition-transform duration-200 hover:scale-105"
-          onClick={() => handleBannerClick(currentBanner.redirect_url)}
+          className="bg-white rounded-2xl p-1 shadow-sm w-full"
+          style={{
+            aspectRatio: '2/1'
+          }}
         >
-          <img 
-            src={currentBanner.image_url} 
-            alt="Banner promocional" 
-            className="w-full h-full object-cover rounded-xl" 
-          />
+          <div 
+            className="w-full h-full rounded-xl overflow-hidden cursor-pointer transition-transform duration-200 hover:scale-105"
+            onClick={() => handleBannerClick(currentBanner.redirect_url)}
+          >
+            <img 
+              src={currentBanner.image_url} 
+              alt="Banner promocional" 
+              className="w-full h-full object-cover rounded-xl" 
+            />
+          </div>
         </div>
         
         {banners.length > 1 && (
