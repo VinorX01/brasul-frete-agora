@@ -94,7 +94,7 @@ const MascotPosts = () => {
 
   if (isLoading) {
     return (
-      <div className="bg-white rounded-2xl p-4 mb-6 shadow-sm">
+      <div className="bg-white rounded-2xl p-4 mb-6 shadow-sm h-32">
         <div className="flex items-center mb-3">
           <div className="w-10 h-10 bg-gray-300 rounded-full mr-3 animate-pulse"></div>
           <div>
@@ -115,12 +115,12 @@ const MascotPosts = () => {
   const currentPost = posts[currentPostIndex];
 
   return (
-    <div className="bg-white rounded-2xl p-4 mb-6 shadow-sm">
+    <div className="bg-white rounded-2xl p-4 mb-6 shadow-sm h-32 flex flex-col">
       <div className="flex items-center mb-3">
         <img 
-          src="/lovable-uploads/a0ecaaca-eb6f-46f3-945f-bf796dc1a0ec.png" 
+          src="/lovable-uploads/3b6b5518-b391-4631-9e1c-e22b9ce9fe48.png" 
           alt="Bino Estradeiro" 
-          className="w-10 h-10 rounded-full mr-3"
+          className="w-10 h-10 rounded-full mr-3 object-cover"
         />
         <div>
           <p className="font-semibold text-sm text-gray-800">Bino Estradeiro</p>
@@ -128,13 +128,13 @@ const MascotPosts = () => {
         </div>
       </div>
       
-      <div className="mb-3">
-        <p className="text-sm text-gray-700 leading-relaxed">
+      <div className="mb-3 flex-grow overflow-hidden">
+        <p className="text-sm text-gray-700 leading-relaxed line-clamp-2">
           {currentPost.content}
         </p>
       </div>
       
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between mt-auto">
         <button
           onClick={() => handleLike(currentPost.id)}
           className={`flex items-center space-x-1 transition-colors ${
