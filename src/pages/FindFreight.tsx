@@ -11,7 +11,9 @@ import { toast } from "@/components/ui/use-toast";
 import MobilePageWrapper from "@/components/MobilePageWrapper";
 import { type Freight } from "@/lib/supabase";
 import { type FilterValues } from "@/components/FreightFilter";
+
 const ITEMS_PER_PAGE = 100;
+
 const FindFreight = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [isFilterVisible, setIsFilterVisible] = useState(false);
@@ -71,8 +73,9 @@ const FindFreight = () => {
     // Handle freight details view - could navigate to detail page
     console.log("View details for freight:", freight.id);
   };
-  return <MobilePageWrapper>
-      <div className="min-h-screen bg-gray-50">
+  return (
+    <MobilePageWrapper>
+      <div className="min-h-screen" style={{ backgroundColor: '#f4f4fc' }}>
         <div className="container mx-auto px-4 py-6">
           <div className="mb-6">
             <h1 className="font-bold mb-2 text-xl">Encontrar Fretes</h1>
@@ -132,6 +135,8 @@ const FindFreight = () => {
             </div>}
         </div>
       </div>
-    </MobilePageWrapper>;
+    </MobilePageWrapper>
+  );
 };
+
 export default FindFreight;
