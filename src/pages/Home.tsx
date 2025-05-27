@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Truck, Search, Calendar, Send, Phone } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import LastFreightUpdate from "@/components/LastFreightUpdate";
+
 const Home = () => {
   const isMobile = useIsMobile();
   const handleQuickContact = () => {
@@ -12,6 +14,7 @@ const Home = () => {
       description: "Você será atendido em breve por nossos especialistas."
     });
   };
+  
   if (isMobile) {
     return <div className="min-h-screen flex flex-col" style={{
       backgroundColor: '#f4f4fc'
@@ -38,7 +41,7 @@ const Home = () => {
             </p>
           </div>
           
-          <div className="grid grid-cols-4 gap-3">
+          <div className="grid grid-cols-4 gap-3 mb-6">
             <Link to="/frete" className="flex flex-col items-center">
               <div className="bg-white rounded-xl p-3 shadow-sm mb-2 w-full aspect-square flex items-center justify-center">
                 <Search className="h-5 w-5 text-primary" />
@@ -67,6 +70,9 @@ const Home = () => {
               <span className="text-xs font-medium text-primary text-center">Sobre</span>
             </Link>
           </div>
+
+          {/* Bloco de última atualização de fretes */}
+          <LastFreightUpdate />
         </div>
       </div>;
   }
@@ -156,4 +162,5 @@ const Home = () => {
       </section>
     </div>;
 };
+
 export default Home;
