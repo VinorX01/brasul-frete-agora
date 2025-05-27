@@ -105,8 +105,7 @@ const FreightFilter = ({ onFilter }: FreightFilterProps) => {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <Label htmlFor="origin">Origem</Label>
@@ -295,7 +294,6 @@ const FreightFilter = ({ onFilter }: FreightFilterProps) => {
           </Button>
         </div>
       </form>
-    </div>
   );
 };
 
