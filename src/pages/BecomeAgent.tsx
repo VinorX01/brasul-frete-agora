@@ -5,22 +5,9 @@ import { Label } from "@/components/ui/label";
 import { toast } from "@/components/ui/use-toast";
 import { Check } from "lucide-react";
 import { supabase } from "@/lib/supabase";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { 
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import MobilePageWrapper from "@/components/MobilePageWrapper";
-
 const BecomeAgent = () => {
   const [formData, setFormData] = useState({
     name: "",
@@ -32,27 +19,24 @@ const BecomeAgent = () => {
   const [generatedCode, setGeneratedCode] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [showErrorDialog, setShowErrorDialog] = useState(false);
-
   const handleChange = (field: string, value: string) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
     }));
   };
-
   const generateAgentCode = async () => {
     try {
       // Get the highest existing code
-      const { data: agents, error: countError } = await supabase
-        .from("agents")
-        .select("code")
-        .order("code", { ascending: false })
-        .limit(1);
-
+      const {
+        data: agents,
+        error: countError
+      } = await supabase.from("agents").select("code").order("code", {
+        ascending: false
+      }).limit(1);
       if (countError) {
         throw new Error("Error fetching agent codes");
       }
-
       let newCode: string;
 
       // Generate a new code by incrementing the highest existing code or start at 10000
@@ -62,17 +46,15 @@ const BecomeAgent = () => {
       } else {
         newCode = "10000"; // Start with this if no codes exist
       }
-
       return newCode;
     } catch (error) {
       console.error("Error generating agent code:", error);
       throw error;
     }
   };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Validate required fields
     if (!formData.name || !formData.phone) {
       toast({
@@ -82,22 +64,21 @@ const BecomeAgent = () => {
       });
       return;
     }
-    
     setIsSubmitting(true);
-
     try {
       // Generate a new agent code
       const newCode = await generateAgentCode();
-      
+
       // Insert new agent data into the database
-      const { error } = await supabase.from("agents").insert({
+      const {
+        error
+      } = await supabase.from("agents").insert({
         code: newCode,
         name: formData.name,
         phone: formData.phone,
         email: formData.email || null,
         active: true
       });
-
       if (error) {
         throw error;
       }
@@ -105,7 +86,7 @@ const BecomeAgent = () => {
       // Store the generated code and show the success dialog
       setGeneratedCode(newCode);
       setShowCodeDialog(true);
-      
+
       // Reset form
       setFormData({
         name: "",
@@ -120,14 +101,12 @@ const BecomeAgent = () => {
       setIsSubmitting(false);
     }
   };
-
-  return (
-    <MobilePageWrapper>
+  return <MobilePageWrapper>
       <div className="bg-[#f4f4fc] min-h-screen">
         <div className="container mx-auto px-4 py-8">
           <div className="max-w-4xl mx-auto">
             <div className="mb-8 text-center">
-              <h1 className="text-3xl font-bold mb-2">Torne-se um Agenciador</h1>
+              <h1 className="font-bold mb-2 text-xl text-left">Torne-se um Agenciador</h1>
               <p className="text-gray-600 max-w-2xl mx-auto">
                 Seja um agenciador de fretes da Brasul Transportes e ganhe comissões por cada frete intermediado.
               </p>
@@ -288,8 +267,6 @@ const BecomeAgent = () => {
           </div>
         </AlertDialogContent>
       </AlertDialog>
-    </MobilePageWrapper>
-  );
+    </MobilePageWrapper>;
 };
-
 export default BecomeAgent;
