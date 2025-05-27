@@ -2,7 +2,6 @@ import { Button } from "@/components/ui/button";
 import { Truck, Phone, Mail, MapPin } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 import MobilePageWrapper from "@/components/MobilePageWrapper";
-
 const About = () => {
   const handleWhatsAppClick = () => {
     window.open("https://wa.me/5538997353264", "_blank");
@@ -11,15 +10,13 @@ const About = () => {
       description: "Você será atendido em breve por nossos especialistas."
     });
   };
-
-  return (
-    <MobilePageWrapper>
+  return <MobilePageWrapper>
       <div className="bg-[#f4f4fc] min-h-screen">
         <div className="container mx-auto px-4 py-8">
           <div className="max-w-4xl mx-auto">
             <div className="mb-8 text-center">
-              <h1 className="text-3xl font-bold mb-2">Sobre a Brasul Transportes</h1>
-              <p className="text-gray-600 max-w-2xl mx-auto">
+              <h1 className="font-bold mb-2 text-xl text-left">Sobre a Brasul Transportes</h1>
+              <p className="text-gray-600 max-w-2xl mx-auto text-left">
                 Conectando caminhoneiros e fretes em toda a rede viária brasileira, com transparência e eficiência.
               </p>
             </div>
@@ -51,11 +48,7 @@ const About = () => {
                     <div>
                       <h3 className="font-semibold">WhatsApp</h3>
                       <p className="text-gray-700">
-                        <Button 
-                          variant="link" 
-                          className="p-0 h-auto text-primary"
-                          onClick={handleWhatsAppClick}
-                        >
+                        <Button variant="link" className="p-0 h-auto text-primary" onClick={handleWhatsAppClick}>
                           (38) 99735-3264
                         </Button>
                       </p>
@@ -84,10 +77,7 @@ const About = () => {
                   </div>
                 </div>
                 
-                <Button 
-                  className="w-full mt-6" 
-                  onClick={handleWhatsAppClick}
-                >
+                <Button className="w-full mt-6" onClick={handleWhatsAppClick}>
                   Falar com Suporte via WhatsApp
                 </Button>
               </div>
@@ -138,8 +128,6 @@ const About = () => {
           </div>
         </div>
       </div>
-    </MobilePageWrapper>
-  );
+    </MobilePageWrapper>;
 };
-
 export default About;
