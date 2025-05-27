@@ -167,6 +167,33 @@ export type Database = {
         }
         Relationships: []
       }
+      mascot_posts: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          is_active: boolean
+          likes_count: number
+          updated_at: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          likes_count?: number
+          updated_at?: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          likes_count?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       municipalities: {
         Row: {
           id: number

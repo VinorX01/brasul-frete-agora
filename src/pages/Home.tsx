@@ -4,6 +4,7 @@ import { Truck, Search, Calendar, Send, Phone } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import LastFreightUpdate from "@/components/LastFreightUpdate";
+import MascotPosts from "@/components/MascotPosts";
 
 const Home = () => {
   const isMobile = useIsMobile();
@@ -73,6 +74,9 @@ const Home = () => {
 
           {/* Bloco de última atualização de fretes */}
           <LastFreightUpdate />
+          
+          {/* Bloco de posts do mascote */}
+          <MascotPosts />
         </div>
       </div>;
   }
