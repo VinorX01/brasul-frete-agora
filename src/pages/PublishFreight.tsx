@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,6 +23,7 @@ import { Send } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Calendar } from "@/components/ui/calendar";
+import MobilePageWrapper from "@/components/MobilePageWrapper";
 
 const PublishFreight = () => {
   const [formData, setFormData] = useState({
@@ -211,373 +211,375 @@ const PublishFreight = () => {
   };
 
   return (
-    <div className="bg-[#f4f4fc] min-h-screen">
-      <div className="container mx-auto px-4 py-8">
-        <div className="max-w-3xl mx-auto">
-          <div className="mb-8 text-center">
-            <h1 className="text-3xl font-bold mb-2">Publicar Frete</h1>
-            <p className="text-gray-600">
-              Publique seu frete gratuitamente e encontre caminhoneiros qualificados para o transporte da sua carga.
-            </p>
-          </div>
+    <MobilePageWrapper>
+      <div className="bg-[#f4f4fc] min-h-screen">
+        <div className="container mx-auto px-4 py-8">
+          <div className="max-w-3xl mx-auto">
+            <div className="mb-8 text-center">
+              <h1 className="text-3xl font-bold mb-2">Publicar Frete</h1>
+              <p className="text-gray-600">
+                Publique seu frete gratuitamente e encontre caminhoneiros qualificados para o transporte da sua carga.
+              </p>
+            </div>
 
-          <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
-            <form onSubmit={handleSubmit}>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                <div>
-                  <Label htmlFor="origin">Cidade de Origem *</Label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button variant="outline" className="w-full justify-between">
-                        {formData.origin || "Selecione a origem"}
-                        <ChevronDown className="h-4 w-4 opacity-50" />
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-80 p-0">
-                      <div className="p-2">
-                        <Input 
-                          placeholder="Digite para pesquisar municípios" 
-                          value={originSearch} 
-                          onChange={(e) => {
-                            setOriginSearch(e.target.value);
-                            searchMunicipalities(e.target.value, setOriginOptions);
-                          }}
-                        />
-                      </div>
-                      <div className="max-h-72 overflow-y-auto">
-                        {originOptions.map((option) => (
-                          <div 
-                            key={`${option.name}-${option.state}`} 
-                            className="px-2 py-1 cursor-pointer hover:bg-gray-100"
-                            onClick={() => {
-                              handleChange("origin", `${option.name}, ${option.state}`);
-                              setOriginSearch("");
+            <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
+              <form onSubmit={handleSubmit}>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                  <div>
+                    <Label htmlFor="origin">Cidade de Origem *</Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button variant="outline" className="w-full justify-between">
+                          {formData.origin || "Selecione a origem"}
+                          <ChevronDown className="h-4 w-4 opacity-50" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-80 p-0">
+                        <div className="p-2">
+                          <Input 
+                            placeholder="Digite para pesquisar municípios" 
+                            value={originSearch} 
+                            onChange={(e) => {
+                              setOriginSearch(e.target.value);
+                              searchMunicipalities(e.target.value, setOriginOptions);
                             }}
-                          >
-                            {option.name}, {option.state}
-                          </div>
-                        ))}
-                      </div>
-                    </PopoverContent>
-                  </Popover>
-                </div>
+                          />
+                        </div>
+                        <div className="max-h-72 overflow-y-auto">
+                          {originOptions.map((option) => (
+                            <div 
+                              key={`${option.name}-${option.state}`} 
+                              className="px-2 py-1 cursor-pointer hover:bg-gray-100"
+                              onClick={() => {
+                                handleChange("origin", `${option.name}, ${option.state}`);
+                                setOriginSearch("");
+                              }}
+                            >
+                              {option.name}, {option.state}
+                            </div>
+                          ))}
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                  </div>
 
-                <div>
-                  <Label htmlFor="destination">Cidade de Destino *</Label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button variant="outline" className="w-full justify-between">
-                        {formData.destination || "Selecione o destino"}
-                        <ChevronDown className="h-4 w-4 opacity-50" />
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-80 p-0">
-                      <div className="p-2">
-                        <Input 
-                          placeholder="Digite para pesquisar municípios" 
-                          value={destinationSearch} 
-                          onChange={(e) => {
-                            setDestinationSearch(e.target.value);
-                            searchMunicipalities(e.target.value, setDestinationOptions);
-                          }}
-                        />
-                      </div>
-                      <div className="max-h-72 overflow-y-auto">
-                        {destinationOptions.map((option) => (
-                          <div 
-                            key={`${option.name}-${option.state}`} 
-                            className="px-2 py-1 cursor-pointer hover:bg-gray-100"
-                            onClick={() => {
-                              handleChange("destination", `${option.name}, ${option.state}`);
-                              setDestinationSearch("");
+                  <div>
+                    <Label htmlFor="destination">Cidade de Destino *</Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button variant="outline" className="w-full justify-between">
+                          {formData.destination || "Selecione o destino"}
+                          <ChevronDown className="h-4 w-4 opacity-50" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-80 p-0">
+                        <div className="p-2">
+                          <Input 
+                            placeholder="Digite para pesquisar municípios" 
+                            value={destinationSearch} 
+                            onChange={(e) => {
+                              setDestinationSearch(e.target.value);
+                              searchMunicipalities(e.target.value, setDestinationOptions);
                             }}
-                          >
-                            {option.name}, {option.state}
-                          </div>
-                        ))}
-                      </div>
-                    </PopoverContent>
-                  </Popover>
-                </div>
+                          />
+                        </div>
+                        <div className="max-h-72 overflow-y-auto">
+                          {destinationOptions.map((option) => (
+                            <div 
+                              key={`${option.name}-${option.state}`} 
+                              className="px-2 py-1 cursor-pointer hover:bg-gray-100"
+                              onClick={() => {
+                                handleChange("destination", `${option.name}, ${option.state}`);
+                                setDestinationSearch("");
+                              }}
+                            >
+                              {option.name}, {option.state}
+                            </div>
+                          ))}
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                  </div>
 
-                <div>
-                  <Label htmlFor="loading_date">Data de Carregamento</Label>
-                  <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className="w-full justify-start text-left font-normal"
-                      >
-                        {formData.loading_date ? (
-                          format(formData.loading_date, "dd/MM/yyyy", {locale: ptBR})
-                        ) : (
-                          <span>Selecione uma data</span>
-                        )}
-                        <ChevronDown className="ml-auto h-4 w-4 opacity-50" />
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={formData.loading_date || undefined}
-                        onSelect={(date) => {
-                          handleChange("loading_date", date);
-                          setIsCalendarOpen(false);
-                        }}
-                        disabled={(date) => date < new Date()}
-                        locale={ptBR}
-                      />
-                    </PopoverContent>
-                  </Popover>
-                </div>
+                  <div>
+                    <Label htmlFor="loading_date">Data de Carregamento</Label>
+                    <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className="w-full justify-start text-left font-normal"
+                        >
+                          {formData.loading_date ? (
+                            format(formData.loading_date, "dd/MM/yyyy", {locale: ptBR})
+                          ) : (
+                            <span>Selecione uma data</span>
+                          )}
+                          <ChevronDown className="ml-auto h-4 w-4 opacity-50" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={formData.loading_date || undefined}
+                          onSelect={(date) => {
+                            handleChange("loading_date", date);
+                            setIsCalendarOpen(false);
+                          }}
+                          disabled={(date) => date < new Date()}
+                          locale={ptBR}
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
 
-                <div>
-                  <Label htmlFor="expected_delivery_date">Data de Entrega Prevista</Label>
-                  <Popover open={isDeliveryDateCalendarOpen} onOpenChange={setIsDeliveryDateCalendarOpen}>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className="w-full justify-start text-left font-normal"
-                      >
-                        {formData.expected_delivery_date ? (
-                          format(formData.expected_delivery_date, "dd/MM/yyyy", {locale: ptBR})
-                        ) : (
-                          <span>Selecione uma data</span>
-                        )}
-                        <ChevronDown className="ml-auto h-4 w-4 opacity-50" />
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={formData.expected_delivery_date || undefined}
-                        onSelect={(date) => {
-                          handleChange("expected_delivery_date", date);
-                          setIsDeliveryDateCalendarOpen(false);
-                        }}
-                        disabled={(date) => date < new Date()}
-                        locale={ptBR}
-                      />
-                    </PopoverContent>
-                  </Popover>
-                </div>
+                  <div>
+                    <Label htmlFor="expected_delivery_date">Data de Entrega Prevista</Label>
+                    <Popover open={isDeliveryDateCalendarOpen} onOpenChange={setIsDeliveryDateCalendarOpen}>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className="w-full justify-start text-left font-normal"
+                        >
+                          {formData.expected_delivery_date ? (
+                            format(formData.expected_delivery_date, "dd/MM/yyyy", {locale: ptBR})
+                          ) : (
+                            <span>Selecione uma data</span>
+                          )}
+                          <ChevronDown className="ml-auto h-4 w-4 opacity-50" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={formData.expected_delivery_date || undefined}
+                          onSelect={(date) => {
+                            handleChange("expected_delivery_date", date);
+                            setIsDeliveryDateCalendarOpen(false);
+                          }}
+                          disabled={(date) => date < new Date()}
+                          locale={ptBR}
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
 
-                <div>
-                  <Label htmlFor="sender_company">Empresa Remetente</Label>
-                  <Input
-                    id="sender_company"
-                    placeholder="Ex: Transportadora ABC"
-                    value={formData.sender_company}
-                    onChange={(e) => handleChange("sender_company", e.target.value)}
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="cargo_type">Tipo de Carga *</Label>
-                  <Select
-                    value={formData.cargo_type}
-                    onValueChange={(value) => handleChange("cargo_type", value)}
-                    required
-                  >
-                    <SelectTrigger id="cargo_type">
-                      <SelectValue placeholder="Selecione o tipo de carga" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {cargoTypes.map((type) => (
-                        <SelectItem key={type} value={type}>
-                          {type}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div>
-                  <Label htmlFor="cargo_content">Conteúdo da Carga</Label>
-                  <Input
-                    id="cargo_content"
-                    placeholder="Ex: Arroz, Computadores, etc."
-                    value={formData.cargo_content}
-                    onChange={(e) => handleChange("cargo_content", e.target.value)}
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="truck_type">Tipo de Caminhão/Carroceria *</Label>
-                  <Select
-                    value={formData.truck_type}
-                    onValueChange={(value) => handleChange("truck_type", value)}
-                    required
-                  >
-                    <SelectTrigger id="truck_type">
-                      <SelectValue placeholder="Selecione o tipo de caminhão" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {truckTypes.map((type) => (
-                        <SelectItem key={type} value={type}>
-                          {type}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <Label htmlFor="value">Valor do Frete (R$)</Label>
-                  <Input
-                    id="value"
-                    type="number"
-                    placeholder="Ex: 3500 (deixe em branco para 'A combinar')"
-                    value={formData.value}
-                    onChange={(e) => handleChange("value", e.target.value)}
-                  />
-                  <p className="text-xs text-gray-500 mt-1">Deixe em branco para "Valor a combinar"</p>
-                </div>
-
-                <div>
-                  <Label htmlFor="contact">Telefone para Contato *</Label>
-                  <Input
-                    id="contact"
-                    placeholder="Ex: (11) 98765-4321"
-                    value={formData.contact}
-                    onChange={(e) => handleChange("contact", e.target.value)}
-                    required
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="weight">Peso da Carga (kg)</Label>
-                  <Input
-                    id="weight"
-                    type="number"
-                    placeholder="Ex: 1500"
-                    value={formData.weight}
-                    onChange={(e) => handleChange("weight", e.target.value)}
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="freight_distance">Distância do Frete (km)</Label>
-                  <Input
-                    id="freight_distance"
-                    type="number"
-                    placeholder="Ex: 350"
-                    value={formData.freight_distance}
-                    onChange={(e) => handleChange("freight_distance", e.target.value)}
-                  />
-                </div>
-
-                <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="flex items-center space-x-2">
-                    <Checkbox 
-                      id="refrigerated" 
-                      checked={formData.refrigerated}
-                      onCheckedChange={(checked) => handleChange("refrigerated", !!checked)} 
+                  <div>
+                    <Label htmlFor="sender_company">Empresa Remetente</Label>
+                    <Input
+                      id="sender_company"
+                      placeholder="Ex: Transportadora ABC"
+                      value={formData.sender_company}
+                      onChange={(e) => handleChange("sender_company", e.target.value)}
                     />
-                    <Label htmlFor="refrigerated">Refrigerado</Label>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="cargo_type">Tipo de Carga *</Label>
+                    <Select
+                      value={formData.cargo_type}
+                      onValueChange={(value) => handleChange("cargo_type", value)}
+                      required
+                    >
+                      <SelectTrigger id="cargo_type">
+                        <SelectValue placeholder="Selecione o tipo de carga" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {cargoTypes.map((type) => (
+                          <SelectItem key={type} value={type}>
+                            {type}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                   
-                  <div className="flex items-center space-x-2">
-                    <Checkbox 
-                      id="requires_mopp" 
-                      checked={formData.requires_mopp}
-                      onCheckedChange={(checked) => handleChange("requires_mopp", !!checked)} 
+                  <div>
+                    <Label htmlFor="cargo_content">Conteúdo da Carga</Label>
+                    <Input
+                      id="cargo_content"
+                      placeholder="Ex: Arroz, Computadores, etc."
+                      value={formData.cargo_content}
+                      onChange={(e) => handleChange("cargo_content", e.target.value)}
                     />
-                    <Label htmlFor="requires_mopp">Requer MOPP</Label>
-                  </div>
-                  
-                  <div className="flex items-center space-x-2">
-                    <Checkbox 
-                      id="toll_included" 
-                      checked={formData.toll_included}
-                      onCheckedChange={(checked) => handleChange("toll_included", !!checked)} 
-                    />
-                    <Label htmlFor="toll_included">Pedágio Incluso</Label>
                   </div>
 
-                  <div className="flex items-center space-x-2">
-                    <Checkbox 
-                      id="live_cargo" 
-                      checked={formData.live_cargo}
-                      onCheckedChange={(checked) => handleChange("live_cargo", !!checked)} 
-                    />
-                    <Label htmlFor="live_cargo">Carga Viva</Label>
+                  <div>
+                    <Label htmlFor="truck_type">Tipo de Caminhão/Carroceria *</Label>
+                    <Select
+                      value={formData.truck_type}
+                      onValueChange={(value) => handleChange("truck_type", value)}
+                      required
+                    >
+                      <SelectTrigger id="truck_type">
+                        <SelectValue placeholder="Selecione o tipo de caminhão" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {truckTypes.map((type) => (
+                          <SelectItem key={type} value={type}>
+                            {type}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
 
-                  <div className="flex items-center space-x-2">
-                    <Checkbox 
-                      id="dry_cargo" 
-                      checked={formData.dry_cargo}
-                      onCheckedChange={(checked) => handleChange("dry_cargo", !!checked)} 
+                  <div>
+                    <Label htmlFor="value">Valor do Frete (R$)</Label>
+                    <Input
+                      id="value"
+                      type="number"
+                      placeholder="Ex: 3500 (deixe em branco para 'A combinar')"
+                      value={formData.value}
+                      onChange={(e) => handleChange("value", e.target.value)}
                     />
-                    <Label htmlFor="dry_cargo">Carga Seca</Label>
+                    <p className="text-xs text-gray-500 mt-1">Deixe em branco para "Valor a combinar"</p>
                   </div>
 
-                  <div className="flex items-center space-x-2">
-                    <Checkbox 
-                      id="tarp_required" 
-                      checked={formData.tarp_required}
-                      onCheckedChange={(checked) => handleChange("tarp_required", !!checked)} 
+                  <div>
+                    <Label htmlFor="contact">Telefone para Contato *</Label>
+                    <Input
+                      id="contact"
+                      placeholder="Ex: (11) 98765-4321"
+                      value={formData.contact}
+                      onChange={(e) => handleChange("contact", e.target.value)}
+                      required
                     />
-                    <Label htmlFor="tarp_required">Lona Obrigatória</Label>
                   </div>
 
-                  <div className="flex items-center space-x-2">
-                    <Checkbox 
-                      id="has_insurance" 
-                      checked={formData.has_insurance}
-                      onCheckedChange={(checked) => handleChange("has_insurance", !!checked)} 
+                  <div>
+                    <Label htmlFor="weight">Peso da Carga (kg)</Label>
+                    <Input
+                      id="weight"
+                      type="number"
+                      placeholder="Ex: 1500"
+                      value={formData.weight}
+                      onChange={(e) => handleChange("weight", e.target.value)}
                     />
-                    <Label htmlFor="has_insurance">Com Seguro</Label>
                   </div>
 
-                  <div className="flex items-center space-x-2">
-                    <Checkbox 
-                      id="has_tracker" 
-                      checked={formData.has_tracker}
-                      onCheckedChange={(checked) => handleChange("has_tracker", !!checked)} 
+                  <div>
+                    <Label htmlFor="freight_distance">Distância do Frete (km)</Label>
+                    <Input
+                      id="freight_distance"
+                      type="number"
+                      placeholder="Ex: 350"
+                      value={formData.freight_distance}
+                      onChange={(e) => handleChange("freight_distance", e.target.value)}
                     />
-                    <Label htmlFor="has_tracker">Com Rastreador</Label>
+                  </div>
+
+                  <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="flex items-center space-x-2">
+                      <Checkbox 
+                        id="refrigerated" 
+                        checked={formData.refrigerated}
+                        onCheckedChange={(checked) => handleChange("refrigerated", !!checked)} 
+                      />
+                      <Label htmlFor="refrigerated">Refrigerado</Label>
+                    </div>
+                    
+                    <div className="flex items-center space-x-2">
+                      <Checkbox 
+                        id="requires_mopp" 
+                        checked={formData.requires_mopp}
+                        onCheckedChange={(checked) => handleChange("requires_mopp", !!checked)} 
+                      />
+                      <Label htmlFor="requires_mopp">Requer MOPP</Label>
+                    </div>
+                    
+                    <div className="flex items-center space-x-2">
+                      <Checkbox 
+                        id="toll_included" 
+                        checked={formData.toll_included}
+                        onCheckedChange={(checked) => handleChange("toll_included", !!checked)} 
+                      />
+                      <Label htmlFor="toll_included">Pedágio Incluso</Label>
+                    </div>
+
+                    <div className="flex items-center space-x-2">
+                      <Checkbox 
+                        id="live_cargo" 
+                        checked={formData.live_cargo}
+                        onCheckedChange={(checked) => handleChange("live_cargo", !!checked)} 
+                      />
+                      <Label htmlFor="live_cargo">Carga Viva</Label>
+                    </div>
+
+                    <div className="flex items-center space-x-2">
+                      <Checkbox 
+                        id="dry_cargo" 
+                        checked={formData.dry_cargo}
+                        onCheckedChange={(checked) => handleChange("dry_cargo", !!checked)} 
+                      />
+                      <Label htmlFor="dry_cargo">Carga Seca</Label>
+                    </div>
+
+                    <div className="flex items-center space-x-2">
+                      <Checkbox 
+                        id="tarp_required" 
+                        checked={formData.tarp_required}
+                        onCheckedChange={(checked) => handleChange("tarp_required", !!checked)} 
+                      />
+                      <Label htmlFor="tarp_required">Lona Obrigatória</Label>
+                    </div>
+
+                    <div className="flex items-center space-x-2">
+                      <Checkbox 
+                        id="has_insurance" 
+                        checked={formData.has_insurance}
+                        onCheckedChange={(checked) => handleChange("has_insurance", !!checked)} 
+                      />
+                      <Label htmlFor="has_insurance">Com Seguro</Label>
+                    </div>
+
+                    <div className="flex items-center space-x-2">
+                      <Checkbox 
+                        id="has_tracker" 
+                        checked={formData.has_tracker}
+                        onCheckedChange={(checked) => handleChange("has_tracker", !!checked)} 
+                      />
+                      <Label htmlFor="has_tracker">Com Rastreador</Label>
+                    </div>
+                  </div>
+
+                  <div className="md:col-span-2">
+                    <Label htmlFor="observations">Observações (opcional)</Label>
+                    <Textarea
+                      id="observations"
+                      placeholder="Descreva mais detalhes sobre a carga, como dimensões, requisitos específicos, etc."
+                      value={formData.observations}
+                      onChange={(e) => handleChange("observations", e.target.value)}
+                      rows={4}
+                    />
                   </div>
                 </div>
 
-                <div className="md:col-span-2">
-                  <Label htmlFor="observations">Observações (opcional)</Label>
-                  <Textarea
-                    id="observations"
-                    placeholder="Descreva mais detalhes sobre a carga, como dimensões, requisitos específicos, etc."
-                    value={formData.observations}
-                    onChange={(e) => handleChange("observations", e.target.value)}
-                    rows={4}
-                  />
+                <div className="text-center">
+                  <Button 
+                    type="submit" 
+                    className="px-8" 
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? (
+                      "Publicando..."
+                    ) : (
+                      <>
+                        <Send className="mr-2 h-4 w-4" /> Publicar Frete
+                      </>
+                    )}
+                  </Button>
                 </div>
-              </div>
 
-              <div className="text-center">
-                <Button 
-                  type="submit" 
-                  className="px-8" 
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? (
-                    "Publicando..."
-                  ) : (
-                    <>
-                      <Send className="mr-2 h-4 w-4" /> Publicar Frete
-                    </>
-                  )}
-                </Button>
-              </div>
-
-              <div className="mt-6 text-center text-sm text-gray-500">
-                <p>Ao publicar um frete, você concorda com os termos de uso da plataforma.</p>
-                <p className="mt-2">* Campos obrigatórios</p>
-              </div>
-            </form>
+                <div className="mt-6 text-center text-sm text-gray-500">
+                  <p>Ao publicar um frete, você concorda com os termos de uso da plataforma.</p>
+                  <p className="mt-2">* Campos obrigatórios</p>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </MobilePageWrapper>
   );
 };
 
