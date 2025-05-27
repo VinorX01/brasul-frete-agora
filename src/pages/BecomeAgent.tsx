@@ -107,7 +107,7 @@ const BecomeAgent = () => {
           <div className="max-w-4xl mx-auto">
             <div className="mb-8 text-center">
               <h1 className="font-bold mb-2 text-xl text-left">Torne-se um Agenciador</h1>
-              <p className="text-gray-600 max-w-2xl mx-auto">
+              <p className="text-gray-600 max-w-2xl mx-auto text-left">
                 Seja um agenciador de fretes da Brasul Transportes e ganhe comissões por cada frete intermediado.
               </p>
             </div>
