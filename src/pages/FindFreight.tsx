@@ -95,7 +95,7 @@ const FindFreight = () => {
               <p className="text-sm font-semibold text-slate-900">
                 {totalFreights || 0} fretes disponíveis
               </p>
-              <Button variant="outline" size="sm" onClick={() => setIsFilterVisible(!isFilterVisible)} className="bg-white">
+              <Button variant="outline" size="sm" onClick={() => setIsFilterVisible(!isFilterVisible)} className="bg-black text-white border-black hover:bg-gray-800">
                 <Settings className="h-4 w-4 mr-2" />
                 Filtros
               </Button>
