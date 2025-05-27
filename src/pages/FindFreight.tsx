@@ -89,7 +89,7 @@ const FindFreight = () => {
           {/* Filtros com botão toggle */}
           <div className="mb-6">
             <div className="flex justify-between items-center mb-4">
-              <p className="text-sm text-gray-600">
+              <p className="text-sm font-semibold text-slate-900">
                 {totalFreights || 0} fretes disponíveis
               </p>
               <Button variant="outline" size="sm" onClick={() => setIsFilterVisible(!isFilterVisible)} className="bg-white">
