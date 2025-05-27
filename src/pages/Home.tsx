@@ -3,10 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Truck, Search, Calendar, Send, Phone } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 import { useIsMobile } from "@/hooks/useIsMobile";
-
 const Home = () => {
   const isMobile = useIsMobile();
-
   const handleQuickContact = () => {
     window.open("https://wa.me/5538997353264", "_blank");
     toast({
@@ -14,10 +12,10 @@ const Home = () => {
       description: "Você será atendido em breve por nossos especialistas."
     });
   };
-
   if (isMobile) {
-    return (
-      <div className="min-h-screen flex flex-col" style={{ backgroundColor: '#f4f4fc' }}>
+    return <div className="min-h-screen flex flex-col" style={{
+      backgroundColor: '#f4f4fc'
+    }}>
         <div className="p-6">
           <div className="flex justify-between items-center mb-8">
             <div className="flex items-center">
@@ -27,15 +25,12 @@ const Home = () => {
                 <p className="text-xs text-gray-600">TRANSPORTES</p>
               </div>
             </div>
-            <button 
-              onClick={handleQuickContact}
-              className="bg-white rounded-full p-3 shadow-sm flex items-center justify-center"
-            >
+            <button onClick={handleQuickContact} className="bg-white rounded-full p-3 shadow-sm flex items-center justify-center">
               <Phone className="h-5 w-5 text-primary" />
             </button>
           </div>
 
-          <h1 className="text-2xl font-bold text-black mb-8">Bem-vindo!</h1>
+          <h1 className="font-bold mb-8 text-lg text-slate-700">Bem-vindo, Caminhoneiro!</h1>
           
           <div className="grid grid-cols-4 gap-4">
             <Link to="/frete" className="flex flex-col items-center">
@@ -67,12 +62,9 @@ const Home = () => {
             </Link>
           </div>
         </div>
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <div className="flex flex-col min-h-screen">
+  return <div className="flex flex-col min-h-screen">
       {/* Hero Section */}
       <section className="bg-gradient-to-b from-primary to-primary-medium py-16 text-white">
         <div className="container mx-auto px-4 text-center">
@@ -156,8 +148,6 @@ const Home = () => {
           </div>
         </div>
       </section>
-    </div>
-  );
+    </div>;
 };
-
 export default Home;
