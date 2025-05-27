@@ -3,8 +3,10 @@ import { Button } from "@/components/ui/button";
 import { Truck, Search, Calendar, Send, Phone } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 import { useIsMobile } from "@/hooks/useIsMobile";
+
 const Home = () => {
   const isMobile = useIsMobile();
+  
   const handleQuickContact = () => {
     window.open("https://wa.me/5538997353264", "_blank");
     toast({
@@ -12,59 +14,75 @@ const Home = () => {
       description: "Você será atendido em breve por nossos especialistas."
     });
   };
+
   if (isMobile) {
-    return <div className="min-h-screen flex flex-col" style={{
-      backgroundColor: '#f4f4fc'
-    }}>
+    return (
+      <div className="min-h-screen flex flex-col" style={{ backgroundColor: '#f4f4fc' }}>
         <div className="p-6">
-          <div className="flex justify-between items-center mb-8">
+          <div className="flex justify-between items-center mb-6">
             <div className="flex items-center">
-              <img alt="Brasul Transportes Logo" className="h-8 w-auto mr-2" src="/lovable-uploads/a6bb16cf-d425-4129-8432-dd145542833e.png" />
+              <img 
+                alt="Brasul Transportes Logo" 
+                className="h-8 w-auto mr-2" 
+                src="/lovable-uploads/a6bb16cf-d425-4129-8432-dd145542833e.png" 
+              />
               <div>
                 <h1 className="text-lg font-bold text-primary leading-none">Brasul</h1>
                 <p className="text-xs text-gray-600">TRANSPORTES</p>
               </div>
             </div>
-            <button onClick={handleQuickContact} className="bg-white rounded-full p-3 shadow-sm flex items-center justify-center">
+            <button 
+              onClick={handleQuickContact} 
+              className="bg-white rounded-full p-3 shadow-sm flex items-center justify-center"
+            >
               <Phone className="h-5 w-5 text-primary" />
             </button>
           </div>
 
-          <h1 className="font-bold mb-8 text-lg text-slate-700">Bem-vindo, Caminhoneiro!</h1>
+          {/* Bloco de boas-vindas */}
+          <div className="bg-white rounded-2xl p-4 mb-6 shadow-sm">
+            <h1 className="font-bold text-lg text-black mb-2">Bem-vindo, Caminhoneiro!</h1>
+            <p className="text-sm text-gray-600">
+              Use nosso aplicativo para encontrar, agenciar e publicar fretes para todo o Brasil.
+            </p>
+          </div>
           
-          <div className="grid grid-cols-4 gap-4">
+          <div className="grid grid-cols-4 gap-3">
             <Link to="/frete" className="flex flex-col items-center">
-              <div className="bg-white rounded-2xl p-4 shadow-sm mb-2 w-full aspect-square flex items-center justify-center">
-                <Search className="h-6 w-6 text-primary" />
+              <div className="bg-white rounded-xl p-3 shadow-sm mb-2 w-full aspect-square flex items-center justify-center">
+                <Search className="h-5 w-5 text-primary" />
               </div>
               <span className="text-xs font-medium text-primary text-center">Buscar Frete</span>
             </Link>
 
             <Link to="/publicar-frete" className="flex flex-col items-center">
-              <div className="bg-white rounded-2xl p-4 shadow-sm mb-2 w-full aspect-square flex items-center justify-center">
-                <Send className="h-6 w-6 text-primary" />
+              <div className="bg-white rounded-xl p-3 shadow-sm mb-2 w-full aspect-square flex items-center justify-center">
+                <Send className="h-5 w-5 text-primary" />
               </div>
               <span className="text-xs font-medium text-primary text-center">Publicar Frete</span>
             </Link>
 
             <Link to="/agenciadores" className="flex flex-col items-center">
-              <div className="bg-white rounded-2xl p-4 shadow-sm mb-2 w-full aspect-square flex items-center justify-center">
-                <Truck className="h-6 w-6 text-primary" />
+              <div className="bg-white rounded-xl p-3 shadow-sm mb-2 w-full aspect-square flex items-center justify-center">
+                <Truck className="h-5 w-5 text-primary" />
               </div>
               <span className="text-xs font-medium text-primary text-center">Agenciadores</span>
             </Link>
 
             <Link to="/sobre" className="flex flex-col items-center">
-              <div className="bg-white rounded-2xl p-4 shadow-sm mb-2 w-full aspect-square flex items-center justify-center">
-                <Calendar className="h-6 w-6 text-primary" />
+              <div className="bg-white rounded-xl p-3 shadow-sm mb-2 w-full aspect-square flex items-center justify-center">
+                <Calendar className="h-5 w-5 text-primary" />
               </div>
               <span className="text-xs font-medium text-primary text-center">Sobre</span>
             </Link>
           </div>
         </div>
-      </div>;
+      </div>
+    );
   }
-  return <div className="flex flex-col min-h-screen">
+
+  return (
+    <div className="flex flex-col min-h-screen">
       {/* Hero Section */}
       <section className="bg-gradient-to-b from-primary to-primary-medium py-16 text-white">
         <div className="container mx-auto px-4 text-center">
@@ -148,6 +166,8 @@ const Home = () => {
           </div>
         </div>
       </section>
-    </div>;
+    </div>
+  );
 };
+
 export default Home;
