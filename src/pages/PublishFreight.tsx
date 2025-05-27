@@ -198,7 +198,7 @@ const PublishFreight = () => {
           <div className="max-w-3xl mx-auto">
             <div className="mb-8 text-center">
               <h1 className="font-bold mb-2 text-xl text-left">Publicar Frete</h1>
-              <p className="text-gray-600">
+              <p className="text-gray-600 text-left text-base">
                 Publique seu frete gratuitamente e encontre caminhoneiros qualificados para o transporte da sua carga.
               </p>
             </div>
