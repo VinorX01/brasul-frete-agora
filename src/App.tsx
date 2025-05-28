@@ -13,6 +13,7 @@ import BecomeAgent from "./pages/BecomeAgent";
 import About from "./pages/About";
 import NotFound from "./pages/NotFound";
 import FreightDetail from "./pages/FreightDetail";
+import News from "./pages/News";
 
 const queryClient = new QueryClient();
 
@@ -30,6 +31,7 @@ const App = () => (
               <Route path="publicar-frete" element={<PublishFreight />} />
               <Route path="agenciadores" element={<BecomeAgent />} />
               <Route path="sobre" element={<About />} />
+              <Route path="noticias" element={<News />} />
               <Route path="frete/:id" element={<FreightDetail />} />
               <Route path="*" element={<NotFound />} />
             </Route>
