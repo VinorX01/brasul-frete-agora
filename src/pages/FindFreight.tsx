@@ -3,6 +3,7 @@ import { useLocation, useSearchParams } from "react-router-dom";
 import FreightCard from "@/components/FreightCard";
 import FreightFilter from "@/components/FreightFilter";
 import FreightMap from "@/components/FreightMap";
+import FreightDetails from "@/components/FreightDetails";
 import { Button } from "@/components/ui/button";
 import { Settings, MapPin } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
@@ -11,11 +12,15 @@ import { toast } from "@/components/ui/use-toast";
 import MobilePageWrapper from "@/components/MobilePageWrapper";
 import { type Freight } from "@/lib/supabase";
 import { type FilterValues } from "@/components/FreightFilter";
+
 const ITEMS_PER_PAGE = 100;
+
 const FindFreight = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [isFilterVisible, setIsFilterVisible] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedFreight, setSelectedFreight] = useState<Freight | null>(null);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [filters, setFilters] = useState<FilterValues>({
     origin: searchParams.get("origin") || "all",
     destination: searchParams.get("destination") || "all",
@@ -31,6 +36,7 @@ const FindFreight = () => {
     tollIncluded: searchParams.get("tollIncluded") === "true",
     showPerKmRate: searchParams.get("showPerKmRate") === "true"
   });
+
   const {
     data,
     isLoading,
@@ -39,12 +45,14 @@ const FindFreight = () => {
     queryKey: ["freights", filters, currentPage],
     queryFn: () => getFilteredFreights(filters.origin, filters.destination, filters.cargoType, filters.truckType, filters.minValue ? Number(filters.minValue) : undefined, filters.maxValue ? Number(filters.maxValue) : undefined, filters.minWeight ? Number(filters.minWeight) : undefined, filters.maxWeight ? Number(filters.maxWeight) : undefined, filters.refrigerated, filters.requiresMopp, filters.tollIncluded, filters.originState, ITEMS_PER_PAGE, currentPage - 1)
   });
+
   const {
     data: totalFreights
   } = useQuery({
     queryKey: ["freightsCount", filters],
     queryFn: () => getFreightCount(filters.origin, filters.destination, filters.cargoType, filters.truckType, filters.minValue ? Number(filters.minValue) : undefined, filters.maxValue ? Number(filters.maxValue) : undefined, filters.minWeight ? Number(filters.minWeight) : undefined, filters.maxWeight ? Number(filters.maxWeight) : undefined, filters.refrigerated, filters.requiresMopp, filters.tollIncluded, filters.originState)
   });
+
   useEffect(() => {
     if (totalFreights === undefined) return;
     if (data === undefined) return;
@@ -55,6 +63,7 @@ const FindFreight = () => {
       });
     }
   }, [data, totalFreights]);
+
   const handleFilter = (newFilters: FilterValues) => {
     setFilters(newFilters);
     setCurrentPage(1);
@@ -64,13 +73,21 @@ const FindFreight = () => {
     // Close filter panel after applying filters
     setIsFilterVisible(false);
   };
+
   const handlePageChange = (newPage: number) => {
     setCurrentPage(newPage);
   };
+
   const handleViewDetails = (freight: Freight) => {
-    // Handle freight details view - could navigate to detail page
-    console.log("View details for freight:", freight.id);
+    setSelectedFreight(freight);
+    setIsDetailsOpen(true);
   };
+
+  const handleCloseDetails = () => {
+    setIsDetailsOpen(false);
+    setSelectedFreight(null);
+  };
+
   return <MobilePageWrapper>
       <div className="min-h-screen" style={{
       backgroundColor: '#f4f4fc'
@@ -133,7 +150,15 @@ const FindFreight = () => {
               </Button>
             </div>}
         </div>
+
+        {/* FreightDetails Component */}
+        <FreightDetails 
+          freight={selectedFreight}
+          isOpen={isDetailsOpen}
+          onClose={handleCloseDetails}
+        />
       </div>
     </MobilePageWrapper>;
 };
+
 export default FindFreight;
