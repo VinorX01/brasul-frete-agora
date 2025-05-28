@@ -69,7 +69,7 @@ const LastFreightUpdate = () => {
   return (
     <div className="bg-white rounded-2xl p-3 mb-6 shadow-sm">
       <div className="flex items-center">
-        <div className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></div>
+        <div className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse-bright"></div>
         <span className="text-xs text-gray-600">
           Fretes atualizados: {lastUpdate ? formatUpdateTime(lastUpdate) : 'Não disponível'}
         </span>
