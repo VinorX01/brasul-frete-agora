@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Heart } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
@@ -93,6 +92,25 @@ const MascotPosts = () => {
     }
   };
 
+  const getTimeAgo = (createdAt: string) => {
+    const now = new Date();
+    const postDate = new Date(createdAt);
+    const diffInSeconds = Math.floor((now.getTime() - postDate.getTime()) / 1000);
+
+    if (diffInSeconds < 60) {
+      return 'agora';
+    } else if (diffInSeconds < 3600) {
+      const minutes = Math.floor(diffInSeconds / 60);
+      return `há ${minutes}min`;
+    } else if (diffInSeconds < 86400) {
+      const hours = Math.floor(diffInSeconds / 3600);
+      return `há ${hours}h`;
+    } else {
+      const days = Math.floor(diffInSeconds / 86400);
+      return `há ${days}d`;
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="bg-white rounded-2xl p-4 mb-6 shadow-sm h-[200px]">
@@ -122,16 +140,19 @@ const MascotPosts = () => {
           isSliding ? 'transform -translate-x-full' : 'transform translate-x-0'
         }`}
       >
-        <div className="flex items-center mb-3">
-          <img 
-            src="/lovable-uploads/3b6b5518-b391-4631-9e1c-e22b9ce9fe48.png" 
-            alt="Bino Estradeiro" 
-            className="w-10 h-10 rounded-full mr-3 object-cover"
-          />
-          <div>
-            <p className="font-semibold text-sm text-gray-800">Bino Estradeiro</p>
-            <p className="text-xs text-gray-500">@bino</p>
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center">
+            <img 
+              src="/lovable-uploads/3b6b5518-b391-4631-9e1c-e22b9ce9fe48.png" 
+              alt="Bino Estradeiro" 
+              className="w-10 h-10 rounded-full mr-3 object-cover"
+            />
+            <div>
+              <p className="font-semibold text-sm text-gray-800">Bino Estradeiro</p>
+              <p className="text-xs text-gray-500">@bino</p>
+            </div>
           </div>
+          <span className="text-xs text-gray-500">{getTimeAgo(currentPost.created_at)}</span>
         </div>
         
         <div className="mb-3 flex-grow overflow-hidden">
