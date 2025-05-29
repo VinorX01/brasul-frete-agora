@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useLocation, useSearchParams } from "react-router-dom";
 import FreightCard from "@/components/FreightCard";
@@ -7,7 +8,7 @@ import FreightDetails from "@/components/FreightDetails";
 import { Button } from "@/components/ui/button";
 import { Settings, MapPin } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-import { getFilteredFreights, getFreightCount } from "@/lib/freightService";
+import { getFilteredFreights, getFreightCount, getUniqueOriginCities } from "@/lib/freightService";
 import { toast } from "@/components/ui/use-toast";
 import MobilePageWrapper from "@/components/MobilePageWrapper";
 import { type Freight } from "@/lib/supabase";
@@ -21,6 +22,7 @@ const FindFreight = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedFreight, setSelectedFreight] = useState<Freight | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [hasAppliedFilters, setHasAppliedFilters] = useState(false);
   const [filters, setFilters] = useState<FilterValues>({
     origin: searchParams.get("origin") || "all",
     destination: searchParams.get("destination") || "all",
@@ -37,6 +39,34 @@ const FindFreight = () => {
     showPerKmRate: searchParams.get("showPerKmRate") === "true"
   });
 
+  // Check if any filters are applied
+  useEffect(() => {
+    const hasFilters = filters.origin !== "all" || 
+                      filters.destination !== "all" || 
+                      filters.originState !== "all" || 
+                      filters.cargoType !== "all" || 
+                      filters.truckType !== "all" || 
+                      filters.minValue !== "" || 
+                      filters.maxValue !== "" || 
+                      filters.minWeight !== "" || 
+                      filters.maxWeight !== "" || 
+                      filters.refrigerated || 
+                      filters.requiresMopp || 
+                      filters.tollIncluded;
+    setHasAppliedFilters(hasFilters);
+  }, [filters]);
+
+  // Query for unique cities (used for map when no filters applied)
+  const {
+    data: uniqueCitiesData,
+    isLoading: isLoadingUniqueCities
+  } = useQuery({
+    queryKey: ["uniqueOriginCities"],
+    queryFn: () => getUniqueOriginCities(100),
+    enabled: !hasAppliedFilters
+  });
+
+  // Query for filtered freights (used for list and map when filters applied)
   const {
     data,
     isLoading,
@@ -88,10 +118,13 @@ const FindFreight = () => {
     setSelectedFreight(null);
   };
 
-  return <MobilePageWrapper>
-      <div className="min-h-screen" style={{
-      backgroundColor: '#f4f4fc'
-    }}>
+  // Determine which data to use for map and loading state
+  const mapData = hasAppliedFilters ? (data || []) : (uniqueCitiesData || []);
+  const isMapLoading = hasAppliedFilters ? isLoading : isLoadingUniqueCities;
+
+  return (
+    <MobilePageWrapper>
+      <div className="min-h-screen" style={{ backgroundColor: '#f4f4fc' }}>
         <div className="container mx-auto px-4 py-6">
           <div className="mb-6">
             <h1 className="font-bold mb-2 text-xl">Encontrar Fretes</h1>
@@ -102,7 +135,7 @@ const FindFreight = () => {
 
           {/* Mapa */}
           <div className="mb-6">
-            <FreightMap freights={data || []} />
+            <FreightMap freights={mapData} />
           </div>
 
           {/* Filtros com botão toggle */}
@@ -117,16 +150,30 @@ const FindFreight = () => {
               </Button>
             </div>
             
-            {isFilterVisible && <div className="bg-white rounded-lg shadow-sm p-4 mb-4">
+            {isFilterVisible && (
+              <div className="bg-white rounded-lg shadow-sm p-4 mb-4">
                 <FreightFilter onFilter={handleFilter} />
-              </div>}
+              </div>
+            )}
           </div>
 
           {/* Lista de fretes */}
           <div className="space-y-4">
-            {isLoading ? <div className="text-center py-8">
+            {isLoading ? (
+              <div className="text-center py-8">
                 <p>Carregando fretes...</p>
-              </div> : data && data.length > 0 ? data.map(freight => <FreightCard key={freight.id} freight={freight} onViewDetails={handleViewDetails} showPerKmRate={filters.showPerKmRate} />) : <div className="text-center py-8">
+              </div>
+            ) : data && data.length > 0 ? (
+              data.map(freight => (
+                <FreightCard 
+                  key={freight.id} 
+                  freight={freight} 
+                  onViewDetails={handleViewDetails} 
+                  showPerKmRate={filters.showPerKmRate} 
+                />
+              ))
+            ) : (
+              <div className="text-center py-8">
                 <MapPin className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-gray-900 mb-2">
                   Nenhum frete encontrado
@@ -134,21 +181,32 @@ const FindFreight = () => {
                 <p className="text-gray-500">
                   Tente ajustar os filtros para encontrar mais opções
                 </p>
-              </div>}
+              </div>
+            )}
           </div>
 
           {/* Paginação */}
-          {data && totalFreights && totalFreights > ITEMS_PER_PAGE && <div className="mt-8 flex justify-center space-x-4">
-              <Button variant="outline" onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage <= 1}>
+          {data && totalFreights && totalFreights > ITEMS_PER_PAGE && (
+            <div className="mt-8 flex justify-center space-x-4">
+              <Button 
+                variant="outline" 
+                onClick={() => handlePageChange(currentPage - 1)} 
+                disabled={currentPage <= 1}
+              >
                 Anterior
               </Button>
               <span className="flex items-center px-4">
                 Página {currentPage} de {Math.ceil(totalFreights / ITEMS_PER_PAGE)}
               </span>
-              <Button variant="outline" onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage >= Math.ceil(totalFreights / ITEMS_PER_PAGE)}>
+              <Button 
+                variant="outline" 
+                onClick={() => handlePageChange(currentPage + 1)} 
+                disabled={currentPage >= Math.ceil(totalFreights / ITEMS_PER_PAGE)}
+              >
                 Próxima
               </Button>
-            </div>}
+            </div>
+          )}
         </div>
 
         {/* FreightDetails Component */}
@@ -158,7 +216,8 @@ const FindFreight = () => {
           onClose={handleCloseDetails}
         />
       </div>
-    </MobilePageWrapper>;
+    </MobilePageWrapper>
+  );
 };
 
 export default FindFreight;

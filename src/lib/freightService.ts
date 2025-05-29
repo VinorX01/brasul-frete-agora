@@ -1,4 +1,3 @@
-
 import { supabase, type Freight } from './supabase';
 import { toast } from '@/components/ui/use-toast';
 
@@ -414,3 +413,45 @@ export const staticDestinations = [
   "Belém",
   "Goiânia"
 ];
+
+// Get unique origin cities with at least one freight
+export const getUniqueOriginCities = async (limit: number = 100): Promise<Freight[]> => {
+  // First, run the cleanup function to remove old freights
+  await cleanupOldFreights();
+  
+  // Get unique origin cities and their first freight data
+  const { data, error } = await supabase
+    .from('freights')
+    .select('*')
+    .order('origin', { ascending: true })
+    .limit(limit * 5); // Get more data to ensure we have enough unique cities
+    
+  if (error) {
+    console.error('Error fetching unique origin cities:', error);
+    toast({
+      title: "Erro ao buscar cidades",
+      description: "Ocorreu um erro ao buscar as cidades. Tente novamente.",
+      variant: "destructive",
+    });
+    return [];
+  }
+  
+  if (!data) return [];
+  
+  // Filter to get unique cities (first freight per city)
+  const uniqueCities = new Map<string, Freight>();
+  
+  for (const freight of data) {
+    const cityKey = freight.origin.toLowerCase();
+    if (!uniqueCities.has(cityKey)) {
+      uniqueCities.set(cityKey, freight);
+    }
+    
+    // Stop when we have enough unique cities
+    if (uniqueCities.size >= limit) {
+      break;
+    }
+  }
+  
+  return Array.from(uniqueCities.values());
+};
