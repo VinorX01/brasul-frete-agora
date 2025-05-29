@@ -365,7 +365,8 @@ export const staticCargoTypes = [
   "Carga Perigosa",
   "Produtos Químicos",
   "Têxteis",
-  "Bebidas"
+  "Bebidas",
+  "Outros"
 ];
 
 export const staticTruckTypes = [
@@ -381,7 +382,10 @@ export const staticTruckTypes = [
   "Porta Container",
   "Sider",
   "Cegonha",
-  "Prancha"
+  "Prancha",
+  "Graneleiro",
+  "Rodotrem",
+  "Rodocaçamba"
 ];
 
 // Adding the missing static arrays
