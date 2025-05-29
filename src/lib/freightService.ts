@@ -385,7 +385,11 @@ export const staticTruckTypes = [
   "Prancha",
   "Graneleiro",
   "Rodotrem",
-  "Rodocaçamba"
+  "Rodocaçamba",
+  "VLS",
+  "Van",
+  "3/4",
+  "Fiorino"
 ];
 
 // Adding the missing static arrays
