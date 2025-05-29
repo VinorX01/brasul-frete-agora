@@ -9,7 +9,7 @@ const BackButton = () => {
   return (
     <Button
       variant="ghost"
-      onClick={() => navigate("../../index.html")}
+      onClick={() => navigate(-1)}
       className="mb-4 text-primary"
     >
       <ArrowLeft className="h-4 w-4 mr-2" />
