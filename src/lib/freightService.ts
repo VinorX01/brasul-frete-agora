@@ -1,3 +1,4 @@
+
 import { supabase, type Freight } from './supabase';
 import { toast } from '@/components/ui/use-toast';
 
@@ -419,15 +420,14 @@ export const getUniqueOriginCities = async (limit: number = 100): Promise<Freigh
   // First, run the cleanup function to remove old freights
   await cleanupOldFreights();
   
-  // Get unique origin cities and their first freight data
-  const { data, error } = await supabase
+  // Get all unique origin cities from the entire database
+  const { data: uniqueOrigins, error: originsError } = await supabase
     .from('freights')
-    .select('*')
-    .order('origin', { ascending: true })
-    .limit(limit * 5); // Get more data to ensure we have enough unique cities
+    .select('origin')
+    .order('origin', { ascending: true });
     
-  if (error) {
-    console.error('Error fetching unique origin cities:', error);
+  if (originsError) {
+    console.error('Error fetching unique origins:', originsError);
     toast({
       title: "Erro ao buscar cidades",
       description: "Ocorreu um erro ao buscar as cidades. Tente novamente.",
@@ -436,22 +436,30 @@ export const getUniqueOriginCities = async (limit: number = 100): Promise<Freigh
     return [];
   }
   
-  if (!data) return [];
+  if (!uniqueOrigins) return [];
   
-  // Filter to get unique cities (first freight per city)
-  const uniqueCities = new Map<string, Freight>();
+  // Get unique city names
+  const uniqueCityNames = [...new Set(uniqueOrigins.map(item => item.origin))];
   
-  for (const freight of data) {
-    const cityKey = freight.origin.toLowerCase();
-    if (!uniqueCities.has(cityKey)) {
-      uniqueCities.set(cityKey, freight);
-    }
-    
-    // Stop when we have enough unique cities
-    if (uniqueCities.size >= limit) {
-      break;
+  // Limit to the requested number of cities
+  const limitedCityNames = uniqueCityNames.slice(0, limit);
+  
+  // Now get one freight example for each unique city
+  const uniqueCityFreights: Freight[] = [];
+  
+  for (const cityName of limitedCityNames) {
+    const { data: cityFreight, error } = await supabase
+      .from('freights')
+      .select('*')
+      .eq('origin', cityName)
+      .limit(1)
+      .single();
+      
+    if (!error && cityFreight) {
+      uniqueCityFreights.push(cityFreight);
     }
   }
   
-  return Array.from(uniqueCities.values());
+  console.log(`Found ${uniqueCityFreights.length} unique cities with freights`);
+  return uniqueCityFreights;
 };
