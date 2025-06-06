@@ -1,272 +1,209 @@
-import { useState } from "react";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { CheckCircle, DollarSign, Users, TrendingUp, Phone } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
-import { Check } from "lucide-react";
-import { supabase } from "@/lib/supabase";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { useAnalytics } from "@/hooks/useAnalytics";
+import { useEffect } from "react";
 import MobilePageWrapper from "@/components/MobilePageWrapper";
+
 const BecomeAgent = () => {
-  const [formData, setFormData] = useState({
-    name: "",
-    phone: "",
-    email: ""
-  });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showCodeDialog, setShowCodeDialog] = useState(false);
-  const [generatedCode, setGeneratedCode] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
-  const [showErrorDialog, setShowErrorDialog] = useState(false);
-  const handleChange = (field: string, value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }));
-  };
-  const generateAgentCode = async () => {
-    try {
-      // Get the highest existing code
-      const {
-        data: agents,
-        error: countError
-      } = await supabase.from("agents").select("code").order("code", {
-        ascending: false
-      }).limit(1);
-      if (countError) {
-        throw new Error("Error fetching agent codes");
-      }
-      let newCode: string;
+  const { trackEvent } = useAnalytics();
 
-      // Generate a new code by incrementing the highest existing code or start at 10000
-      if (agents && agents.length > 0 && !isNaN(Number(agents[0].code))) {
-        const highestCode = Number(agents[0].code);
-        newCode = String(highestCode + 1).padStart(5, '0');
-      } else {
-        newCode = "10000"; // Start with this if no codes exist
-      }
-      return newCode;
-    } catch (error) {
-      console.error("Error generating agent code:", error);
-      throw error;
-    }
-  };
-  const handleSubmit = async (e: React.FormEvent) => {
+  // Track page view on component mount
+  useEffect(() => {
+    trackEvent('page_view_become_agent');
+  }, [trackEvent]);
+
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
-    // Validate required fields
-    if (!formData.name || !formData.phone) {
-      toast({
-        title: "Campos obrigatórios",
-        description: "Por favor, preencha nome e telefone.",
-        variant: "destructive"
-      });
-      return;
-    }
-    setIsSubmitting(true);
-    try {
-      // Generate a new agent code
-      const newCode = await generateAgentCode();
-
-      // Insert new agent data into the database
-      const {
-        error
-      } = await supabase.from("agents").insert({
-        code: newCode,
-        name: formData.name,
-        phone: formData.phone,
-        email: formData.email || null,
-        active: true
-      });
-      if (error) {
-        throw error;
-      }
-
-      // Store the generated code and show the success dialog
-      setGeneratedCode(newCode);
-      setShowCodeDialog(true);
-
-      // Reset form
-      setFormData({
-        name: "",
-        phone: "",
-        email: ""
-      });
-    } catch (error) {
-      console.error("Error creating agent:", error);
-      setErrorMessage("Ocorreu um erro ao gerar seu código. Por favor tente novamente.");
-      setShowErrorDialog(true);
-    } finally {
-      setIsSubmitting(false);
-    }
+    toast({
+      title: "Cadastro enviado com sucesso!",
+      description: "Entraremos em contato em breve para finalizar seu cadastro como agenciador."
+    });
   };
-  return <MobilePageWrapper>
-      <div className="bg-[#f4f4fc] min-h-screen">
+
+  const handleWhatsAppClick = () => {
+    window.open("https://wa.me/5538997353264?text=Olá! Tenho interesse em me tornar um agenciador.", "_blank");
+    toast({
+      title: "Redirecionando para WhatsApp",
+      description: "Você será atendido em breve por nossos especialistas."
+    });
+  };
+
+  return (
+    <MobilePageWrapper>
+      <div className="min-h-screen" style={{ backgroundColor: '#f4f4fc' }}>
         <div className="container mx-auto px-4 py-8">
           <div className="max-w-4xl mx-auto">
-            <div className="mb-8">
-              <h1 className="font-bold mb-2 text-xl text-left">Torne-se um Agenciador</h1>
-              <p className="text-gray-600 max-w-2xl mx-auto text-left">
-                Seja um agenciador de fretes da Brasul Transportes e ganhe comissões por cada frete intermediado.
+            <div className="text-center mb-8">
+              <h1 className="text-3xl font-bold text-primary mb-4">Torne-se um Agenciador</h1>
+              <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+                Ganhe dinheiro agenciando fretes! Conecte caminhoneiros a cargas disponíveis e receba comissão por cada frete intermediado.
               </p>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-8 mb-12">
-              <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
-                <h2 className="text-xl font-bold mb-6 text-primary">
-                  Solicitar Código de Agenciador
-                </h2>
-                
-                <form onSubmit={handleSubmit}>
-                  <div className="space-y-4">
-                    <div>
-                      <Label htmlFor="name">Nome Completo *</Label>
-                      <Input id="name" placeholder="Seu nome completo" value={formData.name} onChange={e => handleChange("name", e.target.value)} required />
-                    </div>
+            {/* Benefits Cards */}
+            <div className="grid md:grid-cols-3 gap-6 mb-12">
+              <Card>
+                <CardHeader className="text-center">
+                  <DollarSign className="h-12 w-12 text-primary mx-auto mb-2" />
+                  <CardTitle className="text-xl">Renda Extra</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-600 text-center">
+                    Receba até 10% de comissão sobre o valor de cada frete que você agenciar com sucesso.
+                  </p>
+                </CardContent>
+              </Card>
 
-                    <div>
-                      <Label htmlFor="phone">Telefone *</Label>
-                      <Input id="phone" placeholder="(99) 99999-9999" value={formData.phone} onChange={e => handleChange("phone", e.target.value)} required />
-                    </div>
+              <Card>
+                <CardHeader className="text-center">
+                  <Users className="h-12 w-12 text-primary mx-auto mb-2" />
+                  <CardTitle className="text-xl">Rede de Contatos</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-600 text-center">
+                    Expanda sua rede profissional conectando-se com caminhoneiros e empresas de todo o Brasil.
+                  </p>
+                </CardContent>
+              </Card>
 
-                    <div>
-                      <Label htmlFor="email">E-mail (opcional)</Label>
-                      <Input id="email" type="email" placeholder="seu@email.com" value={formData.email} onChange={e => handleChange("email", e.target.value)} />
-                    </div>
+              <Card>
+                <CardHeader className="text-center">
+                  <TrendingUp className="h-12 w-12 text-primary mx-auto mb-2" />
+                  <CardTitle className="text-xl">Flexibilidade</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-600 text-center">
+                    Trabalhe no seu próprio ritmo, quando e onde quiser. Ideal para complementar sua renda.
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
 
-                    <Button type="submit" className="w-full mt-4" disabled={isSubmitting}>
-                      {isSubmitting ? "Gerando código..." : "Solicitar Código"}
-                    </Button>
-                    
-                    <p className="text-xs text-gray-500 mt-2">
-                      * Campos obrigatórios
-                    </p>
+            {/* How it Works */}
+            <div className="bg-white rounded-lg shadow-md p-8 mb-8 border border-gray-200">
+              <h2 className="text-2xl font-bold text-center mb-8">Como Funciona</h2>
+              
+              <div className="grid md:grid-cols-3 gap-8">
+                <div className="text-center">
+                  <div className="bg-primary rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-4">
+                    <span className="text-white font-bold text-lg">1</span>
                   </div>
-                </form>
-              </div>
-
-              <div className="bg-accent rounded-lg shadow-md p-6 border border-gray-200">
-                <h2 className="text-xl font-bold mb-6 text-primary">
-                  Como funciona o programa de agenciadores?
-                </h2>
-                
-                <div className="space-y-4">
-                  <div className="flex">
-                    <div className="flex-shrink-0">
-                      <div className="bg-primary rounded-full w-8 h-8 flex items-center justify-center mr-3">
-                        <Check className="h-5 w-5 text-white" />
-                      </div>
-                    </div>
-                    <div>
-                      <h3 className="font-semibold">Solicite seu código</h3>
-                      <p className="text-gray-600 text-sm">
-                        Preencha o formulário e receba seu código único de agenciador.
-                      </p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex">
-                    <div className="flex-shrink-0">
-                      <div className="bg-primary rounded-full w-8 h-8 flex items-center justify-center mr-3">
-                        <Check className="h-5 w-5 text-white" />
-                      </div>
-                    </div>
-                    <div>
-                      <h3 className="font-semibold">Compartilhe fretes</h3>
-                      <p className="text-gray-600 text-sm">
-                        Use seu código para gerar links personalizados para os fretes disponíveis em nossa plataforma.
-                      </p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex">
-                    <div className="flex-shrink-0">
-                      <div className="bg-primary rounded-full w-8 h-8 flex items-center justify-center mr-3">
-                        <Check className="h-5 w-5 text-white" />
-                      </div>
-                    </div>
-                    <div>
-                      <h3 className="font-semibold">Ganhe comissões</h3>
-                      <p className="text-gray-600 text-sm">
-                        Receba uma comissão por cada frete que for finalizado por meio do seu link.
-                      </p>
-                    </div>
-                  </div>
-                  
-                  
+                  <h3 className="font-semibold mb-2">Cadastre-se</h3>
+                  <p className="text-gray-600">
+                    Preencha o formulário abaixo com suas informações e aguarde nossa aprovação.
+                  </p>
                 </div>
-                
-                <div className="mt-6 p-4 bg-white rounded-lg border border-primary-light">
-                  <p className="text-sm text-center font-medium text-primary">A comissão média dos agenciadores varia de R$ 50,00 até 10% do valor do frete, dependendo do tipo, número de intermediários e distância da carga.</p>
+
+                <div className="text-center">
+                  <div className="bg-primary rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-4">
+                    <span className="text-white font-bold text-lg">2</span>
+                  </div>
+                  <h3 className="font-semibold mb-2">Agencie Fretes</h3>
+                  <p className="text-gray-600">
+                    Use nossa plataforma para encontrar fretes e conectar com caminhoneiros interessados.
+                  </p>
+                </div>
+
+                <div className="text-center">
+                  <div className="bg-primary rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-4">
+                    <span className="text-white font-bold text-lg">3</span>
+                  </div>
+                  <h3 className="font-semibold mb-2">Receba Comissão</h3>
+                  <p className="text-gray-600">
+                    Ganhe até 10% de comissão sobre cada frete que você intermediar com sucesso.
+                  </p>
                 </div>
               </div>
             </div>
 
-            <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
-              <h2 className="text-xl font-bold mb-4 text-center">Perguntas Frequentes</h2>
+            {/* Registration Form */}
+            <div className="bg-white rounded-lg shadow-md p-8 border border-gray-200">
+              <h2 className="text-2xl font-bold mb-6">Cadastro de Agenciador</h2>
               
-              <div className="grid md:grid-cols-2 gap-6">
-                <div>
-                  <h3 className="font-semibold text-primary mb-2">Como recebo minhas comissões?</h3>
-                  <p className="text-gray-600 text-sm">As comissões de cada frete são pagas na mesma hora via PIX ou transferência bancária, após o caminhoneiro confirmar o agendamento da carga.</p>
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="name">Nome Completo *</Label>
+                    <Input id="name" type="text" required />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="email">E-mail *</Label>
+                    <Input id="email" type="email" required />
+                  </div>
                 </div>
-                
+
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="phone">Telefone/WhatsApp *</Label>
+                    <Input id="phone" type="tel" required />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="city">Cidade *</Label>
+                    <Input id="city" type="text" required />
+                  </div>
+                </div>
+
                 <div>
-                  <h3 className="font-semibold text-primary mb-2">Posso agenciar quantos fretes?</h3>
-                  <p className="text-gray-600 text-sm">
-                    Sim, não há limite para a quantidade de fretes que você pode agenciar.
+                  <Label htmlFor="experience">Experiência no Setor de Transportes</Label>
+                  <Textarea 
+                    id="experience" 
+                    placeholder="Conte-nos sobre sua experiência no setor de transportes, logística ou vendas..."
+                    className="min-h-[100px]"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="motivation">Por que quer ser um agenciador?</Label>
+                  <Textarea 
+                    id="motivation" 
+                    placeholder="Explique suas motivações para se tornar um agenciador de fretes..."
+                    className="min-h-[100px]"
+                  />
+                </div>
+
+                <div className="flex items-start space-x-3">
+                  <CheckCircle className="h-5 w-5 text-green-500 mt-0.5" />
+                  <p className="text-sm text-gray-600">
+                    Ao se cadastrar, você concorda em seguir nossas políticas de agenciamento e código de conduta profissional.
                   </p>
                 </div>
-                
-                <div>
-                  <h3 className="font-semibold text-primary mb-2">Preciso ter experiência?</h3>
-                  <p className="text-gray-600 text-sm">
-                    Não é necessário ter experiência prévia, mas conhecimento no setor de transportes é um diferencial.
-                  </p>
+
+                <div className="flex flex-col md:flex-row gap-4">
+                  <Button type="submit" className="flex-1">
+                    Enviar Cadastro
+                  </Button>
+                  
+                  <Button type="button" variant="outline" onClick={handleWhatsAppClick} className="flex-1">
+                    <Phone className="mr-2 h-4 w-4" />
+                    Falar no WhatsApp
+                  </Button>
                 </div>
-                
-                <div>
-                  <h3 className="font-semibold text-primary mb-2">Quanto tempo leva para receber meu código?</h3>
-                  <p className="text-gray-600 text-sm">Sem demora, seu código fica pronto no mesmo instante após a solicitação.</p>
-                </div>
-              </div>
+              </form>
+            </div>
+
+            {/* Contact Info */}
+            <div className="text-center mt-8">
+              <p className="text-gray-600 mb-4">
+                Tem dúvidas sobre o programa de agenciadores?
+              </p>
+              <Button variant="outline" onClick={handleWhatsAppClick}>
+                <Phone className="mr-2 h-4 w-4" />
+                Entre em Contato
+              </Button>
             </div>
           </div>
         </div>
       </div>
-
-      {/* Success Dialog - Show when code is generated */}
-      <Dialog open={showCodeDialog} onOpenChange={setShowCodeDialog}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="text-center text-xl">Novo código gerado com sucesso!</DialogTitle>
-            <DialogDescription className="text-center">
-              <p className="mt-4 mb-6">Seu código é:</p>
-              <div className="text-3xl font-bold text-primary mb-6">{generatedCode}</div>
-              <p>O código já está pronto para ser utilizado.</p>
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex justify-center mt-4">
-            <Button onClick={() => setShowCodeDialog(false)}>Fechar</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Error Dialog */}
-      <AlertDialog open={showErrorDialog} onOpenChange={setShowErrorDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Erro</AlertDialogTitle>
-            <AlertDialogDescription>
-              {errorMessage}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <div className="flex justify-end mt-4">
-            <Button onClick={() => setShowErrorDialog(false)}>Fechar</Button>
-          </div>
-        </AlertDialogContent>
-      </AlertDialog>
-    </MobilePageWrapper>;
+    </MobilePageWrapper>
+  );
 };
+
 export default BecomeAgent;

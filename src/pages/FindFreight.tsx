@@ -13,10 +13,12 @@ import { toast } from "@/components/ui/use-toast";
 import MobilePageWrapper from "@/components/MobilePageWrapper";
 import { type Freight } from "@/lib/supabase";
 import { type FilterValues } from "@/components/FreightFilter";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
 const ITEMS_PER_PAGE = 100;
 
 const FindFreight = () => {
+  const { trackEvent } = useAnalytics();
   const [searchParams, setSearchParams] = useSearchParams();
   const [isFilterVisible, setIsFilterVisible] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -38,6 +40,11 @@ const FindFreight = () => {
     tollIncluded: searchParams.get("tollIncluded") === "true",
     showPerKmRate: searchParams.get("showPerKmRate") === "true"
   });
+
+  // Track page view on component mount
+  useEffect(() => {
+    trackEvent('page_view_find_freight');
+  }, [trackEvent]);
 
   // Check if any filters are applied
   useEffect(() => {
@@ -118,6 +125,16 @@ const FindFreight = () => {
     setSelectedFreight(null);
   };
 
+  const handleToggleFilter = () => {
+    const newVisibility = !isFilterVisible;
+    setIsFilterVisible(newVisibility);
+    
+    // Track analytics event when opening filters
+    if (newVisibility) {
+      trackEvent('freight_filters_open');
+    }
+  };
+
   // Determine which data to use for map and loading state
   const mapData = hasAppliedFilters ? (data || []) : (uniqueCitiesData || []);
   const isMapLoading = hasAppliedFilters ? isLoading : isLoadingUniqueCities;
@@ -144,7 +161,7 @@ const FindFreight = () => {
               <p className="font-semibold text-slate-900 text-base">
                 {totalFreights || 0} fretes disponíveis
               </p>
-              <Button variant="outline" size="sm" onClick={() => setIsFilterVisible(!isFilterVisible)} className="bg-black text-white border-black hover:bg-gray-800">
+              <Button variant="outline" size="sm" onClick={handleToggleFilter} className="bg-black text-white border-black hover:bg-gray-800">
                 <Settings className="h-4 w-4 mr-2" />
                 Filtros
               </Button>
@@ -152,7 +169,7 @@ const FindFreight = () => {
             
             {isFilterVisible && (
               <div className="bg-white rounded-lg shadow-sm p-4 mb-4">
-                <FreightFilter onFilter={handleFilter} />
+                <FreightFilter onFilter={handleFilter} showPerKmRate={filters.showPerKmRate} />
               </div>
             )}
           </div>
