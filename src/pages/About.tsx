@@ -1,27 +1,15 @@
 import { Button } from "@/components/ui/button";
 import { Truck, Phone, Mail, MapPin } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
-import { useAnalytics } from "@/hooks/useAnalytics";
-import { useEffect } from "react";
 import MobilePageWrapper from "@/components/MobilePageWrapper";
-
 const About = () => {
-  const { trackEvent } = useAnalytics();
-
-  // Track page view on component mount
-  useEffect(() => {
-    trackEvent('page_view_about');
-  }, [trackEvent]);
-
   const handleWhatsAppClick = () => {
-    trackEvent('home_whatsapp_contact_click');
     window.open("https://wa.me/5538997353264", "_blank");
     toast({
       title: "Redirecionando para WhatsApp",
       description: "Você será atendido em breve por nossos especialistas."
     });
   };
-
   return <MobilePageWrapper>
       <div className="bg-[#f4f4fc] min-h-screen">
         <div className="container mx-auto px-4 py-8">
@@ -142,5 +130,4 @@ const About = () => {
       </div>
     </MobilePageWrapper>;
 };
-
 export default About;

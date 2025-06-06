@@ -1,3 +1,4 @@
+
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Truck, Search, Calendar, Send, Phone, Newspaper } from "lucide-react";
@@ -105,7 +106,6 @@ const Home = () => {
         </div>
       </div>;
   }
-
   return <div className="flex flex-col min-h-screen">
       {/* Hero Section */}
       <section className="bg-gradient-to-b from-primary to-primary-medium py-16 text-white">

@@ -28,26 +28,23 @@ const RouteTracker = () => {
     const path = location.pathname;
     let eventName = '';
 
-    // Only track specific routes that don't handle their own tracking
     switch (path) {
       case '/':
-        // Home page tracking is handled in the component itself
-        return;
+        return; // Home page tracking is handled in the component itself
       case '/frete':
-        // Find freight tracking is handled in the component itself
-        return;
+        eventName = 'page_view_find_freight';
+        break;
       case '/publicar-frete':
-        // Publish freight tracking is handled in the component itself
-        return;
+        eventName = 'page_view_publish_freight';
+        break;
       case '/agenciadores':
-        // Become agent tracking is handled in the component itself
-        return;
+        eventName = 'page_view_become_agent';
+        break;
       case '/sobre':
-        // About tracking is handled in the component itself
-        return;
+        eventName = 'page_view_about';
+        break;
       case '/noticias':
-        // News page tracking is handled in the component itself
-        return;
+        return; // News page tracking is handled in the component itself
       default:
         if (path.startsWith('/frete/')) {
           eventName = 'freight_details_open';
@@ -56,7 +53,6 @@ const RouteTracker = () => {
     }
 
     if (eventName) {
-      console.log(`RouteTracker: tracking event ${eventName} for path ${path}`);
       trackEvent(eventName);
     }
   }, [location.pathname, trackEvent]);
