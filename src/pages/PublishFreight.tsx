@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -207,7 +208,7 @@ const PublishFreight = () => {
               <Checkbox
                 id="refrigerated"
                 checked={refrigerated}
-                onCheckedChange={setRefrigerated}
+                onCheckedChange={(checked) => setRefrigerated(!!checked)}
               />
               <Label htmlFor="refrigerated">Refrigerado</Label>
             </div>
@@ -216,7 +217,7 @@ const PublishFreight = () => {
               <Checkbox
                 id="requiresMopp"
                 checked={requiresMopp}
-                onCheckedChange={setRequiresMopp}
+                onCheckedChange={(checked) => setRequiresMopp(!!checked)}
               />
               <Label htmlFor="requiresMopp">Requer MOPP</Label>
             </div>
@@ -225,7 +226,7 @@ const PublishFreight = () => {
               <Checkbox
                 id="tollIncluded"
                 checked={tollIncluded}
-                onCheckedChange={setTollIncluded}
+                onCheckedChange={(checked) => setTollIncluded(!!checked)}
               />
               <Label htmlFor="tollIncluded">Pedágio Incluso</Label>
             </div>
@@ -234,7 +235,7 @@ const PublishFreight = () => {
               <Checkbox
                 id="liveCargo"
                 checked={liveCargo}
-                onCheckedChange={setLiveCargo}
+                onCheckedChange={(checked) => setLiveCargo(!!checked)}
               />
               <Label htmlFor="liveCargo">Carga Viva</Label>
             </div>
@@ -243,7 +244,7 @@ const PublishFreight = () => {
               <Checkbox
                 id="dryCargo"
                 checked={dryCargo}
-                onCheckedChange={setDryCargo}
+                onCheckedChange={(checked) => setDryCargo(!!checked)}
               />
               <Label htmlFor="dryCargo">Carga Seca</Label>
             </div>
@@ -252,7 +253,7 @@ const PublishFreight = () => {
               <Checkbox
                 id="hasInsurance"
                 checked={hasInsurance}
-                onCheckedChange={setHasInsurance}
+                onCheckedChange={(checked) => setHasInsurance(!!checked)}
               />
               <Label htmlFor="hasInsurance">Possui Seguro</Label>
             </div>
@@ -261,7 +262,7 @@ const PublishFreight = () => {
               <Checkbox
                 id="hasTracker"
                 checked={hasTracker}
-                onCheckedChange={setHasTracker}
+                onCheckedChange={(checked) => setHasTracker(!!checked)}
               />
               <Label htmlFor="hasTracker">Possui Rastreador</Label>
             </div>
@@ -270,7 +271,7 @@ const PublishFreight = () => {
               <Checkbox
                 id="tarpRequired"
                 checked={tarpRequired}
-                onCheckedChange={setTarpRequired}
+                onCheckedChange={(checked) => setTarpRequired(!!checked)}
               />
               <Label htmlFor="tarpRequired">Lona Obrigatória</Label>
             </div>

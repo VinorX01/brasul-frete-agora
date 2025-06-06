@@ -34,6 +34,7 @@ export type FilterValues = {
 
 type FreightFilterProps = {
   onFilter: (values: FilterValues) => void;
+  showPerKmRate: boolean;
 };
 
 // Brazilian states list
@@ -43,7 +44,7 @@ const brazilianStates = [
   "RS", "RO", "RR", "SC", "SP", "SE", "TO"
 ];
 
-const FreightFilter = ({ onFilter }: FreightFilterProps) => {
+const FreightFilter = ({ onFilter, showPerKmRate }: FreightFilterProps) => {
   const { trackEvent } = useAnalytics();
   
   const [filters, setFilters] = useState<FilterValues>({
@@ -59,7 +60,7 @@ const FreightFilter = ({ onFilter }: FreightFilterProps) => {
     refrigerated: false,
     requiresMopp: false,
     tollIncluded: false,
-    showPerKmRate: false,
+    showPerKmRate: showPerKmRate,
   });
 
   const cargoTypes = staticCargoTypes;

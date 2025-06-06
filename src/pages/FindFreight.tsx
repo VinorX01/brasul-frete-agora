@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import FreightCard from "@/components/FreightCard";
@@ -6,7 +7,7 @@ import FreightDetails from "@/components/FreightDetails";
 import { Button } from "@/components/ui/button";
 import { Filter } from "lucide-react";
 import { type Freight } from "@/lib/supabase";
-import { getFreights } from "@/lib/freightService";
+import { getFilteredFreights } from "@/lib/freightService";
 import { useAnalytics } from "@/hooks/useAnalytics";
 
 const FindFreight = () => {
@@ -32,7 +33,7 @@ const FindFreight = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const initialFreights = await getFreights();
+      const initialFreights = await getFilteredFreights();
       setFreights(initialFreights);
       setFilteredFreights(initialFreights);
     };
@@ -46,7 +47,7 @@ const FindFreight = () => {
         values.origin === "all" || freight.origin.toLowerCase().includes(values.origin.toLowerCase());
       
       const originStateMatch =
-        values.originState === "all" || freight.origin_state === values.originState;
+        values.originState === "all" || freight.origin.toLowerCase().includes(`, ${values.originState}`);
 
       const destinationMatch =
         values.destination === "all" || freight.destination.toLowerCase().includes(values.destination.toLowerCase());
