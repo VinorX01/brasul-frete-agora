@@ -15,12 +15,11 @@ import { Search, RotateCcw } from "lucide-react";
 import { staticCargoTypes, staticTruckTypes } from "@/lib/freightService";
 import MunicipalitySelect from "./MunicipalitySelect";
 import { Switch } from "@/components/ui/switch";
-import { useAnalytics } from "@/hooks/useAnalytics";
 
 export type FilterValues = {
   origin: string;
   destination: string;
-  originState: string;
+  originState: string; // New field for state filter
   cargoType: string;
   truckType: string;
   minValue: string;
@@ -35,7 +34,6 @@ export type FilterValues = {
 
 type FreightFilterProps = {
   onFilter: (values: FilterValues) => void;
-  showPerKmRate?: boolean;
 };
 
 // Brazilian states list
@@ -45,12 +43,11 @@ const brazilianStates = [
   "RS", "RO", "RR", "SC", "SP", "SE", "TO"
 ];
 
-const FreightFilter = ({ onFilter, showPerKmRate = false }: FreightFilterProps) => {
-  const { trackEvent } = useAnalytics();
+const FreightFilter = ({ onFilter }: FreightFilterProps) => {
   const [filters, setFilters] = useState<FilterValues>({
     origin: "all",
     destination: "all",
-    originState: "all",
+    originState: "all", // Initialize new state filter
     cargoType: "all",
     truckType: "all",
     minValue: "",
@@ -60,7 +57,7 @@ const FreightFilter = ({ onFilter, showPerKmRate = false }: FreightFilterProps) 
     refrigerated: false,
     requiresMopp: false,
     tollIncluded: false,
-    showPerKmRate: showPerKmRate,
+    showPerKmRate: false,
   });
 
   const cargoTypes = staticCargoTypes;
@@ -83,10 +80,6 @@ const FreightFilter = ({ onFilter, showPerKmRate = false }: FreightFilterProps) 
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Track analytics event
-    trackEvent('freight_filters_apply');
-    
     onFilter(filters);
   };
 
@@ -94,7 +87,7 @@ const FreightFilter = ({ onFilter, showPerKmRate = false }: FreightFilterProps) 
     const defaultFilters = {
       origin: "all",
       destination: "all",
-      originState: "all",
+      originState: "all", // Reset state filter
       cargoType: "all",
       truckType: "all",
       minValue: "",

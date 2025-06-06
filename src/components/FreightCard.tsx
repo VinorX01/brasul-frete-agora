@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,20 +6,18 @@ import { toast } from "@/components/ui/use-toast";
 import { type Freight } from "@/lib/supabase";
 import { recordFreightAgentReferral } from "@/lib/freightService";
 import { BadgeCheck, Truck, RefrigeratorIcon, PackageCheck, DollarSign, Copy, CheckCircle2, Shield, Tent } from "lucide-react";
-import { useAnalytics } from "@/hooks/useAnalytics";
 
 interface FreightCardProps {
   freight: Freight;
   onViewDetails: (freight: Freight) => void;
-  showPerKmRate?: boolean;
+  showPerKmRate?: boolean; // New prop to determine which comparison to show
 }
 
 const FreightCard: React.FC<FreightCardProps> = ({
   freight,
   onViewDetails,
-  showPerKmRate = false
+  showPerKmRate = false // Default to per ton/km
 }) => {
-  const { trackEvent } = useAnalytics();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [agentCode, setAgentCode] = useState("");
   const [generatedLink, setGeneratedLink] = useState("");
@@ -130,9 +127,6 @@ const FreightCard: React.FC<FreightCardProps> = ({
       return;
     }
 
-    // Track analytics event
-    trackEvent('freight_card_agenciar_click');
-
     // Generate the agent URL with the new domain
     const domain = "https://brasultransportes.com";
     const url = `${domain}/frete/ag?${agentCode}&${freight.id}`;
@@ -182,9 +176,6 @@ Link: ${url}`;
   };
 
   const handleContactClick = async () => {
-    // Track analytics event
-    trackEvent('freight_card_quero_este_click');
-
     let whatsappText = `Olá! Tenho interesse no frete ${freight.id}`;
     
     // Add agent code if present
@@ -197,12 +188,6 @@ Link: ${url}`;
     
     // Open WhatsApp with the message
     window.open(`https://wa.me/5538997353264?text=${encodeURIComponent(whatsappText)}`, "_blank");
-  };
-
-  const handleViewDetails = () => {
-    // Track analytics event
-    trackEvent('freight_details_open');
-    onViewDetails(freight);
   };
 
   return (
@@ -286,7 +271,7 @@ Link: ${url}`;
         </div>
         
         <div className="text-right mt-3">
-          <Button variant="ghost" className="text-xs text-primary" onClick={handleViewDetails}>
+          <Button variant="ghost" className="text-xs text-primary" onClick={() => onViewDetails(freight)}>
             Ver detalhes completos
           </Button>
         </div>
