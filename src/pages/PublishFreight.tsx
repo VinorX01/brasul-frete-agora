@@ -66,6 +66,13 @@ const PublishFreight = () => {
     }));
   };
 
+  const handleCheckboxChange = (field: string) => (checked: boolean | "indeterminate") => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: checked === true
+    }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -403,7 +410,7 @@ const PublishFreight = () => {
                         <Checkbox
                           id="refrigerated"
                           checked={formData.refrigerated}
-                          onCheckedChange={(checked: boolean) => handleInputChange("refrigerated", checked)}
+                          onCheckedChange={handleCheckboxChange("refrigerated")}
                         />
                         <Label htmlFor="refrigerated">Carga Refrigerada</Label>
                       </div>
@@ -412,7 +419,7 @@ const PublishFreight = () => {
                         <Checkbox
                           id="requiresMopp"
                           checked={formData.requiresMopp}
-                          onCheckedChange={(checked: boolean) => handleInputChange("requiresMopp", checked)}
+                          onCheckedChange={handleCheckboxChange("requiresMopp")}
                         />
                         <Label htmlFor="requiresMopp">Requer MOPP</Label>
                       </div>
@@ -421,7 +428,7 @@ const PublishFreight = () => {
                         <Checkbox
                           id="tollIncluded"
                           checked={formData.tollIncluded}
-                          onCheckedChange={(checked: boolean) => handleInputChange("tollIncluded", checked)}
+                          onCheckedChange={handleCheckboxChange("tollIncluded")}
                         />
                         <Label htmlFor="tollIncluded">Pedágio Incluso</Label>
                       </div>
@@ -430,7 +437,7 @@ const PublishFreight = () => {
                         <Checkbox
                           id="tarpRequired"
                           checked={formData.tarpRequired}
-                          onCheckedChange={(checked: boolean) => handleInputChange("tarpRequired", checked)}
+                          onCheckedChange={handleCheckboxChange("tarpRequired")}
                         />
                         <Label htmlFor="tarpRequired">Lona Obrigatória</Label>
                       </div>
@@ -439,7 +446,7 @@ const PublishFreight = () => {
                         <Checkbox
                           id="hasInsurance"
                           checked={formData.hasInsurance}
-                          onCheckedChange={(checked: boolean) => handleInputChange("hasInsurance", checked)}
+                          onCheckedChange={handleCheckboxChange("hasInsurance")}
                         />
                         <Label htmlFor="hasInsurance">Possui Seguro</Label>
                       </div>
@@ -448,7 +455,7 @@ const PublishFreight = () => {
                         <Checkbox
                           id="hasTracker"
                           checked={formData.hasTracker}
-                          onCheckedChange={(checked: boolean) => handleInputChange("hasTracker", checked)}
+                          onCheckedChange={handleCheckboxChange("hasTracker")}
                         />
                         <Label htmlFor="hasTracker">Possui Rastreador</Label>
                       </div>
@@ -457,7 +464,7 @@ const PublishFreight = () => {
                         <Checkbox
                           id="liveCargo"
                           checked={formData.liveCargo}
-                          onCheckedChange={(checked: boolean) => handleInputChange("liveCargo", checked)}
+                          onCheckedChange={handleCheckboxChange("liveCargo")}
                         />
                         <Label htmlFor="liveCargo">Carga Viva</Label>
                       </div>
@@ -466,7 +473,7 @@ const PublishFreight = () => {
                         <Checkbox
                           id="dryCargo"
                           checked={formData.dryCargo}
-                          onCheckedChange={(checked: boolean) => handleInputChange("dryCargo", checked)}
+                          onCheckedChange={handleCheckboxChange("dryCargo")}
                         />
                         <Label htmlFor="dryCargo">Carga Seca</Label>
                       </div>
