@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,6 +12,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Search, RotateCcw } from "lucide-react";
 import { staticCargoTypes, staticTruckTypes } from "@/lib/freightService";
+import { useAnalytics } from "@/hooks/useAnalytics";
 import MunicipalitySelect from "./MunicipalitySelect";
 import { Switch } from "@/components/ui/switch";
 
@@ -44,6 +44,8 @@ const brazilianStates = [
 ];
 
 const FreightFilter = ({ onFilter }: FreightFilterProps) => {
+  const { trackEvent } = useAnalytics();
+  
   const [filters, setFilters] = useState<FilterValues>({
     origin: "all",
     destination: "all",
@@ -80,10 +82,12 @@ const FreightFilter = ({ onFilter }: FreightFilterProps) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    trackEvent('freight_filters_apply');
     onFilter(filters);
   };
 
   const handleClear = () => {
+    trackEvent('freight_filters_open');
     const defaultFilters = {
       origin: "all",
       destination: "all",

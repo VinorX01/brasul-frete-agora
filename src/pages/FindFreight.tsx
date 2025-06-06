@@ -1,222 +1,158 @@
-
 import { useState, useEffect } from "react";
-import { useLocation, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import FreightCard from "@/components/FreightCard";
-import FreightFilter from "@/components/FreightFilter";
-import FreightMap from "@/components/FreightMap";
+import FreightFilter, { type FilterValues } from "@/components/FreightFilter";
 import FreightDetails from "@/components/FreightDetails";
 import { Button } from "@/components/ui/button";
-import { Settings, MapPin } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
-import { getFilteredFreights, getFreightCount, getUniqueOriginCities } from "@/lib/freightService";
-import { toast } from "@/components/ui/use-toast";
-import MobilePageWrapper from "@/components/MobilePageWrapper";
+import { Filter } from "lucide-react";
 import { type Freight } from "@/lib/supabase";
-import { type FilterValues } from "@/components/FreightFilter";
-
-const ITEMS_PER_PAGE = 100;
+import { getFreights } from "@/lib/freightService";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
 const FindFreight = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const [isFilterVisible, setIsFilterVisible] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [selectedFreight, setSelectedFreight] = useState<Freight | null>(null);
+  const { trackEvent } = useAnalytics();
+
+  // Track page view on component mount
+  useEffect(() => {
+    trackEvent('page_view_find_freight');
+  }, [trackEvent]);
+
+  const [freights, setFreights] = useState<Freight[]>([]);
+  const [filteredFreights, setFilteredFreights] = useState<Freight[]>([]);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [freightDetails, setFreightDetails] = useState<Freight | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
-  const [hasAppliedFilters, setHasAppliedFilters] = useState(false);
-  const [filters, setFilters] = useState<FilterValues>({
-    origin: searchParams.get("origin") || "all",
-    destination: searchParams.get("destination") || "all",
-    originState: searchParams.get("originState") || "all",
-    cargoType: searchParams.get("cargoType") || "all",
-    truckType: searchParams.get("truckType") || "all",
-    minValue: searchParams.get("minValue") || "",
-    maxValue: searchParams.get("maxValue") || "",
-    minWeight: searchParams.get("minWeight") || "",
-    maxWeight: searchParams.get("maxWeight") || "",
-    refrigerated: searchParams.get("refrigerated") === "true",
-    requiresMopp: searchParams.get("requiresMopp") === "true",
-    tollIncluded: searchParams.get("tollIncluded") === "true",
-    showPerKmRate: searchParams.get("showPerKmRate") === "true"
-  });
-
-  // Check if any filters are applied
-  useEffect(() => {
-    const hasFilters = filters.origin !== "all" || 
-                      filters.destination !== "all" || 
-                      filters.originState !== "all" || 
-                      filters.cargoType !== "all" || 
-                      filters.truckType !== "all" || 
-                      filters.minValue !== "" || 
-                      filters.maxValue !== "" || 
-                      filters.minWeight !== "" || 
-                      filters.maxWeight !== "" || 
-                      filters.refrigerated || 
-                      filters.requiresMopp || 
-                      filters.tollIncluded;
-    setHasAppliedFilters(hasFilters);
-  }, [filters]);
-
-  // Query for unique cities (used for map when no filters applied)
-  const {
-    data: uniqueCitiesData,
-    isLoading: isLoadingUniqueCities
-  } = useQuery({
-    queryKey: ["uniqueOriginCities"],
-    queryFn: () => getUniqueOriginCities(100),
-    enabled: !hasAppliedFilters
-  });
-
-  // Query for filtered freights (used for list and map when filters applied)
-  const {
-    data,
-    isLoading,
-    refetch
-  } = useQuery({
-    queryKey: ["freights", filters, currentPage],
-    queryFn: () => getFilteredFreights(filters.origin, filters.destination, filters.cargoType, filters.truckType, filters.minValue ? Number(filters.minValue) : undefined, filters.maxValue ? Number(filters.maxValue) : undefined, filters.minWeight ? Number(filters.minWeight) : undefined, filters.maxWeight ? Number(filters.maxWeight) : undefined, filters.refrigerated, filters.requiresMopp, filters.tollIncluded, filters.originState, ITEMS_PER_PAGE, currentPage - 1)
-  });
-
-  const {
-    data: totalFreights
-  } = useQuery({
-    queryKey: ["freightsCount", filters],
-    queryFn: () => getFreightCount(filters.origin, filters.destination, filters.cargoType, filters.truckType, filters.minValue ? Number(filters.minValue) : undefined, filters.maxValue ? Number(filters.maxValue) : undefined, filters.minWeight ? Number(filters.minWeight) : undefined, filters.maxWeight ? Number(filters.maxWeight) : undefined, filters.refrigerated, filters.requiresMopp, filters.tollIncluded, filters.originState)
-  });
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [showPerKmRate, setShowPerKmRate] = useState(false); // State for rate comparison
 
   useEffect(() => {
-    if (totalFreights === undefined) return;
-    if (data === undefined) return;
-    if (data?.length === 0 && totalFreights > 0) {
-      toast({
-        title: "Nenhum frete encontrado com esses filtros.",
-        description: "Tente ajustar os filtros para encontrar fretes."
-      });
-    }
-  }, [data, totalFreights]);
+    const initialShowPerKmRate = searchParams.get('rate') === 'km';
+    setShowPerKmRate(initialShowPerKmRate);
+  }, [searchParams]);
 
-  const handleFilter = (newFilters: FilterValues) => {
-    setFilters(newFilters);
-    setCurrentPage(1);
-    setSearchParams(newFilters as any);
-    refetch();
+  useEffect(() => {
+    const fetchData = async () => {
+      const initialFreights = await getFreights();
+      setFreights(initialFreights);
+      setFilteredFreights(initialFreights);
+    };
 
-    // Close filter panel after applying filters
-    setIsFilterVisible(false);
-  };
+    fetchData();
+  }, []);
 
-  const handlePageChange = (newPage: number) => {
-    setCurrentPage(newPage);
+  const handleFilter = (values: FilterValues) => {
+    const filtered = freights.filter((freight) => {
+      const originMatch =
+        values.origin === "all" || freight.origin.toLowerCase().includes(values.origin.toLowerCase());
+      
+      const originStateMatch =
+        values.originState === "all" || freight.origin_state === values.originState;
+
+      const destinationMatch =
+        values.destination === "all" || freight.destination.toLowerCase().includes(values.destination.toLowerCase());
+      const cargoTypeMatch =
+        values.cargoType === "all" || freight.cargo_type === values.cargoType;
+      const truckTypeMatch =
+        values.truckType === "all" || freight.truck_type === values.truckType;
+
+      const valueInRange =
+        (values.minValue === "" || (freight.value !== null && freight.value >= Number(values.minValue))) &&
+        (values.maxValue === "" || (freight.value !== null && freight.value <= Number(values.maxValue)));
+
+      const weightInRange =
+        (values.minWeight === "" || (freight.weight !== null && freight.weight >= Number(values.minWeight))) &&
+        (values.maxWeight === "" || (freight.weight !== null && freight.weight <= Number(values.maxWeight)));
+
+      const refrigeratedMatch = !values.refrigerated || freight.refrigerated === values.refrigerated;
+      const requiresMoppMatch = !values.requiresMopp || freight.requires_mopp === values.requiresMopp;
+      const tollIncludedMatch = !values.tollIncluded || freight.toll_included === values.tollIncluded;
+      
+      return (
+        originMatch &&
+        originStateMatch &&
+        destinationMatch &&
+        cargoTypeMatch &&
+        truckTypeMatch &&
+        valueInRange &&
+        weightInRange &&
+        refrigeratedMatch &&
+        requiresMoppMatch &&
+        tollIncludedMatch
+      );
+    });
+
+    setFilteredFreights(filtered);
   };
 
   const handleViewDetails = (freight: Freight) => {
-    setSelectedFreight(freight);
+    setFreightDetails(freight);
     setIsDetailsOpen(true);
   };
 
   const handleCloseDetails = () => {
     setIsDetailsOpen(false);
-    setSelectedFreight(null);
   };
 
-  // Determine which data to use for map and loading state
-  const mapData = hasAppliedFilters ? (data || []) : (uniqueCitiesData || []);
-  const isMapLoading = hasAppliedFilters ? isLoading : isLoadingUniqueCities;
+  const toggleFilter = () => {
+    setIsFilterOpen(!isFilterOpen);
+  };
+
+  // Function to toggle rate comparison and update URL
+  const toggleRateComparison = (showPerKm: boolean) => {
+    setShowPerKmRate(showPerKm);
+    const newParams = new URLSearchParams(searchParams);
+    if (showPerKm) {
+      newParams.set('rate', 'km');
+    } else {
+      newParams.delete('rate');
+    }
+    setSearchParams(newParams);
+  };
 
   return (
-    <MobilePageWrapper>
-      <div className="min-h-screen" style={{ backgroundColor: '#f4f4fc' }}>
-        <div className="container mx-auto px-4 py-6">
-          <div className="mb-6">
-            <h1 className="font-bold mb-2 text-xl">Encontrar Fretes</h1>
-            <p className="text-gray-600">
-              Encontre as melhores oportunidades de frete para seu veículo
-            </p>
-          </div>
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-2xl font-bold mb-4">Encontre seu Frete Ideal</h1>
 
-          {/* Mapa */}
-          <div className="mb-6">
-            <FreightMap freights={mapData} />
-          </div>
-
-          {/* Filtros com botão toggle */}
-          <div className="mb-6">
-            <div className="flex justify-between items-center mb-4">
-              <p className="font-semibold text-slate-900 text-base">
-                {totalFreights || 0} fretes disponíveis
-              </p>
-              <Button variant="outline" size="sm" onClick={() => setIsFilterVisible(!isFilterVisible)} className="bg-black text-white border-black hover:bg-gray-800">
-                <Settings className="h-4 w-4 mr-2" />
-                Filtros
-              </Button>
-            </div>
-            
-            {isFilterVisible && (
-              <div className="bg-white rounded-lg shadow-sm p-4 mb-4">
-                <FreightFilter onFilter={handleFilter} />
-              </div>
-            )}
-          </div>
-
-          {/* Lista de fretes */}
-          <div className="space-y-4">
-            {isLoading ? (
-              <div className="text-center py-8">
-                <p>Carregando fretes...</p>
-              </div>
-            ) : data && data.length > 0 ? (
-              data.map(freight => (
-                <FreightCard 
-                  key={freight.id} 
-                  freight={freight} 
-                  onViewDetails={handleViewDetails} 
-                  showPerKmRate={filters.showPerKmRate} 
-                />
-              ))
-            ) : (
-              <div className="text-center py-8">
-                <MapPin className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  Nenhum frete encontrado
-                </h3>
-                <p className="text-gray-500">
-                  Tente ajustar os filtros para encontrar mais opções
-                </p>
-              </div>
-            )}
-          </div>
-
-          {/* Paginação */}
-          {data && totalFreights && totalFreights > ITEMS_PER_PAGE && (
-            <div className="mt-8 flex justify-center space-x-4">
-              <Button 
-                variant="outline" 
-                onClick={() => handlePageChange(currentPage - 1)} 
-                disabled={currentPage <= 1}
-              >
-                Anterior
-              </Button>
-              <span className="flex items-center px-4">
-                Página {currentPage} de {Math.ceil(totalFreights / ITEMS_PER_PAGE)}
-              </span>
-              <Button 
-                variant="outline" 
-                onClick={() => handlePageChange(currentPage + 1)} 
-                disabled={currentPage >= Math.ceil(totalFreights / ITEMS_PER_PAGE)}
-              >
-                Próxima
-              </Button>
-            </div>
-          )}
+      <div className="flex justify-between items-center mb-4">
+        <Button variant="outline" onClick={toggleFilter}>
+          <Filter className="mr-2 h-4 w-4" /> {isFilterOpen ? 'Fechar Filtro' : 'Abrir Filtro'}
+        </Button>
+        {/* Rate comparison toggle */}
+        <div className="flex items-center space-x-2">
+          <span className="text-sm font-medium">Comparativo por ton/km</span>
+          <input
+            type="checkbox"
+            id="rateComparison"
+            className="h-5 w-5 rounded-full bg-gray-200 appearance-none checked:bg-primary focus:outline-none cursor-pointer"
+            checked={showPerKmRate}
+            onChange={(e) => toggleRateComparison(e.target.checked)}
+          />
+          <label htmlFor="rateComparison" className="w-12 h-6 bg-gray-200 rounded-full peer cursor-pointer"></label>
+          <span className="text-sm font-medium">Comparativo por km</span>
         </div>
-
-        {/* FreightDetails Component */}
-        <FreightDetails 
-          freight={selectedFreight}
-          isOpen={isDetailsOpen}
-          onClose={handleCloseDetails}
-        />
       </div>
-    </MobilePageWrapper>
+
+      {isFilterOpen && (
+        <FreightFilter onFilter={handleFilter} showPerKmRate={showPerKmRate} />
+      )}
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+        {filteredFreights.map((freight) => (
+          <FreightCard
+            key={freight.id}
+            freight={freight}
+            onViewDetails={handleViewDetails}
+            showPerKmRate={showPerKmRate}
+          />
+        ))}
+      </div>
+
+      <FreightDetails
+        freight={freightDetails}
+        isOpen={isDetailsOpen}
+        onClose={handleCloseDetails}
+      />
+    </div>
   );
 };
 
