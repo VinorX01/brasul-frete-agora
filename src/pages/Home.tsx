@@ -23,7 +23,7 @@ const Home = () => {
     trackEvent('home_whatsapp_contact_click');
     window.open("https://wa.me/5538997353264", "_blank");
     toast({
-      title: "Redireccionando para WhatsApp",
+      title: "Redirecionando para WhatsApp",
       description: "Você será atendido em breve por nossos especialistas."
     });
   };

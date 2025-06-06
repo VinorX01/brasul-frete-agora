@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useLocation, useSearchParams } from "react-router-dom";
 import FreightCard from "@/components/FreightCard";
@@ -13,10 +12,12 @@ import { toast } from "@/components/ui/use-toast";
 import MobilePageWrapper from "@/components/MobilePageWrapper";
 import { type Freight } from "@/lib/supabase";
 import { type FilterValues } from "@/components/FreightFilter";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
 const ITEMS_PER_PAGE = 100;
 
 const FindFreight = () => {
+  const { trackEvent } = useAnalytics();
   const [searchParams, setSearchParams] = useSearchParams();
   const [isFilterVisible, setIsFilterVisible] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -38,6 +39,11 @@ const FindFreight = () => {
     tollIncluded: searchParams.get("tollIncluded") === "true",
     showPerKmRate: searchParams.get("showPerKmRate") === "true"
   });
+
+  // Track page view on component mount
+  useEffect(() => {
+    trackEvent('page_view_find_freight');
+  }, [trackEvent]);
 
   // Check if any filters are applied
   useEffect(() => {
@@ -104,6 +110,13 @@ const FindFreight = () => {
     setIsFilterVisible(false);
   };
 
+  const handleFilterToggle = () => {
+    if (!isFilterVisible) {
+      trackEvent('freight_filters_open');
+    }
+    setIsFilterVisible(!isFilterVisible);
+  };
+
   const handlePageChange = (newPage: number) => {
     setCurrentPage(newPage);
   };
@@ -144,7 +157,7 @@ const FindFreight = () => {
               <p className="font-semibold text-slate-900 text-base">
                 {totalFreights || 0} fretes disponíveis
               </p>
-              <Button variant="outline" size="sm" onClick={() => setIsFilterVisible(!isFilterVisible)} className="bg-black text-white border-black hover:bg-gray-800">
+              <Button variant="outline" size="sm" onClick={handleFilterToggle} className="bg-black text-white border-black hover:bg-gray-800">
                 <Settings className="h-4 w-4 mr-2" />
                 Filtros
               </Button>

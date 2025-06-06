@@ -6,6 +6,7 @@ import { toast } from "@/components/ui/use-toast";
 import { type Freight } from "@/lib/supabase";
 import { recordFreightAgentReferral } from "@/lib/freightService";
 import { BadgeCheck, Truck, RefrigeratorIcon, PackageCheck, DollarSign, Copy, CheckCircle2, Shield, Tent } from "lucide-react";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
 interface FreightCardProps {
   freight: Freight;
@@ -18,6 +19,7 @@ const FreightCard: React.FC<FreightCardProps> = ({
   onViewDetails,
   showPerKmRate = false // Default to per ton/km
 }) => {
+  const { trackEvent } = useAnalytics();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [agentCode, setAgentCode] = useState("");
   const [generatedLink, setGeneratedLink] = useState("");
@@ -176,6 +178,9 @@ Link: ${url}`;
   };
 
   const handleContactClick = async () => {
+    // Track analytics event
+    trackEvent('freight_card_quero_este_click');
+    
     let whatsappText = `Olá! Tenho interesse no frete ${freight.id}`;
     
     // Add agent code if present
@@ -188,6 +193,18 @@ Link: ${url}`;
     
     // Open WhatsApp with the message
     window.open(`https://wa.me/5538997353264?text=${encodeURIComponent(whatsappText)}`, "_blank");
+  };
+
+  const handleAgenciarClick = () => {
+    // Track analytics event
+    trackEvent('freight_card_agenciar_click');
+    setIsDialogOpen(true);
+  };
+
+  const handleViewDetailsClick = (freight: Freight) => {
+    // Track analytics event
+    trackEvent('freight_details_open');
+    onViewDetails(freight);
   };
 
   return (
@@ -265,13 +282,13 @@ Link: ${url}`;
           <Button variant="default" className="text-sm" onClick={handleContactClick}>
             <Truck className="mr-2 h-4 w-4" /> Quero Este
           </Button>
-          <Button variant="outline" onClick={() => setIsDialogOpen(true)}>
+          <Button variant="outline" onClick={handleAgenciarClick}>
             Agenciar Frete
           </Button>
         </div>
         
         <div className="text-right mt-3">
-          <Button variant="ghost" className="text-xs text-primary" onClick={() => onViewDetails(freight)}>
+          <Button variant="ghost" className="text-xs text-primary" onClick={() => handleViewDetailsClick(freight)}>
             Ver detalhes completos
           </Button>
         </div>

@@ -32,17 +32,15 @@ const RouteTracker = () => {
       case '/':
         return; // Home page tracking is handled in the component itself
       case '/frete':
-        eventName = 'page_view_find_freight';
-        break;
+        return; // Find freight page tracking is handled in the component itself
       case '/publicar-frete':
-        eventName = 'page_view_publish_freight';
+        trackEvent('page_view_publish_freight');
         break;
       case '/agenciadores':
-        eventName = 'page_view_become_agent';
+        trackEvent('page_view_become_agent');
         break;
       case '/sobre':
-        eventName = 'page_view_about';
-        break;
+        return; // About page tracking is handled in the component itself
       case '/noticias':
         return; // News page tracking is handled in the component itself
       default:
