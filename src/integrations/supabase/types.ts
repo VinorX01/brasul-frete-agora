@@ -39,6 +39,30 @@ export type Database = {
         }
         Relationships: []
       }
+      analytics_events: {
+        Row: {
+          click_count: number
+          created_at: string
+          event_name: string
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          click_count?: number
+          created_at?: string
+          event_name: string
+          id?: string
+          updated_at?: string
+        }
+        Update: {
+          click_count?: number
+          created_at?: string
+          event_name?: string
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       freight_agent_referrals: {
         Row: {
           agent_code: string
@@ -252,6 +276,10 @@ export type Database = {
     Functions: {
       cleanup_old_freights: {
         Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      increment_analytics_event: {
+        Args: { _event_name: string }
         Returns: undefined
       }
       record_freight_agent_referral: {

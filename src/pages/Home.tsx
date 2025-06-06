@@ -1,20 +1,35 @@
+
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Truck, Search, Calendar, Send, Phone, Newspaper } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import { useAnalytics } from "@/hooks/useAnalytics";
+import { useEffect } from "react";
 import LastFreightUpdate from "@/components/LastFreightUpdate";
 import MascotPosts from "@/components/MascotPosts";
 import PromotionalBanner from "@/components/PromotionalBanner";
 
 const Home = () => {
   const isMobile = useIsMobile();
+  const { trackEvent } = useAnalytics();
+
+  // Track page view on component mount
+  useEffect(() => {
+    trackEvent('page_view_home');
+  }, [trackEvent]);
+
   const handleQuickContact = () => {
+    trackEvent('home_whatsapp_contact_click');
     window.open("https://wa.me/5538997353264", "_blank");
     toast({
       title: "Redireccionando para WhatsApp",
       description: "Você será atendido em breve por nossos especialistas."
     });
+  };
+
+  const handleNavClick = (eventName: string) => {
+    trackEvent(eventName);
   };
   
   if (isMobile) {
@@ -44,35 +59,35 @@ const Home = () => {
           </div>
           
           <div className="grid grid-cols-5 gap-3 mb-6">
-            <Link to="/frete" className="flex flex-col items-center">
+            <Link to="/frete" onClick={() => handleNavClick('home_buscar_frete_click')} className="flex flex-col items-center">
               <div className="bg-white rounded-xl p-3 shadow-sm mb-2 w-full aspect-square flex items-center justify-center">
                 <Search className="h-5 w-5 text-primary" />
               </div>
               <span className="text-xs font-medium text-primary text-center">Buscar Frete</span>
             </Link>
 
-            <Link to="/publicar-frete" className="flex flex-col items-center">
+            <Link to="/publicar-frete" onClick={() => handleNavClick('home_publicar_frete_click')} className="flex flex-col items-center">
               <div className="bg-white rounded-xl p-3 shadow-sm mb-2 w-full aspect-square flex items-center justify-center">
                 <Send className="h-5 w-5 text-primary" />
               </div>
               <span className="text-xs font-medium text-primary text-center">Publicar Frete</span>
             </Link>
 
-            <Link to="/agenciadores" className="flex flex-col items-center">
+            <Link to="/agenciadores" onClick={() => handleNavClick('home_agenciadores_click')} className="flex flex-col items-center">
               <div className="bg-white rounded-xl p-3 shadow-sm mb-2 w-full aspect-square flex items-center justify-center">
                 <Truck className="h-5 w-5 text-primary" />
               </div>
               <span className="text-xs font-medium text-primary text-center">Agenciadores</span>
             </Link>
 
-            <Link to="/noticias" className="flex flex-col items-center">
+            <Link to="/noticias" onClick={() => handleNavClick('home_noticias_click')} className="flex flex-col items-center">
               <div className="bg-white rounded-xl p-3 shadow-sm mb-2 w-full aspect-square flex items-center justify-center">
                 <Newspaper className="h-5 w-5 text-primary" />
               </div>
               <span className="text-xs font-medium text-primary text-center">Notícias</span>
             </Link>
 
-            <Link to="/sobre" className="flex flex-col items-center">
+            <Link to="/sobre" onClick={() => handleNavClick('home_sobre_click')} className="flex flex-col items-center">
               <div className="bg-white rounded-xl p-3 shadow-sm mb-2 w-full aspect-square flex items-center justify-center">
                 <Calendar className="h-5 w-5 text-primary" />
               </div>
@@ -103,12 +118,12 @@ const Home = () => {
             Sem cadastro, sem taxa, só resultados.
           </p>
           <div className="flex flex-col md:flex-row justify-center gap-4">
-            <Link to="/frete">
+            <Link to="/frete" onClick={() => handleNavClick('home_buscar_frete_click')}>
               <Button size="lg" className="bg-black text-white hover:bg-gray-800 w-full md:w-auto">
                 <Search className="mr-2 h-5 w-5" /> Buscar Frete
               </Button>
             </Link>
-            <Link to="/publicar-frete">
+            <Link to="/publicar-frete" onClick={() => handleNavClick('home_publicar_frete_click')}>
               <Button size="lg" className="bg-white text-primary hover:bg-gray-100 w-full md:w-auto">
                 <Send className="mr-2 h-5 w-5" /> Publicar Frete
               </Button>
@@ -164,7 +179,7 @@ const Home = () => {
             Junte-se a milhares de motoristas e empresas que já usam a Brasul Transportes para encontrar e publicar fretes.
           </p>
           <div className="flex flex-col md:flex-row justify-center gap-4">
-            <Link to="/frete">
+            <Link to="/frete" onClick={() => handleNavClick('home_buscar_frete_click')}>
               <Button size="lg" className="w-full md:w-auto">
                 Encontrar Fretes
               </Button>

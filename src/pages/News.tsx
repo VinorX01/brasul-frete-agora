@@ -1,10 +1,18 @@
 
 import { Newspaper } from "lucide-react";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import { useAnalytics } from "@/hooks/useAnalytics";
+import { useEffect } from "react";
 import MobilePageWrapper from "@/components/MobilePageWrapper";
 
 const News = () => {
   const isMobile = useIsMobile();
+  const { trackEvent } = useAnalytics();
+
+  // Track page view on component mount
+  useEffect(() => {
+    trackEvent('page_view_news');
+  }, [trackEvent]);
 
   if (isMobile) {
     return (
