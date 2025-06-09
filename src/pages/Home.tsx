@@ -1,4 +1,3 @@
-
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Truck, Search, Calendar, Send, Phone, Newspaper } from "lucide-react";
@@ -60,10 +59,10 @@ const Home = () => {
           
           <div className="grid grid-cols-5 gap-3 mb-6">
             <Link to="/frete" onClick={() => handleNavClick('home_buscar_frete_click')} className="flex flex-col items-center">
-              <div className="bg-white rounded-xl p-3 shadow-sm mb-2 w-full aspect-square flex items-center justify-center">
-                <Search className="h-5 w-5 text-primary" />
+              <div className="bg-black rounded-xl p-3 shadow-sm mb-2 w-full aspect-square flex items-center justify-center">
+                <Search className="h-5 w-5 text-white" />
               </div>
-              <span className="text-xs font-medium text-primary text-center">Buscar Frete</span>
+              <span className="text-xs font-medium text-black text-center">Buscar Frete</span>
             </Link>
 
             <Link to="/publicar-frete" onClick={() => handleNavClick('home_publicar_frete_click')} className="flex flex-col items-center">
